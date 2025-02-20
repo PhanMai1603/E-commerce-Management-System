@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { TableDemo } from "@/app/dashboard/coupons/table";
+import { TableDemo } from "@/app/dashboard/role/table";
 
 export default function Page() {
   return (

@@ -1,9 +1,13 @@
-import React from 'react'
 
-export default function page() {
+
+import React, { Suspense } from "react";
+import { TableDemo } from "@/app/dashboard/delivery/table";
+
+export default function Page() {
   return (
-    <div>
-      list Delivery
-    </div>
-  )
+    <Suspense fallback={<div>Loading...</div>}>
+      <TableDemo />
+    </Suspense>
+  );
 }
+
