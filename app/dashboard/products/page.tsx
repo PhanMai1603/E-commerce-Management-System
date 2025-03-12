@@ -1,10 +1,10 @@
 import React, { Suspense } from "react";
-import { TableDemo } from "@/app/dashboard/products/table";
+import { ProductTable } from "@/app/dashboard/products/product-form";
 
-export default function CategoriesPage() {
+export default function Page() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <TableDemo />
+      <ProductTable />
     </Suspense>
   );
 }

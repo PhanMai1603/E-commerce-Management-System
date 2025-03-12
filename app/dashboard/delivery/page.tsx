@@ -1,7 +1,7 @@
 
 
 import React, { Suspense } from "react";
-import { TableDemo } from "@/app/dashboard/delivery/table";
+import { TableDemo } from "@/app/dashboard/delivery/delivery-form";
 
 export default function Page() {
   return (

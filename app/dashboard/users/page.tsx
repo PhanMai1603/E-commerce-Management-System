@@ -1,10 +1,10 @@
 import React, { Suspense } from "react";
-import { TableDemo } from "@/app/dashboard/users/table";
+import { UserTable } from "@/app/dashboard/users/user-form";
 
 export default function Page() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <TableDemo />
+      <UserTable />
     </Suspense>
   );
 }

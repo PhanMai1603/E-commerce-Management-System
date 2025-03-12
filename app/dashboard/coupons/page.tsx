@@ -1,10 +1,10 @@
 import React, { Suspense } from "react";
-import { TableDemo } from "@/app/dashboard/coupons/table";
+import CouponTable from "@/app/dashboard/coupons/coupons-form";
 
 export default function Page() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <TableDemo />
+      <CouponTable />
     </Suspense>
   );
 }

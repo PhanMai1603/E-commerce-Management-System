@@ -1,10 +1,10 @@
 import React, { Suspense } from "react";
-import { TableDemo } from "@/app/dashboard/role/table";
+import { RoleTable } from "@/app/dashboard/role/role-form";
 
 export default function Page() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <TableDemo />
+      <RoleTable />
     </Suspense>
   );
 }

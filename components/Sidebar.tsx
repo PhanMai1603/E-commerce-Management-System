@@ -2,7 +2,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import Image from "next/image";
 import { 
-  LogOut, LayoutGrid, Users2, ChartNoAxesCombined, 
+ LayoutGrid, Users2, ChartNoAxesCombined, 
   HousePlus, Truck, ShoppingBag, UserRoundCog, TicketPercent, 
 } from "lucide-react";
 
@@ -42,9 +42,9 @@ export default function Sidebar({ showSidebar }: SidebarProps) {
   return (
     <div
       className={clsx(
-        "fixed flex flex-col w-[250px] h-screen top-0 z-50 bg-card shadow-md transition-all",
+        "fixed flex flex-col w-[260px] h-screen top-0 z-50 border-r bg-card shadow-md transition-all",
         {
-          "-left-[250px] lg:left-0": !showSidebar,
+          "-left-[260px] lg:left-0": !showSidebar,
           "left-0 shadow-black shadow-lg lg:shadow-none": showSidebar,
         }
       )}
@@ -53,7 +53,7 @@ export default function Sidebar({ showSidebar }: SidebarProps) {
       <div className="p-4 flex justify-center items-center">
         <Link href="/dashboard">
           <Image
-            src="/images/logo.png" // Đường dẫn logo
+            src="/logo 2.png" // Đường dẫn logo
             alt="Logo"
             width={120} // Kích thước logo
             height={40}
@@ -85,14 +85,6 @@ export default function Sidebar({ showSidebar }: SidebarProps) {
         ))}
       </nav>
 
-      {/* Khoảng trống để căn chỉnh */}
-      <div className="grow"></div>
-
-      {/* Nút Log out */}
-      <button className="flex w-full px-4 py-3 items-center gap-3 text-red-600 hover:bg-gray-100 transition-all">
-        <LogOut size={20} />
-        <span>Log out</span>
-      </button>
     </div>
   );
 }
