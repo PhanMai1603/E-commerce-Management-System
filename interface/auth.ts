@@ -23,6 +23,11 @@ export interface ForgotPasswordData {
     isPanel: boolean;
 }
 
+export interface ResetPasswordData {
+    resetToken: string;
+    newPassword: string;
+}
+
 
 export interface UploadAvatar{
     file: File;  

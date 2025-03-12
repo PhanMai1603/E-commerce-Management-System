@@ -3,7 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { 
  LayoutGrid, Users2, ChartNoAxesCombined, 
-  HousePlus, Truck, ShoppingBag, UserRoundCog, TicketPercent, 
+Truck, ShoppingBag, UserRoundCog, TicketPercent,
+  Shirt,
+  Package2, 
 } from "lucide-react";
 
 interface SidebarProps {
@@ -16,7 +18,8 @@ const sidebarGroups = [
     links: [
       { title: "Dashboard", icon: ChartNoAxesCombined, href: "/dashboard" },
       { title: "Category", icon: LayoutGrid, href: "/dashboard/categories" },
-      { title: "Products", icon: HousePlus, href: "/dashboard/products" },
+      { title: "Attributes", icon: Package2, href: "/dashboard/attribute" },
+      { title: "Products", icon: Shirt, href: "/dashboard/products" },
       { title: "Orders", icon: ShoppingBag, href: "/dashboard/orders" },
       { title: "Coupons", icon: TicketPercent, href: "/dashboard/coupons" },
 
@@ -26,7 +29,7 @@ const sidebarGroups = [
     title: "USERS",
     links: [
       { title: "Users", icon: Users2, href: "/dashboard/users" },
-      { title: "Role", icon: UserRoundCog, href: "/dashboard/role" },
+      { title: "Roles", icon: UserRoundCog, href: "/dashboard/role" },
      
     ],
   },

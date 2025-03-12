@@ -30,7 +30,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       ></div>
 
       {/* Displays other views */}
-      <div className="ml-0 lg:ml-[250px] transition-all p-4">
+      <div className="ml-0 lg:ml-[260px] transition-all p-4">
         <Suspense>{children}</Suspense>
       </div>
     </div>

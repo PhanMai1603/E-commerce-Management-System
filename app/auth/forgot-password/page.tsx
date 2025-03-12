@@ -1,4 +1,5 @@
-import { ForgotForm} from "@/components/forgot-password"
+/* eslint-disable @next/next/no-img-element */
+import { ForgotForm} from "@/components/auth/forgot-password"
 
 export default function ForgotPage() {
   return (

@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -35,7 +37,7 @@ export function ProductTable() {
         }
 
         setProducts(allProducts);
-      } catch (error) {
+      } catch{
         toast.error("Failed to fetch products");
       } finally {
         setLoading(false);
