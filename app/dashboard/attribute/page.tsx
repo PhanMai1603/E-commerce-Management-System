@@ -1,9 +1,13 @@
-import React from 'react'
 
-export default function page() {
+
+import React, { Suspense } from "react";
+import AttributeTable from "@/app/dashboard/attribute/attribute-form";
+
+export default function Page() {
   return (
-    <div>
-      attribute
-    </div>
-  )
+    <Suspense fallback={<div>Loading...</div>}>
+      <AttributeTable />
+    </Suspense>
+  );
 }
+
