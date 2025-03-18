@@ -61,10 +61,10 @@ export function TableDemo() {
           <TableCaption>A list of available delivery methods.</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-lg">#</TableHead>
-              <TableHead className="text-lg">Name</TableHead>
-              <TableHead className="text-lg">Description</TableHead>
-              <TableHead className="text-lg">Status</TableHead>
+              <TableHead>#</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>

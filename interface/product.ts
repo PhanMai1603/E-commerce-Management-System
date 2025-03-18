@@ -12,6 +12,7 @@ export interface Product {
     video: string;
     mainImage: string;
     qrCode: string;
+    originalPrice: number;
     minPrice: number;
     maxPrice: number;
     discountType: "PERCENT" | "AMOUNT";
@@ -20,8 +21,9 @@ export interface Product {
     discountEnd: string;
     quantity: number;
     sold: number;
-    status: string;
+    status: string;//
     rating: number;
+    ratingCount: number;
     views: number;
     uniqueViews: string[];
     createdBy: string;
@@ -54,33 +56,21 @@ export interface ProductSKU {
 }
 
 // Interface chung cho tất cả sản phẩm
-export interface BaseProduct {
+export interface ProductData {
   name: string;
   mainImage: string;
   subImages: string[];
+  video: string;
   originalPrice: number;
   description: string;
-  category: { id: string }[]; // Định dạng đồng nhất
+  category: string[]; // Định dạng đồng nhất
   attributes: ProductAttribute[]; // Định dạng đồng nhất
-  discountType?: "PERCENT" | "AMOUNT";
-  discountValue?: number;
-  discountStart?: string;
-  discountEnd?: string;
-  returnDays?: number;
+  returnDays: number;
+  variants?: Variant[]; // Chỉ dành cho sản phẩm có variant
+  skuList?: ProductSKU[]; // Chỉ dành cho sản phẩm có variant
 }
 
-// Interface cho sản phẩm không có variant
-export interface ProductWithoutVariant extends BaseProduct {
-  price: number; // Giá cố định
-  quantity: number;
+export interface ProductResponse {
+  code: string;
 }
 
-// Interface cho sản phẩm có variant
-export interface ProductWithVariant extends BaseProduct {
-  video?: string;
-  variants: Variant[];
-  skuList: ProductSKU[];
-}
-
-// Union type đại diện cho cả hai loại sản phẩm
-export type ProductData = ProductWithVariant | ProductWithoutVariant;

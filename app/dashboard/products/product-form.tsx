@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 "use client";
@@ -37,7 +38,7 @@ export function ProductTable() {
         }
 
         setProducts(allProducts);
-      } catch{
+      } catch {
         toast.error("Failed to fetch products");
       } finally {
         setLoading(false);
@@ -88,6 +89,7 @@ export function ProductTable() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Stock</TableHead>
@@ -102,44 +104,40 @@ export function ProductTable() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       {product.mainImage && (
-                        <img src={product.mainImage} alt={product.name} className="w-12 h-12 rounded" />
+                        <img src={product.mainImage} className="w-12 h-12 rounded-lg" />
                       )}
-                      <div>
-                        <div className="font-semibold">{product.name}</div>
-                        <div className="text-sm text-gray-500">
-                          Size: {product.variants
-                            .filter(v => v.name.toLowerCase() === "size")
-                            .map(v => v.options.join(", "))
-                            .join(" | ")}
-                        </div>
-                      </div>
+                     
                     </div>
                   </TableCell>
-                  <TableCell className="text-blue-500 font-semibold">${product.minPrice}</TableCell>
+                  <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell className="text-gray-500 font-medium">{product.originalPrice}đ</TableCell>
                   <TableCell>
-                    <div className="text-green-600 font-semibold">{product.quantity} Item Left</div>
+                    <div className="text-gray-700 font-medium">{product.quantity} Item Left</div>
                     <div className="text-gray-500 text-sm">{product.sold} Sold</div>
                   </TableCell>
+
                   <TableCell className="flex items-center gap-1">
-                    <Star className="text-yellow-500 w-4 h-4" />
-                    <span className="font-semibold">{product.rating}</span>
-                    <span className="text-gray-500 text-sm">({product.views} Review)</span>
+                    <div className="flex items-center bg-gray-100 rounded-md px-2 py-1">
+                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                      <span className="font-medium">{product.rating}</span>
+                    </div>
+                    <span className="text-gray-500 text-sm">{product.views} Review</span>
                   </TableCell>
+
+
+
                   <TableCell>
                     <span
-                      className={`inline-block py-1 px-3 rounded-2xl text-sm font-semibold ${
-                        product.status === "PUBLISHED"
+                      className={`inline-block py-1 px-3 rounded-2xl text-sm font-medium ${product.status === "PUBLISHED"
                           ? "bg-[#00B8D929] text-[#006C9C]"
                           : product.status === "DRAFT"
-                          ? "bg-[#919EAB29] text-[#637381]"
-                          : product.status === "DELETED"
-                          ? "bg-[#FF563029] text-[#B71D18]"
-                          : product.status === "OUT_OF_STOCK"
-                          ? "bg-[#FFAB0029] text-[#B76E00]"
-                          : product.status === "DISCONTINUED"
-                          ? "bg-[#6D28D929] text-[#4A148C]"
-                          : "bg-gray-200 text-gray-600"
-                      }`}
+                            ? "bg-[#919EAB29] text-[#637381]"
+                            : product.status === "DISCONTINUED"
+                              ? "bg-[#FF563029] text-[#B71D18]"
+                              : product.status === "OUT_OF_STOCK"
+                                ? "bg-[#FFAB0029] text-[#B76E00]"
+                                : "bg-gray-200 text-gray-600"
+                        }`}
                     >
                       {product.status}
                     </span>

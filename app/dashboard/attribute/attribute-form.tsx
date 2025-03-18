@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -108,15 +109,15 @@ export default function AttributesTable() {
       {/* Danh sách thuộc tính */}
       <Card className="lg:col-span-2 shadow-md border">
         <CardHeader>
-          <CardTitle className="text-xl">All Attributes</CardTitle>
+          <CardTitle>All Attributes</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-lg">Name</TableHead>
-                <TableHead className="text-lg">Type</TableHead>
-                <TableHead className="text-lg">Actions</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -154,13 +155,13 @@ export default function AttributesTable() {
         {/* Form thêm thuộc tính */}
         <Card className="shadow-md border">
           <CardHeader>
-            <CardTitle className="text-lg text-center w-full">Add Attribute</CardTitle>
+            <CardTitle className="font-medium text-center w-full">Add Attribute</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <Label htmlFor="attributeName">Attribute Name</Label>
+          <CardContent className="font-medium space-y-3">
+            <Label className="font-medium" htmlFor="attributeName">Attribute Name</Label>
             <Input value={attributeName} onChange={(e) => setAttributeName(e.target.value)} />
 
-            <Label htmlFor="attributeType">Attribute Type</Label>
+            <Label htmlFor="attributeType" className="block mt-10 font-medium">Attribute Type</Label>
             <Select value={attributeType} onValueChange={(value) => setAttributeType(value as "COLOR" | "TEXT")}>
               <SelectTrigger>
                 <SelectValue placeholder="Select Type" />
@@ -172,7 +173,7 @@ export default function AttributesTable() {
             </Select>
 
             <div className="flex flex-col items-start space-y-2">
-              <span className="text-xs">Is Variant</span>
+              <span>Is Variant</span>
               <Switch
                 className="scale-75"
                 checked={isVariant}
@@ -201,13 +202,13 @@ export default function AttributesTable() {
         {editingAttribute && (
           <Card className="shadow-md border">
             <CardHeader>
-              <CardTitle className="text-lg text-center">Add Value to {editingAttribute.name}</CardTitle>
+              <CardTitle className="font-medium text-center">Add Value to {editingAttribute.name}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Label>Value Name</Label>
+              <Label className="font-medium">Value Name</Label>
               <Input value={newValue} onChange={(e) => setNewValue(e.target.value)} />
 
-              <Label>Description URL</Label>
+              <Label className="font-medium">Description URL</Label>
               <Input value={descriptionUrl} onChange={(e) => setDescriptionUrl(e.target.value)} />
 
               <Button className="w-full" onClick={handleAddValue}>
