@@ -8,7 +8,7 @@ const CATEGORY_URL = '/categories';
 
 export const getAllCategories = async (): Promise<Array<Category.CategoryDataResponse>> => {
     try {
-        const response = await api.get(`${CATEGORY_URL}/all`);
+        const response = await api.get(`${CATEGORY_URL}/all?size=3`);
         return response.data.metadata;
     } catch (error) {
         const errorMessage = get(error, 'response.data.error.message', '');
