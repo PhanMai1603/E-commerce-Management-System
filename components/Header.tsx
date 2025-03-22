@@ -1,10 +1,18 @@
+/* eslint-disable @next/next/no-img-element */
+"use client";
+
+import { useEffect, useState } from "react";
 import { CircleUser, Menu } from "lucide-react";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
+import { Input } from "./ui/input";
 import { toast } from "react-toastify";
-import { logoutRequest } from "@/app/api/auth"; 
+import { logoutRequest } from "@/app/api/auth";
+import { changePassword } from "@/app/api/user";  // Import API đổi mật khẩu
 import { useRouter } from "next/navigation";
+
 
 interface HeaderProps {
   showSideBar: boolean;
@@ -13,6 +21,47 @@ interface HeaderProps {
 
 export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
   const router = useRouter();
+  const [openDialog, setOpenDialog] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [avatar, setAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedAvatar = localStorage.getItem("avatarUrl");
+    if (storedAvatar) setAvatar(storedAvatar);
+
+    // Lắng nghe sự kiện khi ảnh đại diện thay đổi
+    const handleStorageChange = () => {
+      setAvatar(localStorage.getItem("avatarUrl"));
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const handleChangePassword = async () => {
+    setLoading(true);
+    try {
+      const userId = localStorage.getItem("userId");
+      const accessToken = localStorage.getItem("accessToken");
+
+      if (!userId || !accessToken) {
+        toast.error("Bạn chưa đăng nhập hoặc thông tin không hợp lệ!");
+        return;
+      }
+
+      await changePassword({ oldPassword, newPassword }, userId, accessToken);
+      toast.success("Mật khẩu đã được cập nhật!");
+      setOpenDialog(false);
+      setOldPassword("");
+      setNewPassword("");
+    } catch {
+      toast.error("Có lỗi xảy ra khi đổi mật khẩu!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -58,21 +107,62 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
-                <span className="sr-only">Toggle user menu</span>
+                {avatar ? (
+                  <img src={avatar} alt="User Avatar" className="w-8 h-8 rounded-full object-cover" />
+                ) : (
+                  <CircleUser className="h-5 w-5" />
+                )}
               </Button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/auth/profile")}>Profile</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/auth/change-password")}>Change Password</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setOpenDialog(true)}>Change Password</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
+
+      {/* Dialog Đổi Mật Khẩu */}
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="max-w-md p-6 rounded-xl border border-gray-200 shadow-lg">
+          <DialogHeader className="text-center">
+            <DialogTitle className="text-xl font-semibold text-gray-800">Change Password</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-5 mt-2">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700">Old Password</label>
+              <Input
+                type="password"
+                placeholder="Enter old password"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+                className="rounded-md border-gray-300 focus:ring focus:ring-gray-300"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700">New Password</label>
+              <Input
+                type="password"
+                placeholder="Enter new password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="rounded-md border-gray-300 focus:ring focus:ring-gray-300"
+              />
+            </div>
+          </div>
+          <DialogFooter className="flex justify-end space-x-2 mt-6">
+            <Button variant="outline" onClick={() => setOpenDialog(false)}>Cancel</Button>
+            <Button onClick={handleChangePassword} disabled={loading}>
+              {loading ? "Save..." : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -49,6 +49,20 @@ export const forgotPassword = async (data: Auth.ForgotPasswordData) => {
     }
 };
 
+export const resetPassword = async (data: Auth.ResetPasswordData) => {
+    try {
+        const response = await api.post(`${AUTH_URL}/reset-password`, data);
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, 'response.data.error.message', '');
+        if (errorMessage) {
+            toast.error(errorMessage);
+        }
+        throw new Error(errorMessage || 'An unknown error occurred.');
+    }
+};
+
+
 export const logoutRequest = async (userId: string, accessToken: string) => {
     try {
         const response = await api.post(`${AUTH_URL}/logout`, null, {

@@ -24,7 +24,7 @@ export function ForgotForm({
       await forgotPassword(formData);
       toast.success('Password reset link sent successfully!');
       // Handle redirection or further UI updates after successful request
-    } catch (error) {
+    } catch{
         toast.error("There was an error sending the reset link. Please try again.");
     }
   };
