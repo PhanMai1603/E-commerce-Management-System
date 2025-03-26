@@ -18,10 +18,15 @@ interface InformationFormProps {
 const InformationForm: React.FC<InformationFormProps> = ({ product, setProduct, userId, accessToken }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
+    let newValue = value;
+
+    if (name !== 'name' && name !== 'video' && Number(value) < 0) {
+      newValue = "0";
+    }
 
     setProduct((prev) => ({
       ...prev,
-      [name]: name === 'name' || name === 'video' ? value : (value === "" ? "" : Number(value)),
+      [name]: name === 'name' || name === 'video' ? newValue : (newValue === "" ? "" : Number(newValue)),
     }));
   }
 
@@ -72,6 +77,7 @@ const InformationForm: React.FC<InformationFormProps> = ({ product, setProduct, 
             name='originalPrice'
             value={product.originalPrice}
             type='number'
+            min="0"
             placeholder='Enter product original price'
             onChange={handleChange}
           />

@@ -47,25 +47,58 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
     }
   };
 
+  const findParentCategories = (categoryId: string, categories: CategoryDataResponse[]): SelectedCategories[] => {
+    const parents: SelectedCategories[] = [];
+
+    const findParent = (id: string, list: CategoryDataResponse[]) => {
+      for (const category of list) {
+        if (category.children.some((child) => child.id === id)) {
+          parents.push({ id: category.id, name: category.name });
+
+          // Tiếp tục tìm cha của cha (duyệt toàn bộ danh sách)
+          findParent(category.id, categories);
+        }
+
+        // Kiểm tra con của con (đệ quy xuống các cấp thấp hơn)
+        if (category.children.length > 0) {
+          findParent(id, category.children);
+        }
+      }
+    };
+
+    findParent(categoryId, categories);
+    return parents;
+  };
+
   const handleCategoryChange = (categoryId: string, categoryName: string) => {
     setSelectedCategories((prev) => {
-      let updatedCategories;
+      let updatedCategories: SelectedCategories[] = [...prev];
 
       if (prev.some((category) => category.id === categoryId)) {
         // Nếu đã chọn → Xóa khỏi danh sách
-        updatedCategories = prev.filter((category) => category.id !== categoryId);
+        updatedCategories = updatedCategories.filter((category) => category.id !== categoryId);
+
       } else {
         // Nếu chưa chọn → Thêm vào danh sách
-        updatedCategories = [...prev, { id: categoryId, name: categoryName }];
+        updatedCategories.push({ id: categoryId, name: categoryName });
+
+        // Thêm tất cả category cha vào danh sách
+        const parents = findParentCategories(categoryId, allCategories);
+        parents.forEach((parent) => {
+          if (!updatedCategories.some((cat) => cat.id === parent.id)) {
+            updatedCategories.push(parent);
+          }
+        });
       }
 
       return updatedCategories;
     });
   };
 
-  const handleDelete = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>,categoryId: string) => {
+
+  const handleDelete = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, categoryId: string) => {
     event.preventDefault();
-    
+
     setSelectedCategories((prev) => prev.filter((category) => category.id !== categoryId));
   };
 
