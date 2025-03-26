@@ -43,7 +43,7 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    console.log(product.attributes)
+    console.log(product)
   }, [product]);
 
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {

@@ -165,10 +165,18 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
   // };
 
   const handleInputChange = (index: number, field: "price" | "quantity", value: string) => {
-    setSkuList(prev => {
-      const updatedSkuList = prev.map((sku, i) =>
-        i === index ? { ...sku, [field]: Number(value) || "" } : sku
-      );
+    setSkuList((prev) => {
+      const updatedSkuList = prev.map((sku, i) => {
+        if (i === index) {
+          let newValue = Number(value);
+
+          // Nếu là số âm, đặt giá trị thành "0"
+          if (newValue < 0) newValue = 0;
+
+          return { ...sku, [field]: value === "" ? "" : newValue };
+        }
+        return sku;
+      });
 
       return updatedSkuList;
     });
@@ -262,6 +270,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
                 <TableCell>
                   <Input
                     type="number"
+                    min="0"
                     placeholder="Enter price"
                     value={skuList[rowIndex]?.price ?? 0}
                     onChange={(e) => handleInputChange(rowIndex, "price", e.target.value)}
@@ -270,6 +279,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
                 <TableCell>
                   <Input
                     type="number"
+                    min="0"
                     placeholder="Enter quantity"
                     value={skuList[rowIndex]?.quantity ?? 0}
                     onChange={(e) => handleInputChange(rowIndex, "quantity", e.target.value)}
