@@ -4,3 +4,8 @@ export interface CategoryDataResponse {
     parentId: string | null;
     children: CategoryDataResponse[];
 }
+
+export interface CategoryData {
+    name: string,
+    parentId: null | string,
+}

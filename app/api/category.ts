@@ -33,3 +33,22 @@ export const getChildCategories = async (data: string): Promise<Array<Category.C
         throw new Error(errorMessage || 'An unknown error occurred.');
     }
 }
+
+export const createCategories = async (data: Category.CategoryData, userId: string, accessToken: string): Promise<Category.CategoryDataResponse> => {
+    try {
+        const response = await api.post(`${CATEGORY_URL}`, data, {
+            headers: {
+                'x-client-id': userId,
+                'Authorization': accessToken
+            }
+        });
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, 'response.data.error.message', '');
+
+        if (errorMessage) {
+            toast.error(errorMessage);
+        }
+        throw new Error(errorMessage || 'An unknown error occurred.');
+    }
+};

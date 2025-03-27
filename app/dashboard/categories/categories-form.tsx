@@ -39,7 +39,7 @@ export default function Page() {
 
         const childCheck: Record<string, boolean> = {};
         for (const category of data) {
-          await checkHasChildren(category.id, childCheck);
+          await checkHasChildren(category.id, childCheck, 1);
         }
         setHasChildren(childCheck);
       } catch (error) {
@@ -48,22 +48,28 @@ export default function Page() {
     };
 
     fetchCategories();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const checkHasChildren = async (id: string, childCheck: Record<string, boolean>) => {
+  const checkHasChildren = async (id: string, childCheck: Record<string, boolean>, level: number) => {
+    if (level > 2) return; // Chỉ kiểm tra tối đa đến cấp 2
+
     try {
       const children = await getChildCategories(id);
       childCheck[id] = children.length > 0;
-      for (const child of children) {
-        await checkHasChildren(child.id, childCheck);
+
+      if (level < 2) {
+        for (const child of children) {
+          await checkHasChildren(child.id, childCheck, level + 1);
+        }
       }
     } catch (error) {
       console.error(`Error checking child categories for ${id}:`, error);
     }
   };
 
-  const toggleRow = async (id: string) => {
+  const toggleRow = async (id: string, level: number) => {
+    if (level > 2) return; // Giới hạn tối đa đến cấp 2
+
     setExpandedRows((prev) => ({
       ...prev,
       [id]: !prev[id],
@@ -82,13 +88,20 @@ export default function Page() {
     }
   };
 
+  const getPadding = (level: number) => {
+    const paddingMap = ["pl-4", "pl-8", "pl-12"];
+    return paddingMap[level] || "pl-12"; // Giới hạn tối đa 3 cấp
+  };
+
   const renderChildren = (parentId: string, level: number): React.ReactNode => {
+    if (level > 2) return null; // Giới hạn tối đa đến cấp 2
+
     const children = childCategories[parentId] || [];
 
     return children.map((child) => (
       <React.Fragment key={child.id}>
-        <TableRow className="bg-gray-50">
-          <TableCell className={`pl-${level * 4}`}>{child.name}</TableCell>
+        <TableRow>
+          <TableCell className={getPadding(level)}>{child.name}</TableCell>
           <TableCell>
             <DropdownMenu>
               <DropdownMenuTrigger>
@@ -102,8 +115,8 @@ export default function Page() {
             </DropdownMenu>
           </TableCell>
           <TableCell className="text-right">
-            {hasChildren[child.id] && (
-              <button onClick={() => toggleRow(child.id)}>
+            {hasChildren[child.id] && level < 2 && (
+              <button onClick={() => toggleRow(child.id, level + 1)}>
                 {expandedRows[child.id] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
             )}
@@ -120,9 +133,9 @@ export default function Page() {
       <CardHeader>
         <CardTitle>All Categories</CardTitle>
         <Button onClick={() => router.push("/dashboard/categories/create")} className="flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add Category
-          </Button>
+          <Plus className="w-5 h-5" />
+          Add Category
+        </Button>
       </CardHeader>
       <CardContent>
         <Table>
@@ -153,7 +166,7 @@ export default function Page() {
                   </TableCell>
                   <TableCell className="text-right flex items-center justify-end">
                     {hasChildren[category.id] && (
-                      <button onClick={() => toggleRow(category.id)}>
+                      <button onClick={() => toggleRow(category.id, 1)}>
                         {expandedRows[category.id] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </button>
                     )}
@@ -164,12 +177,6 @@ export default function Page() {
               </React.Fragment>
             ))}
           </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={3}>Total</TableCell>
-              <TableCell className="text-right">{categories.length}</TableCell>
-            </TableRow>
-          </TableFooter>
         </Table>
       </CardContent>
     </Card>
