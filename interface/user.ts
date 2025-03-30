@@ -20,3 +20,12 @@ export interface ChangeData{
     oldPassword: string;
     newPassword: string;
 }
+
+// ROLE//
+export interface RoleResponse{
+    id: string;  
+    role: UserRole[];
+}
+
+
+

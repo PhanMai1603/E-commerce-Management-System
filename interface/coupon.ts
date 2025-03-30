@@ -6,7 +6,7 @@ export interface GetAllCoupon {
     endDate: string; // Hoặc Date nếu cần
     type: "PERCENT" | "AMOUNT"; // Nếu có nhiều loại
     value: number;
-    targetType: "Order" | "Delivery" | "Product";
+    targetType: "Order" | "Delivery" | "Product" | "Category"; // Nếu có nhiều loại
     isActive: boolean;
 }
 
@@ -23,13 +23,13 @@ export interface CouponData {
     description: string;
     startDate: string;
     endDate: string;
-    type: "PERCENT" | "FIXED";
-    value: number | null;
-    minValue: number | null;
-    maxValue: number | null;
-    maxUses: number | null;
-    maxUsesPerUser: number | null;
-    targetType: "Order" | "Delivery" | "Product";
+    type: "PERCENT" | "AMOUNT";
+    value: number ;
+    minValue: number;
+    maxValue: number;
+    maxUses: number;
+    maxUsesPerUser: number;
+    targetType: "Order" | "Delivery" | "Product" |"Category";
     targetIds: string[];
   }
 
@@ -39,7 +39,7 @@ export interface CouponData {
     description: string;
     startDate: string; // Date in ISO format
     endDate: string; // Date in ISO format
-    type: "PERCENT";
+    type: "PERCENT" | "AMOUNT";
     value: number;
     minValue: number;
     maxValue: number;

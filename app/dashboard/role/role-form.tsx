@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
-import { LockKeyhole, Pencil } from "lucide-react";
-import { getAllRole, getRoleDetail } from "@/app/api/role";
+import { LockKeyhole, Pencil, Trash2 } from "lucide-react";
+import { getAllRole, getRoleDetail, deleteRole } from "@/app/api/role";
 import { Role, RoleDetailResponse } from "@/interface/role";
 import get from "lodash/get";
 import {
@@ -78,6 +78,32 @@ export function RoleTable() {
     }
   }, [selectedRole, fetchRoleDetails]);
 
+  const handleDelete = async (id: string) => {
+    if (!userId || !accessToken) {
+      toast.error("User authentication is required.");
+      return;
+    }
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this role?");
+    if (!confirmDelete) return;
+
+    try {
+      await deleteRole(id, userId, accessToken);
+      toast.success("Role deleted successfully!");
+
+      // Update role list after deletion
+      setRoles((prevRoles) => prevRoles.filter((role) => role.id !== id));
+
+      // If the deleted role was selected, reset selectedRole and roleDetails
+      if (selectedRole === id) {
+        setSelectedRole("");
+        setRoleDetails(null);
+      }
+    } catch (error) {
+      console.error("Failed to delete role:", error);
+    }
+  };
+
   return (
     <div className="grid grid-cols-3 gap-4">
       <div className="col-span-1">
@@ -101,8 +127,13 @@ export function RoleTable() {
                     onClick={() => setSelectedRole(role.id)}
                   >
                     <TableCell>{role.name}</TableCell>
-                    <TableCell>
+                    <TableCell className="flex justify-start gap-2">
                       {role.name === "Admin" || role.name === "Basic" ? <LockKeyhole /> : <Pencil />}
+                      {role.name !== "Admin" && role.name !== "Basic" && (
+                        <button onClick={() => handleDelete(role.id)}>
+                          <Trash2 />
+                        </button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -122,7 +153,9 @@ export function RoleTable() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   {actions.map((action) => (
-                    <TableHead key={action} className="text-center">{action}</TableHead>
+                    <TableHead key={action} className="text-center">
+                      {action}
+                    </TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
@@ -139,14 +172,12 @@ export function RoleTable() {
                         <TableCell className="pl-6">
                           {entity.charAt(0).toUpperCase() + entity.slice(1).toLowerCase()}
                         </TableCell>
-
                         {actions.map((action) => (
                           <TableCell key={`${category}-${entity}-${action}`} className="text-center">
                             <Checkbox
                               checked={!!(roleDetails?.permissions?.[category]?.[entity]?.[action] ?? false)}
                               onClick={(e) => e.preventDefault()}
                             />
-
                           </TableCell>
                         ))}
                       </TableRow>

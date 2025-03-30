@@ -6,7 +6,6 @@ import {
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -179,6 +178,7 @@ export default function Page() {
           </TableBody>
         </Table>
       </CardContent>
+      
     </Card>
   );
 }
