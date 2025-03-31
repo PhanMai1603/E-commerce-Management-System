@@ -1,17 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { ChevronDown, ChevronUp, EllipsisVertical, Plus } from "lucide-react";
-import { getAllCategories, getChildCategories } from "@/app/api/category";
+import { getAllCategories, getChildCategories, deleteCategories } from "@/app/api/category";
 import * as Category from "@/interface/category";
 import React from "react";
 import {
@@ -21,36 +21,38 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import CategoryModal from "@/components/category/create";
+import { toast } from "react-toastify";
 
 export default function Page() {
   const [categories, setCategories] = useState<Category.CategoryDataResponse[]>([]);
   const [childCategories, setChildCategories] = useState<Record<string, Category.CategoryDataResponse[]>>({});
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [hasChildren, setHasChildren] = useState<Record<string, boolean>>({});
-  const router = useRouter();
+  const [modalOpen, setModalOpen] = useState(false);
+
+  // Function to fetch all categories
+  const fetchCategories = async () => {
+    try {
+      const data = await getAllCategories();
+      setCategories(data);
+
+      const childCheck: Record<string, boolean> = {};
+      for (const category of data) {
+        await checkHasChildren(category.id, childCheck, 1);
+      }
+      setHasChildren(childCheck);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const data = await getAllCategories();
-        setCategories(data);
-
-        const childCheck: Record<string, boolean> = {};
-        for (const category of data) {
-          await checkHasChildren(category.id, childCheck, 1);
-        }
-        setHasChildren(childCheck);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
     fetchCategories();
   }, []);
 
   const checkHasChildren = async (id: string, childCheck: Record<string, boolean>, level: number) => {
-    if (level > 2) return; // Chỉ kiểm tra tối đa đến cấp 2
+    if (level > 2) return; // Only check up to level 2
 
     try {
       const children = await getChildCategories(id);
@@ -67,7 +69,7 @@ export default function Page() {
   };
 
   const toggleRow = async (id: string, level: number) => {
-    if (level > 2) return; // Giới hạn tối đa đến cấp 2
+    if (level > 2) return; // Limit to max 2 levels
 
     setExpandedRows((prev) => ({
       ...prev,
@@ -89,11 +91,11 @@ export default function Page() {
 
   const getPadding = (level: number) => {
     const paddingMap = ["pl-4", "pl-8", "pl-12"];
-    return paddingMap[level] || "pl-12"; // Giới hạn tối đa 3 cấp
+    return paddingMap[level] || "pl-12"; // Limit to 3 levels
   };
 
   const renderChildren = (parentId: string, level: number): React.ReactNode => {
-    if (level > 2) return null; // Giới hạn tối đa đến cấp 2
+    if (level > 2) return null; // Limit to 3 levels
 
     const children = childCategories[parentId] || [];
 
@@ -107,9 +109,8 @@ export default function Page() {
                 <EllipsisVertical />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => console.log("View", child)}>View</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => console.log("Edit", child)}>Edit</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => console.log("Delete", child)}>Delete</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDeleteCategory(child.id)}>Delete</DropdownMenuItem> {/* Xóa danh mục */}
               </DropdownMenuContent>
             </DropdownMenu>
           </TableCell>
@@ -127,18 +128,34 @@ export default function Page() {
     ));
   };
 
+  const handleDeleteCategory = async (categoryId: string) => {
+    const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
+    const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
+  
+    // Optimistic UI update: remove category before API call
+    setCategories((prevCategories) => prevCategories.filter((category) => category.id !== categoryId));
+  
+    try {
+      await deleteCategories(categoryId, userId, accessToken);
+      toast.success("Category deleted successfully!");
+    } catch (error) {
+      toast.error("Error deleting category. Please try again.");
+      fetchCategories();  // Reload categories in case of error
+    }
+  };
+  
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>All Categories</CardTitle>
-        <Button onClick={() => router.push("/dashboard/categories/create")} className="flex items-center gap-2">
+        <Button onClick={() => setModalOpen(true)} className="flex items-center gap-2">
           <Plus className="w-5 h-5" />
           Add Category
         </Button>
       </CardHeader>
       <CardContent>
         <Table>
-          <TableCaption>A list of your recent categories.</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>Categories Name</TableHead>
@@ -157,13 +174,12 @@ export default function Page() {
                         <EllipsisVertical />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => console.log("View", category)}>View</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => console.log("Edit", category)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => console.log("Delete", category)}>Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDeleteCategory(category.id)}>Delete</DropdownMenuItem> {/* Xóa danh mục */}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
-                  <TableCell className="text-right flex items-center justify-end">
+                  <TableCell className="text-right">
                     {hasChildren[category.id] && (
                       <button onClick={() => toggleRow(category.id, 1)}>
                         {expandedRows[category.id] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -178,7 +194,7 @@ export default function Page() {
           </TableBody>
         </Table>
       </CardContent>
-      
+      <CategoryModal open={modalOpen} onOpenChange={setModalOpen} onCategoryCreated={fetchCategories} />
     </Card>
   );
 }

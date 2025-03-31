@@ -81,7 +81,7 @@ export function UserTable() {
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -105,7 +105,7 @@ export function UserTable() {
                       {user.status}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button

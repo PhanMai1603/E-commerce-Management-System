@@ -9,3 +9,8 @@ export interface CategoryData {
     name: string,
     parentId: null | string,
 }
+
+export interface CategoiesData {
+    categoryId: string,
+    name: string,
+}

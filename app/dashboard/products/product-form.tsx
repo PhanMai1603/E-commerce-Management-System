@@ -110,7 +110,7 @@ export function ProductTable() {
                     </div>
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell className="text-gray-500 font-medium">{product.originalPrice}đ</TableCell>
+                  <TableCell className="text-gray-500 font-medium">{product.minPrice}đ</TableCell>
                   <TableCell>
                     <div className="text-gray-700 font-medium">{product.quantity} Item Left</div>
                     <div className="text-gray-500 text-sm">{product.sold} Sold</div>
@@ -123,8 +123,6 @@ export function ProductTable() {
                     </div>
                     <span className="text-gray-500 text-sm">{product.views} Review</span>
                   </TableCell>
-
-
 
                   <TableCell>
                     <span

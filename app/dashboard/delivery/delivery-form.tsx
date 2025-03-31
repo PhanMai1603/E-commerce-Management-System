@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
-import { Ellipsis, Plus } from "lucide-react";
+import { EllipsisVertical, Plus } from "lucide-react";
 import { getAllDelivery } from "@/app/api/delivery";
 import { DeliveriesData } from "@/interface/delivery";
 import get from "lodash/get";
@@ -17,6 +17,8 @@ import {
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 
 export function TableDemo() {
   const [deliveries, setDeliveries] = useState<DeliveriesData[]>([]);
@@ -87,8 +89,16 @@ export function TableDemo() {
                       {delivery.isActive ? "Available" : "Unavailable"}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Ellipsis className="cursor-pointer" />
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <EllipsisVertical />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => console.log("View", delivery)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() =>  console.log("Edit", delivery)}>Delete</DropdownMenuItem> {/* Xóa danh mục */}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))

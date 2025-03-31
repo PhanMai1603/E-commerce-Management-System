@@ -52,3 +52,41 @@ export const createCategories = async (data: Category.CategoryData, userId: stri
         throw new Error(errorMessage || 'An unknown error occurred.');
     }
 };
+
+export const deleteCategories = async (data: string, userId: string, accessToken: string) => {
+    try {
+        const response = await api.delete(`${CATEGORY_URL}/?categoryId=${data}`,{
+            headers: {
+                'x-client-id': userId,
+                'Authorization': accessToken
+            }
+        });
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, 'response.data.error.message', '');
+
+        if (errorMessage) {
+            toast.error(errorMessage);
+        }
+        throw new Error(errorMessage || 'An unknown error occurred.');
+    }
+};
+
+export const updateCategories = async (data: Category.CategoiesData, userId: string, accessToken: string): Promise<Category.CategoryDataResponse> => {
+    try {
+        const response = await api.patch(`${CATEGORY_URL}` , data, {
+            headers: {
+                'x-client-id': userId,
+                'Authorization': accessToken
+            }
+        });
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, 'response.data.error.message', '');
+
+        if (errorMessage) {
+            toast.error(errorMessage);
+        }
+        throw new Error(errorMessage || 'An unknown error occurred.');
+    }
+};
