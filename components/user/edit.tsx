@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { UserData } from "@/interface/user";
-import BlockUser from "@/components/role/switch";
+import BlockUser from "@/components/user/switch";
 import { assignRole } from "@/app/api/user"; // Import API
 import { toast } from "react-toastify";
 import { getAllRole } from "@/app/api/role";

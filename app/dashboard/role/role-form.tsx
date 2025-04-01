@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
-import { LockKeyhole, Pencil, Trash2 } from "lucide-react";
+import { LockKeyhole, Pencil, Plus, Trash2 } from "lucide-react";
 import { getAllRole, getRoleDetail, deleteRole } from "@/app/api/role";
 import { Role, RoleDetailResponse } from "@/interface/role";
 import get from "lodash/get";
@@ -14,42 +15,29 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import React from "react";
-
-const categories = ["PAGE", "MANAGE_PRODUCT", "SYSTEM", "MANAGE_ORDER", "SETTING"] as const;
-const entities: { [key in typeof categories[number]]: string[] } = {
-  PAGE: ["PANEL", "DASHBOARD"],
-  MANAGE_PRODUCT: ["PRODUCT", "CATEGORY", "ATTRIBUTE", "SKU", "UPLOAD", "COUPON"],
-  SYSTEM: ["USER", "ROLE"],
-  MANAGE_ORDER: ["REVIEW", "ORDER"],
-  SETTING: ["PAYMENT_TYPE", "DELIVERY_TYPE", "CITY"],
-};
-const actions = ["CREATE", "VIEW", "UPDATE", "DELETE"];
+import RoleDetails from "@/components/role/detail";
+import RoleCreationForm from "@/components/role/create";
+import { Button } from "@/components/ui/button";
 
 export function RoleTable() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [roleDetails, setRoleDetails] = useState<RoleDetailResponse | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
 
   const fetchRoles = useCallback(async () => {
     try {
-      const page = 1;
-      const size = 10;
-
       if (!userId || !accessToken) {
         toast.error("User authentication is required.");
         return;
       }
-
-      const roleData = await getAllRole(userId, accessToken, page, size);
+      const roleData = await getAllRole(userId, accessToken, 1, 10);
       setRoles(roleData.roles);
     } catch (error) {
-      const errorMessage = get(error, "response.data.error.message", "An unknown error occurred.");
-      toast.error(errorMessage);
+      toast.error(get(error, "response.data.error.message", "An unknown error occurred."));
     }
   }, [userId, accessToken]);
 
@@ -59,12 +47,10 @@ export function RoleTable() {
         toast.error("User authentication is required.");
         return;
       }
-
       const details = await getRoleDetail(roleId, userId, accessToken);
       setRoleDetails(details);
     } catch (error) {
-      const errorMessage = get(error, "response.data.error.message", "An unknown error occurred.");
-      toast.error(errorMessage);
+      toast.error(get(error, "response.data.error.message", "An unknown error occurred."));
     }
   }, [userId, accessToken]);
 
@@ -84,23 +70,18 @@ export function RoleTable() {
       return;
     }
 
-    const confirmDelete = window.confirm("Are you sure you want to delete this role?");
-    if (!confirmDelete) return;
+    if (!window.confirm("Are you sure you want to delete this role?")) return;
 
     try {
       await deleteRole(id, userId, accessToken);
       toast.success("Role deleted successfully!");
-
-      // Update role list after deletion
       setRoles((prevRoles) => prevRoles.filter((role) => role.id !== id));
-
-      // If the deleted role was selected, reset selectedRole and roleDetails
       if (selectedRole === id) {
         setSelectedRole("");
         setRoleDetails(null);
       }
     } catch (error) {
-      console.error("Failed to delete role:", error);
+      toast.error("Failed to delete role.");
     }
   };
 
@@ -108,8 +89,17 @@ export function RoleTable() {
     <div className="grid grid-cols-3 gap-4">
       <div className="col-span-1">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex justify-between items-center">
             <CardTitle>All Roles</CardTitle>
+            <Button
+              onClick={() => {
+                setIsCreating(true);
+                setSelectedRole(""); // Xóa vai trò đã chọn
+              }}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+            </Button>
           </CardHeader>
           <CardContent>
             <Table>
@@ -124,11 +114,18 @@ export function RoleTable() {
                   <TableRow
                     key={role.id}
                     className={selectedRole === role.id ? "bg-gray-50" : "hover:bg-gray-100"}
-                    onClick={() => setSelectedRole(role.id)}
+                    onClick={() => {
+                      setSelectedRole(role.id);
+                      setIsCreating(false); // Chuyển về chế độ xem chi tiết
+                    }}
                   >
                     <TableCell>{role.name}</TableCell>
-                    <TableCell className="flex justify-start gap-2">
-                      {role.name === "Admin" || role.name === "Basic" ? <LockKeyhole /> : <Pencil />}
+                    <TableCell className="flex gap-4">
+                      {role.name === "Admin" || role.name === "Basic" ? (
+                        <LockKeyhole />
+                      ) : (
+                        <Pencil />
+                      )}
                       {role.name !== "Admin" && role.name !== "Basic" && (
                         <button onClick={() => handleDelete(role.id)}>
                           <Trash2 />
@@ -142,52 +139,16 @@ export function RoleTable() {
           </CardContent>
         </Card>
       </div>
+
       <div className="col-span-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Role Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  {actions.map((action) => (
-                    <TableHead key={action} className="text-center">
-                      {action}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {categories.map((category) => (
-                  <React.Fragment key={category}>
-                    <TableRow key={`${category}-header`} className="bg-gray-200">
-                      <TableCell colSpan={actions.length + 1} className="font-bold">
-                        {category}
-                      </TableCell>
-                    </TableRow>
-                    {entities[category].map((entity) => (
-                      <TableRow key={`${category}-${entity}`}>
-                        <TableCell className="pl-6">
-                          {entity.charAt(0).toUpperCase() + entity.slice(1).toLowerCase()}
-                        </TableCell>
-                        {actions.map((action) => (
-                          <TableCell key={`${category}-${entity}-${action}`} className="text-center">
-                            <Checkbox
-                              checked={!!(roleDetails?.permissions?.[category]?.[entity]?.[action] ?? false)}
-                              onClick={(e) => e.preventDefault()}
-                            />
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </React.Fragment>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        {isCreating ? (
+          <RoleCreationForm onRoleCreated={fetchRoles} onCancel={() => setIsCreating(false)} />
+        ) : (
+          <RoleDetails
+            roleDetails={roleDetails}
+            setModalOpen={setIsCreating} // Pass setIsCreating as setModalOpen
+          />
+        )}
       </div>
     </div>
   );

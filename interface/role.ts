@@ -1,7 +1,10 @@
+// Example Role interface with permissions field
 export interface Role {
     id: string;
     name: string;
-}
+    permissions: Record<string, Record<string, Record<string, boolean>>>; // Permissions format
+  }
+  
 
 export interface RoleResponse {
     totalRoles: number;

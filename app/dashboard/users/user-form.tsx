@@ -21,7 +21,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import EditUserModal from "@/components/role/edit"; // Import modal
+import EditUserModal from "@/components/user/edit"; // Import modal
 
 export function UserTable() {
   const [users, setUsers] = useState<UserData[]>([]);
