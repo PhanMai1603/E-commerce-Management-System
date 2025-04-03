@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
 import { LockKeyhole, Pencil, Plus, Trash2 } from "lucide-react";
 import { getAllRole, getRoleDetail, deleteRole } from "@/app/api/role";
@@ -17,6 +17,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import RoleDetails from "@/components/role/detail";
 import RoleCreationForm from "@/components/role/create";
+import RoleEditForm from "@/components/role/edit"; // Đảm bảo form chỉnh sửa đã có
 import { Button } from "@/components/ui/button";
 
 export function RoleTable() {
@@ -24,6 +25,7 @@ export function RoleTable() {
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [roleDetails, setRoleDetails] = useState<RoleDetailResponse | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // Thêm trạng thái isEditing
 
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
@@ -116,7 +118,8 @@ export function RoleTable() {
                     className={selectedRole === role.id ? "bg-gray-50" : "hover:bg-gray-100"}
                     onClick={() => {
                       setSelectedRole(role.id);
-                      setIsCreating(false); // Chuyển về chế độ xem chi tiết
+                      setIsCreating(false); // Ensure creating state is false when selecting a role
+                      setIsEditing(false); // Ensure we are not editing when just selecting
                     }}
                   >
                     <TableCell>{role.name}</TableCell>
@@ -124,7 +127,12 @@ export function RoleTable() {
                       {role.name === "Admin" || role.name === "Basic" ? (
                         <LockKeyhole />
                       ) : (
-                        <Pencil />
+                        <Pencil
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent the table row click
+                            setIsEditing(true);  // Enable editing mode
+                          }}
+                        />
                       )}
                       {role.name !== "Admin" && role.name !== "Basic" && (
                         <button onClick={() => handleDelete(role.id)}>
@@ -143,10 +151,16 @@ export function RoleTable() {
       <div className="col-span-2">
         {isCreating ? (
           <RoleCreationForm onRoleCreated={fetchRoles} onCancel={() => setIsCreating(false)} />
+        ) : isEditing && roleDetails ? (
+          <RoleEditForm
+            role={roleDetails}
+            onSave={fetchRoles}
+            onCancel={() => setIsEditing(false)}
+          />
         ) : (
           <RoleDetails
             roleDetails={roleDetails}
-            setModalOpen={setIsCreating} // Pass setIsCreating as setModalOpen
+            setModalOpen={setIsCreating} // Chuyển từ form chi tiết sang form tạo mới
           />
         )}
       </div>

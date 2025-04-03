@@ -21,10 +21,13 @@ interface RoleDetailsProps {
 }
 
 const RoleDetails: React.FC<RoleDetailsProps> = ({ roleDetails, setModalOpen }) => {
+  if (!roleDetails) return null; // Nếu không có roleDetails thì không hiển thị gì cả.
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Role Details</CardTitle>
+        <div className="text-sm text-gray-600">Role Name: {roleDetails.name}</div> {/* Hiển thị tên vai trò */}
       </CardHeader>
       <CardContent>
         <Table>
@@ -55,7 +58,7 @@ const RoleDetails: React.FC<RoleDetailsProps> = ({ roleDetails, setModalOpen }) 
                       <TableCell key={`${category}-${entity}-${action}`} className="text-center">
                         <Checkbox
                           checked={!!(roleDetails?.permissions?.[category]?.[entity]?.[action] ?? false)}
-                          onClick={(e) => e.preventDefault()}
+                          onClick={(e) => e.preventDefault()} // Ngừng hành động mặc định của checkbox
                         />
                       </TableCell>
                     ))}

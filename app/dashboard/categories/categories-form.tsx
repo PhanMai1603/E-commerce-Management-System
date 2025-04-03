@@ -23,6 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 import CategoryModal from "@/components/category/create";
 import { toast } from "react-toastify";
+import CategoryEditModal from "@/components/category/edit";
 
 export default function Page() {
   const [categories, setCategories] = useState<Category.CategoryDataResponse[]>([]);
@@ -30,6 +31,8 @@ export default function Page() {
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [hasChildren, setHasChildren] = useState<Record<string, boolean>>({});
   const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category.CategoryDataResponse | null>(null); // Lưu danh mục cần chỉnh sửa
 
   // Function to fetch all categories
   const fetchCategories = async () => {
@@ -68,6 +71,12 @@ export default function Page() {
     }
   };
 
+  const handleEditCategory = (category: Category.CategoryDataResponse) => {
+    console.log("Selected category for editing:", category); // Add this log for debugging
+    setSelectedCategory(category); // Lưu danh mục cần chỉnh sửa
+    setEditModalOpen(true); // Mở modal chỉnh sửa
+  };
+
   const toggleRow = async (id: string, level: number) => {
     if (level > 2) return; // Limit to max 2 levels
 
@@ -98,7 +107,6 @@ export default function Page() {
     if (level > 2) return null; // Limit to 3 levels
 
     const children = childCategories[parentId] || [];
-
     return children.map((child) => (
       <React.Fragment key={child.id}>
         <TableRow>
@@ -109,8 +117,12 @@ export default function Page() {
                 <EllipsisVertical />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => console.log("Edit", child)}>Edit</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDeleteCategory(child.id)}>Delete</DropdownMenuItem> {/* Xóa danh mục */}
+                <DropdownMenuItem onClick={() => handleEditCategory(child)}>
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDeleteCategory(child.id)}>
+                  Delete
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </TableCell>
@@ -131,10 +143,10 @@ export default function Page() {
   const handleDeleteCategory = async (categoryId: string) => {
     const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
     const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
-  
+
     // Optimistic UI update: remove category before API call
     setCategories((prevCategories) => prevCategories.filter((category) => category.id !== categoryId));
-  
+
     try {
       await deleteCategories(categoryId, userId, accessToken);
       toast.success("Category deleted successfully!");
@@ -143,7 +155,6 @@ export default function Page() {
       fetchCategories();  // Reload categories in case of error
     }
   };
-  
 
   return (
     <Card>
@@ -174,8 +185,8 @@ export default function Page() {
                         <EllipsisVertical />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => console.log("Edit", category)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDeleteCategory(category.id)}>Delete</DropdownMenuItem> {/* Xóa danh mục */}
+                        <DropdownMenuItem onClick={() => handleEditCategory(category)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDeleteCategory(category.id)}>Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -195,6 +206,12 @@ export default function Page() {
         </Table>
       </CardContent>
       <CategoryModal open={modalOpen} onOpenChange={setModalOpen} onCategoryCreated={fetchCategories} />
+      <CategoryEditModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        category={selectedCategory} // Ensure the full category object is passed
+        onCategoryUpdated={fetchCategories}
+      />
     </Card>
   );
 }

@@ -167,7 +167,7 @@ export default function Page() {
               onClick={handleCreateDelivery}
               disabled={loading}
             >
-              {loading ? 'Creating...' : 'Create Delivery'}
+              {loading ? 'CREATING...' : 'CREATE DELIVERY'}
             </Button>
           </div>
         </CardContent>
