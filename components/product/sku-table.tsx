@@ -75,6 +75,21 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
   }, [combinations]);
 
   useEffect(() => {
+    setProduct(prev => {
+      const updatedVariants = prev.variants?.map(variant =>
+        variant.name === "Color"
+          ? { ...variant, images: Object.values(images) }
+          : variant
+      );
+  
+      return {
+        ...prev,
+        variants: updatedVariants,
+      };
+    });
+  }, [images, setProduct]);
+
+  useEffect(() => {
     setProduct(prev => ({
       ...prev,
       skuList,

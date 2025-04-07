@@ -42,10 +42,6 @@ export default function Page() {
     setUserId(localStorage.getItem("userId"));
   }, []);
 
-  useEffect(() => {
-    console.log(product)
-  }, [product]);
-
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
