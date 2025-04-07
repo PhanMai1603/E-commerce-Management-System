@@ -33,6 +33,7 @@ export interface addValueToAttributeResponse {
 
 //GET
 export interface AttributeValue {
+    id: Key | null | undefined;
     valueId: string;
     value: string;
     descriptionUrl: string;

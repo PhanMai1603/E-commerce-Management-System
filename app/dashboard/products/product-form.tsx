@@ -8,11 +8,12 @@ import { toast } from "react-toastify";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Star, EllipsisVertical, Plus, Search } from "lucide-react";
-import { getAllProduct } from "@/app/api/product";
+import { deleteProduct, getAllProduct } from "@/app/api/product";
 import { Product } from "@/interface/product";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input"; // Import ô nhập liệu từ UI
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export function ProductTable() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -52,6 +53,31 @@ export function ProductTable() {
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Handle view product
+  const handleView = (product: Product) => {
+    // Redirect to the product details page
+    router.push(`/dashboard/products/${product.id}`);
+  };
+
+  // Handle edit product
+  const handleEdit = (productId: string) => {
+    // Redirect to the product edit page
+    router.push(`/dashboard/products/edit/${productId}`);
+  };
+
+
+  const handleDelete = async (productId: string) => {
+    try {
+      // Call the API to delete the product
+      await deleteProduct(userId, accessToken, productId);
+      toast.success("Product deleted successfully!");
+      // Refresh the list or remove the product from state
+      setProducts(products.filter((product) => product.id !== productId));
+    } catch (error) {
+      toast.error("Failed to delete the product.");
+    }
+  };
 
   return (
     <Card>
@@ -106,7 +132,7 @@ export function ProductTable() {
                       {product.mainImage && (
                         <img src={product.mainImage} className="w-12 h-12 rounded-lg" />
                       )}
-                     
+
                     </div>
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
@@ -127,22 +153,38 @@ export function ProductTable() {
                   <TableCell>
                     <span
                       className={`inline-block py-1 px-3 rounded-2xl text-sm font-medium ${product.status === "PUBLISHED"
-                          ? "bg-[#00B8D929] text-[#006C9C]"
-                          : product.status === "DRAFT"
-                            ? "bg-[#919EAB29] text-[#637381]"
-                            : product.status === "DISCONTINUED"
-                              ? "bg-[#FF563029] text-[#B71D18]"
-                              : product.status === "OUT_OF_STOCK"
-                                ? "bg-[#FFAB0029] text-[#B76E00]"
-                                : "bg-gray-200 text-gray-600"
+                        ? "bg-[#00B8D929] text-[#006C9C]"
+                        : product.status === "DRAFT"
+                          ? "bg-[#919EAB29] text-[#637381]"
+                          : product.status === "DISCONTINUED"
+                            ? "bg-[#FF563029] text-[#B71D18]"
+                            : product.status === "OUT_OF_STOCK"
+                              ? "bg-[#FFAB0029] text-[#B76E00]"
+                              : "bg-gray-200 text-gray-600"
                         }`}
                     >
                       {product.status}
                     </span>
                   </TableCell>
-                  <TableCell className="flex gap-2">
-                    <EllipsisVertical />
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <EllipsisVertical className="cursor-pointer" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleView(product)}>
+                          View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEdit(product.id)}>
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDelete(product.id)}>
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
+
                 </TableRow>
               ))}
             </TableBody>

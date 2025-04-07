@@ -20,7 +20,7 @@ type CategoryModalProps = {
 };
 
 export default function CategoryModal({ open, onOpenChange, onCategoryCreated }: CategoryModalProps) {
-  const [newCategory, setNewCategory] = useState({ name: "", parentId: "" });
+  const [newCategory, setNewCategory] = useState({ name: "", parentId: "", childId: "" });
   const [categories, setCategories] = useState<Category[]>([]);
   const [childCategories, setChildCategories] = useState<Category[]>([]);
   const [subChildCategories, setSubChildCategories] = useState<Category[]>([]);
@@ -41,8 +41,12 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
 
   // Khi chọn danh mục cha, tải danh mục con cấp 2
   const handleParentChange = async (parentId: string) => {
-    setNewCategory({ ...newCategory, parentId });
-    setChildCategories([]); // Reset danh mục con khi đổi cha
+    setNewCategory((prev) => ({
+      ...prev,
+      parentId, // Lưu danh mục cha
+      childId: "", // Reset danh mục con khi đổi cha
+    }));
+    setChildCategories([]); 
     setSubChildCategories([]);
 
     if (parentId) {
@@ -57,7 +61,10 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
 
   // Khi chọn danh mục con, tải danh mục con cấp 3
   const handleChildChange = async (childId: string) => {
-    setNewCategory({ ...newCategory, parentId: childId });
+    setNewCategory((prev) => ({
+      ...prev,
+      childId, // Chỉ cập nhật childId, giữ nguyên parentId
+    }));
     setSubChildCategories([]);
 
     if (childId) {
@@ -78,8 +85,8 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
 
     // Nếu parentId là chuỗi rỗng, chuyển thành null
     const categoryData = {
-      ...newCategory,
-      parentId: newCategory.parentId || null, // Đảm bảo rằng parentId là null nếu không có giá trị
+      name: newCategory.name,
+      parentId: newCategory.childId || newCategory.parentId || null, // Lấy childId nếu có, nếu không thì lấy parentId
     };
 
     try {
@@ -89,7 +96,7 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
       await createCategories(categoryData, userId, accessToken);
       toast.success("Category created successfully!");
 
-      setNewCategory({ name: "", parentId: "" });
+      setNewCategory({ name: "", parentId: "", childId: "" });
       onOpenChange(false);
       onCategoryCreated();
     } catch (error) {
@@ -127,7 +134,7 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
         {/* Dropdown danh mục cấp 2 */}
         {childCategories.length > 0 && (
           <select
-            value={newCategory.parentId}
+            value={newCategory.childId}
             onChange={(e) => handleChildChange(e.target.value)}
             className="w-full p-2 border rounded-md mt-2"
           >
@@ -141,7 +148,7 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
         )}
 
         <Button onClick={handleCreateCategory} className="mt-2">
-          Add Category
+          ADD CATEGORY
         </Button>
       </DialogContent>
     </Dialog>

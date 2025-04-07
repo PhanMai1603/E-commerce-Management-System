@@ -79,12 +79,12 @@ export function ResetPasswordForm({
           />
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Resetting..." : "Reset Password"}
+          {loading ? "RESETING..." : "RESET PASSWORD"}
         </Button>
       </div>
       <div className="text-center text-sm">
         <a href="/auth/login" className="hover:underline">
-          Return to Sign in
+          BACK
         </a>
       </div>
     </form>

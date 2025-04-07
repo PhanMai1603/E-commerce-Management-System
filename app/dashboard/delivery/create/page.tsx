@@ -25,12 +25,20 @@ export default function Page() {
 
   // Xử lý thay đổi input
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
+    let parsedValue = name === 'maxDistance' || name === 'baseFee' ? Number(value) || 0 : value;
+
+    // Nếu là số và là các trường maxDistance hoặc baseFee, đảm bảo giá trị không âm
+    if ((name === 'maxDistance' || name === 'baseFee') && typeof parsedValue === 'number' && parsedValue < 0) {
+      parsedValue = 0; // Đặt lại giá trị nếu nhập số âm
+    }
+
     setDelivery((prev) => ({
       ...prev,
-      [name]: name === 'maxDistance' || name === 'baseFee' ? Number(value) || 0 : value,
-    }))
-  }
+      [name]: parsedValue,
+    }));
+  };
+
 
   // Thêm Pricing Tier mới
   const handleAddPricing = () => {
@@ -40,11 +48,22 @@ export default function Page() {
     }))
   }
 
+
   // Cập nhật giá trị của Pricing Tier
   const handlePricingChange = (index: number, field: keyof Pricing, value: string) => {
     const newPricing = [...delivery.pricing]
-    newPricing[index][field] = Number(value) || 0
-    setDelivery((prev) => ({ ...prev, pricing: newPricing }))
+
+    // Chuyển giá trị nhập vào thành số
+    let parsedValue = Number(value) || 0;
+
+    // Nếu giá trị âm, đặt lại thành 0
+    if (parsedValue < 0) {
+      parsedValue = 0;
+    }
+
+    // Cập nhật giá trị vào pricing
+    newPricing[index][field] = parsedValue;
+    setDelivery((prev) => ({ ...prev, pricing: newPricing }));
   }
 
   // Xóa Pricing Tier
@@ -63,7 +82,7 @@ export default function Page() {
 
       await createDelivery(delivery, userId, accessToken)
       toast.success('Delivery created successfully!')
-      router.push('dashboard/delivery')
+      router.push('/dashboard/delivery')
     } catch (error) {
       toast.error('Failed to create delivery')
     } finally {

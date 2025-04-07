@@ -58,7 +58,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, onStatusCh
     setLoading(true);
     try {
       await assignRole(selectedRole, user.id, userId, accessToken);
-      
+
       // Cập nhật ngay UI mà không cần reload
       const roleName = roles.find((role) => role.id === selectedRole)?.name || "Unknown";
       onRoleChange(selectedRole, roleName);
@@ -81,6 +81,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, onStatusCh
 
         <div className="space-y-3">
           {/* Dropdown chọn Role */}
+          {/* Dropdown chọn Role */}
           <label className="block text-sm font-medium">Role</label>
           <select
             value={selectedRole}
@@ -95,18 +96,33 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, onStatusCh
             ))}
           </select>
 
-          {/* Switch trạng thái (ACTIVE / BLOCKED) */}
-          <div className="flex items-center space-x-2 mt-4">
-            <BlockUser id={user.id} status={isActive ? "ACTIVE" : "BLOCKED"} onStatusChange={handleStatusChange} />
-          </div>
-        </div>
+          {/* Hiển thị trạng thái đẹp hơn */}
+          <div className="flex items-center justify-between bg-gray-100 p-3 rounded-lg mt-3">
+            <span className="text-sm font-medium text-gray-600">Status</span>
 
-        {/* Nút Save và Cancel */}
-        <div className="flex justify-end space-x-2 mt-4">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} disabled={loading}>
-            {loading ? "Saving..." : "Save"}
-          </Button>
+            <div className="flex items-center space-x-2">
+              {/* Badge trạng thái */}
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-semibold ${isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                  }`}
+              >
+                {isActive ? "ACTIVE" : "BLOCKED"}
+              </span>
+
+              {/* Switch toggle để thay đổi trạng thái */}
+              <BlockUser id={user.id} status={isActive ? "ACTIVE" : "BLOCKED"} onStatusChange={handleStatusChange} />
+            </div>
+          </div>
+
+          {/* Nút Save và Cancel */}
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={loading}>
+              {loading ? "Saving..." : "Save"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

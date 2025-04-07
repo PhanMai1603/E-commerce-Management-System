@@ -8,27 +8,36 @@ import get from "lodash/get";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 export function TableDemo() {
   const [deliveries, setDeliveries] = useState<DeliveriesData[]>([]);
   const router = useRouter();
-  
-  // Lấy userId và accessToken từ localStorage
+
+  // Get userId and accessToken from localStorage
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
 
-  // Hàm fetch dữ liệu từ API
+  // Fetch delivery data
   const fetchDeliveries = useCallback(async () => {
     try {
       if (!userId || !accessToken) {
@@ -36,46 +45,55 @@ export function TableDemo() {
         return;
       }
       const response = await getAllDelivery(userId, accessToken);
-      setDeliveries(response.deliveries); // Đảm bảo đúng kiểu dữ liệu
+      setDeliveries(response.deliveries);
     } catch (error) {
       const errorMessage = get(error, "message", "An unknown error occurred.");
       toast.error(errorMessage);
     }
   }, [userId, accessToken]);
 
-  // Gọi API khi component mount
   useEffect(() => {
     fetchDeliveries();
   }, [fetchDeliveries]);
 
+  // Handle view action
+  const handleView = (delivery: DeliveriesData) => {
+    router.push(`/dashboard/delivery/${delivery.id}`);
+  };
+
+  // Handle edit action
+  const handleEdit = (id: string) => {
+    router.push(`/dashboard/delivery/${id}/edit`);
+  };
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex justify-between items-center">
         <CardTitle>All Deliveries</CardTitle>
-        <Button onClick={() => router.push("/dashboard/delivery/create")} className="flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add Delivery
-          </Button>
+        <Button
+          onClick={() => router.push("/dashboard/delivery/create")}
+          className="flex items-center gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          Add Delivery
+        </Button>
       </CardHeader>
 
       <CardContent>
         <Table>
-          <TableCaption>A list of available delivery methods.</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead>#</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right"></TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {deliveries.length > 0 ? (
-              deliveries.map((delivery, index) => (
+              deliveries.map((delivery) => (
                 <TableRow key={delivery.id}>
-                  <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell className="font-medium">{delivery.name}</TableCell>
                   <TableCell className="font-medium">{delivery.description}</TableCell>
                   <TableCell className="font-medium">
@@ -89,14 +107,18 @@ export function TableDemo() {
                       {delivery.isActive ? "Available" : "Unavailable"}
                     </span>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger>
-                        <EllipsisVertical />
+                        <EllipsisVertical className="cursor-pointer" />
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => console.log("View", delivery)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() =>  console.log("Edit", delivery)}>Delete</DropdownMenuItem> {/* Xóa danh mục */}
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleView(delivery)}>
+                          View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEdit(delivery.id)}>
+                          Edit
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -105,7 +127,7 @@ export function TableDemo() {
             ) : (
               <TableRow>
                 <TableCell colSpan={5} className="text-center">
-                  No delivery methods found.
+                  No deliveries found.
                 </TableCell>
               </TableRow>
             )}

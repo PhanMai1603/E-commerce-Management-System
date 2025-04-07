@@ -17,19 +17,24 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import RoleDetails from "@/components/role/detail";
 import RoleCreationForm from "@/components/role/create";
-import RoleEditForm from "@/components/role/edit"; // Đảm bảo form chỉnh sửa đã có
+import RoleEditForm from "@/components/role/edit";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+// Importing Shadcn Dialog components
 
 export function RoleTable() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [roleDetails, setRoleDetails] = useState<RoleDetailResponse | null>(null);
   const [isCreating, setIsCreating] = useState(false);
-  const [isEditing, setIsEditing] = useState(false); // Thêm trạng thái isEditing
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false); // Dialog state for delete
+  const [roleToDelete, setRoleToDelete] = useState<string>(""); // Store the role to delete
 
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
 
+  // Fetch all roles
   const fetchRoles = useCallback(async () => {
     try {
       if (!userId || !accessToken) {
@@ -43,6 +48,7 @@ export function RoleTable() {
     }
   }, [userId, accessToken]);
 
+  // Fetch role details
   const fetchRoleDetails = useCallback(async (roleId: string) => {
     try {
       if (!userId || !accessToken) {
@@ -66,19 +72,18 @@ export function RoleTable() {
     }
   }, [selectedRole, fetchRoleDetails]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
     if (!userId || !accessToken) {
       toast.error("User authentication is required.");
       return;
     }
 
-    if (!window.confirm("Are you sure you want to delete this role?")) return;
-
     try {
-      await deleteRole(id, userId, accessToken);
+      await deleteRole(roleToDelete, userId, accessToken);
       toast.success("Role deleted successfully!");
-      setRoles((prevRoles) => prevRoles.filter((role) => role.id !== id));
-      if (selectedRole === id) {
+      setRoles((prevRoles) => prevRoles.filter((role) => role.id !== roleToDelete));
+      setIsDeleteDialogOpen(false); // Close dialog after deletion
+      if (selectedRole === roleToDelete) {
         setSelectedRole("");
         setRoleDetails(null);
       }
@@ -89,6 +94,7 @@ export function RoleTable() {
 
   return (
     <div className="grid grid-cols-3 gap-4">
+      {/* Sidebar danh sách roles */}
       <div className="col-span-1">
         <Card>
           <CardHeader className="flex justify-between items-center">
@@ -96,7 +102,7 @@ export function RoleTable() {
             <Button
               onClick={() => {
                 setIsCreating(true);
-                setSelectedRole(""); // Xóa vai trò đã chọn
+                setSelectedRole(""); // Clear selected role
               }}
               className="flex items-center gap-2"
             >
@@ -118,8 +124,8 @@ export function RoleTable() {
                     className={selectedRole === role.id ? "bg-gray-50" : "hover:bg-gray-100"}
                     onClick={() => {
                       setSelectedRole(role.id);
-                      setIsCreating(false); // Ensure creating state is false when selecting a role
-                      setIsEditing(false); // Ensure we are not editing when just selecting
+                      setIsCreating(false);
+                      setIsEditing(false);
                     }}
                   >
                     <TableCell>{role.name}</TableCell>
@@ -128,14 +134,22 @@ export function RoleTable() {
                         <LockKeyhole />
                       ) : (
                         <Pencil
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent the table row click
-                            setIsEditing(true);  // Enable editing mode
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            await fetchRoleDetails(role.id); // Fetch role details before editing
+                            setSelectedRole(role.id);
+                            setTimeout(() => setIsEditing(true), 300); // Wait for data fetching
                           }}
                         />
                       )}
                       {role.name !== "Admin" && role.name !== "Basic" && (
-                        <button onClick={() => handleDelete(role.id)}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRoleToDelete(role.id); // Set the role to delete
+                            setIsDeleteDialogOpen(true); // Open delete confirmation dialog
+                          }}
+                        >
                           <Trash2 />
                         </button>
                       )}
@@ -148,22 +162,46 @@ export function RoleTable() {
         </Card>
       </div>
 
+      {/* Card hiển thị Role Details hoặc Form */}
       <div className="col-span-2">
         {isCreating ? (
           <RoleCreationForm onRoleCreated={fetchRoles} onCancel={() => setIsCreating(false)} />
-        ) : isEditing && roleDetails ? (
+        ) : isEditing && roleDetails?.id === selectedRole ? (
           <RoleEditForm
             role={roleDetails}
-            onSave={fetchRoles}
+            onSave={() => {
+              fetchRoles();
+              setIsEditing(false);
+            }}
             onCancel={() => setIsEditing(false)}
           />
         ) : (
-          <RoleDetails
-            roleDetails={roleDetails}
-            setModalOpen={setIsCreating} // Chuyển từ form chi tiết sang form tạo mới
-          />
+          <RoleDetails roleDetails={roleDetails} setModalOpen={setIsCreating} />
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} 
+      onOpenChange={(open: boolean | ((prevState: boolean) => boolean)) => setIsDeleteDialogOpen(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you sure you want to delete this role?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button onClick={() => setIsDeleteDialogOpen(false)} variant="outline">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDelete}
+            >
+              Delete 
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

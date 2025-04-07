@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-
 import { useEffect, useState } from "react";
 import { getAllAttributes, createAttribute, addValueToAttribute } from "@/app/api/attribute";
 import { AttributeItem } from "@/interface/attribute";
@@ -12,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@radix-ui/react-label";
-import { SquarePen, Trash2 } from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function AttributesTable() {
   const [attributes, setAttributes] = useState<AttributeItem[]>([]);
@@ -21,6 +21,7 @@ export default function AttributesTable() {
   // State for adding attributes
   const [attributeName, setAttributeName] = useState("");
   const [attributeType, setAttributeType] = useState<"COLOR" | "TEXT" | "">("");
+
   const [isVariant, setIsVariant] = useState(false);
   const [newValue, setNewValue] = useState("");
   const [descriptionUrl, setDescriptionUrl] = useState("");
@@ -28,17 +29,18 @@ export default function AttributesTable() {
   // State for editing attribute values
   const [editingAttribute, setEditingAttribute] = useState<AttributeItem | null>(null);
 
-  const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
-  const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
-
   useEffect(() => {
     fetchAttributes();
   }, []);
+
+  const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
+  const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
 
   const fetchAttributes = async () => {
     setLoading(true);
     try {
       const response = await getAllAttributes(userId, accessToken);
+      console.log("Attributes fetched:", response); // Log the response data for debugging
       setAttributes(response.items);
     } catch (error) {
       toast.error("Failed to fetch attributes.");
@@ -49,12 +51,12 @@ export default function AttributesTable() {
 
   const handleAddAttribute = async () => {
     if (!attributeName || !attributeType) {
-      toast.error("Vui lòng nhập đầy đủ thông tin!");
+      toast.error("Please fill in all required information!");
       return;
     }
 
     if (isVariant && (!newValue || !descriptionUrl)) {
-      toast.error("Vui lòng nhập đủ thông tin giá trị!");
+      toast.error("Please fill in all value information!");
       return;
     }
 
@@ -68,7 +70,7 @@ export default function AttributesTable() {
         values,
       });
 
-      toast.success("Thuộc tính đã được thêm!");
+      toast.success("Attribute added successfully!");
       setAttributeName("");
       setAttributeType("");
       setIsVariant(false);
@@ -77,13 +79,13 @@ export default function AttributesTable() {
 
       fetchAttributes();
     } catch (error) {
-      toast.error("Không thể thêm thuộc tính.");
+      toast.error("Failed to add attribute.");
     }
   };
 
   const handleAddValue = async () => {
     if (!editingAttribute || !newValue) {
-      toast.error("Vui lòng nhập đầy đủ thông tin!");
+      toast.error("Please fill in all required information!");
       return;
     }
 
@@ -93,20 +95,36 @@ export default function AttributesTable() {
         values: [{ value: newValue, description_url: descriptionUrl }],
       });
 
-      toast.success("Giá trị đã được thêm!");
+      toast.success("Value added successfully!");
       setNewValue("");
       setDescriptionUrl("");
       setEditingAttribute(null);
 
       fetchAttributes();
     } catch (error) {
-      toast.error("Không thể thêm giá trị.");
+      toast.error("Failed to add value.");
     }
+  };
+
+  const handleEdit = (id: string) => {
+    const attribute = attributes.find(attr => attr.id === id);
+    if (attribute) {
+      setEditingAttribute(attribute);
+      setNewValue("");
+      setDescriptionUrl("");
+    } else {
+      toast.error("Attribute not found.");
+    }
+  };
+
+  const handleView = (attribute: AttributeItem) => {
+    // Implement your view logic here
+    console.log("Viewing attribute:", attribute);
   };
 
   return (
     <div className="p-0 grid grid-cols-1 lg:grid-cols-3 gap-4">
-      {/* Danh sách thuộc tính */}
+      {/* Attribute list */}
       <Card className="lg:col-span-2 shadow-md border">
         <CardHeader>
           <CardTitle>All Attributes</CardTitle>
@@ -117,7 +135,8 @@ export default function AttributesTable() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -127,21 +146,53 @@ export default function AttributesTable() {
                     Loading...
                   </TableCell>
                 </TableRow>
+              ) : attributes.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center text-gray-500">
+                    No attributes available
+                  </TableCell>
+                </TableRow>
               ) : (
                 attributes.map((attr) => (
                   <TableRow key={attr.id}>
                     <TableCell className="font-medium">{attr.name}</TableCell>
                     <TableCell>{attr.type}</TableCell>
-                    <TableCell className="flex gap-2">
-                      <button
-                        className="bg-black text-white px-5 py-1 rounded-md"
-                        onClick={() => setEditingAttribute(attr)}
-                      >
-                        <SquarePen />
-                      </button>
-                      <button className="bg-black text-white px-5 py-1 rounded-md">
-                        <Trash2 />
-                      </button>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        {attr.values.map((val, index) => (
+                          <div key={`${attr.id}-${val.valueId}-${index}`} className="flex items-center">
+                            {val.value}
+                            {attr.type === "COLOR" ? (
+                              <>
+                                <span className="inline-block ml-2 w-4 h-4 rounded-full" style={{ backgroundColor: val.descriptionUrl }}></span>
+                                {index < attr.values.length - 1 && ", "} {/* Thêm dấu phẩy nếu không phải là phần tử cuối cùng */}
+                              </>
+                            ) : attr.type === "TEXT" && val.descriptionUrl ? (
+                              <>
+                                <a href={val.descriptionUrl} target="_blank" rel="noopener noreferrer" className="text-gray-600 ml-2">
+                                  {val.descriptionUrl}
+                                </a>
+                                {index < attr.values.length - 1 && ", "} {/* Thêm dấu phẩy nếu không phải là phần tử cuối cùng */}
+                              </>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <EllipsisVertical className="cursor-pointer" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleView(attr)}>
+                            View
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEdit(attr.id)}>
+                            Edit
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))
@@ -152,7 +203,7 @@ export default function AttributesTable() {
       </Card>
 
       <div className="lg:flex lg:flex-col lg:gap-4 lg:sticky lg:top-6">
-        {/* Form thêm thuộc tính */}
+        {/* Form to add attributes */}
         <Card className="shadow-md border">
           <CardHeader>
             <CardTitle className="font-medium text-center w-full">Add Attribute</CardTitle>
@@ -181,38 +232,50 @@ export default function AttributesTable() {
               />
             </div>
 
-            {/* Chỉ hiển thị khi isVariant bật */}
+            {/* Display only when isVariant is true */}
             {isVariant && (
               <>
                 <Label>Value Name</Label>
                 <Input value={newValue} onChange={(e) => setNewValue(e.target.value)} />
 
-                <Label>Description URL</Label>
-                <Input value={descriptionUrl} onChange={(e) => setDescriptionUrl(e.target.value)} />
+                <Label>
+                  {attributeType === "COLOR" ? "Color Hex Code (e.g. #FF5733)" : "Description"}
+                </Label>
+                <Input
+                  placeholder={attributeType === "COLOR" ? "#FF5733" : "Enter description"}
+                  value={descriptionUrl}
+                  onChange={(e) => setDescriptionUrl(e.target.value)}
+                />
               </>
             )}
 
             <Button className="w-full" onClick={handleAddAttribute} disabled={isVariant && (!newValue || !descriptionUrl)}>
-              Add Attribute
+              ADD ATTRIBUTE
             </Button>
           </CardContent>
         </Card>
 
-        {/* Form thêm giá trị khi nhấn chỉnh sửa */}
+        {/* Form to add value when editing */}
         {editingAttribute && (
           <Card className="shadow-md border">
             <CardHeader>
               <CardTitle className="font-medium text-center">Add Value to {editingAttribute.name}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Label className="font-medium">Value Name</Label>
+              <Label>Value Name</Label>
               <Input value={newValue} onChange={(e) => setNewValue(e.target.value)} />
 
-              <Label className="font-medium">Description URL</Label>
-              <Input value={descriptionUrl} onChange={(e) => setDescriptionUrl(e.target.value)} />
+              <Label>
+                {editingAttribute.type === "COLOR" ? "Color Hex Code (e.g. #FF5733)" : "Description URL"}
+              </Label>
+              <Input
+                placeholder={editingAttribute.type === "COLOR" ? "#FF5733" : "Enter URL"}
+                value={descriptionUrl}
+                onChange={(e) => setDescriptionUrl(e.target.value)}
+              />
 
               <Button className="w-full" onClick={handleAddValue}>
-                Add Value
+                ADD VALUE
               </Button>
             </CardContent>
           </Card>

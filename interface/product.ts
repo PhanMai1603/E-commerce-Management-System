@@ -76,3 +76,75 @@ export interface UploadProduct {
 export interface ProductDataResponse {
   code: string;
 }
+
+
+export interface PublishProductResponse {
+  status: string,
+  updatedAt: string,
+}
+
+// Interface cho chi tiết sản phẩm
+export interface Category {
+  id: string;
+  name: string;
+}
+export interface VariantAttribute {
+  type: string;
+  name: string[];
+  values: {
+    value: string;
+    descriptionUrl: string;
+  }[];
+}
+
+export interface SkuList {
+  id: string;
+  slug: string;
+  tierIndex: number[];
+  isDefault: boolean;
+  price: number;
+  quantity: number;
+  sold: number;
+  status: string;
+  createdBy: string;  
+  updatedBy: string;
+}
+// Interface for Product Detail Response
+export interface ProductDetailResponse {
+  id: string;
+  code: string;
+  name: string;
+  slug: string;
+  description: string;
+  video: string;
+  mainImage: string;
+  subImages: string[];
+  qrCode: string;
+  minPrice: number;
+  maxPrice: number;
+  discountType: "PERCENT" | "AMOUNT";
+  discountValue: number;
+  discountStart: string | null; // Can be null if not provided
+  discountEnd: string | null;   // Can be null if not provided
+  quantity: number;
+  sold: number;
+  category: Category[];
+  attribute: ProductAttribute[]; // Represents product's attributes
+  status: string;
+  rating: number;
+  ratingCount: number; // Number of ratings for the product
+  views: number;
+  uniqueViews: string[];
+  createdBy: string;
+  updatedBy: string;
+  returnDays: number;
+  variants: Variant[]; // Corrected typo here
+  variantAttribute: VariantAttribute[]; // Corrected type name
+  price: {
+    min: number;
+    max: number;
+  };
+  discountedPrice: number | null; // Can be null if there's no discount
+  hasDiscount: boolean;
+  skuList: SkuList[];
+}

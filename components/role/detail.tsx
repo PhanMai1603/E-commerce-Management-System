@@ -33,6 +33,7 @@ const RoleDetails: React.FC<RoleDetailsProps> = ({ roleDetails, setModalOpen }) 
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead></TableHead>
               <TableHead>Name</TableHead>
               {actions.map((action) => (
                 <TableHead key={action} className="text-center">
@@ -44,7 +45,7 @@ const RoleDetails: React.FC<RoleDetailsProps> = ({ roleDetails, setModalOpen }) 
           <TableBody>
             {categories.map((category) => (
               <React.Fragment key={category}>
-                <TableRow key={`${category}-header`} className="bg-gray-200">
+                <TableRow key={`${category}-header`}>
                   <TableCell colSpan={actions.length + 1} className="font-bold">
                     {category}
                   </TableCell>

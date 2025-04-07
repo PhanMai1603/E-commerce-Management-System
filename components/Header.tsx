@@ -29,16 +29,17 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
 
   useEffect(() => {
     const storedAvatar = localStorage.getItem("avatarUrl");
+    console.log(storedAvatar);  // Add this line to debug
     if (storedAvatar) setAvatar(storedAvatar);
-
-    // Lắng nghe sự kiện khi ảnh đại diện thay đổi
+  
     const handleStorageChange = () => {
       setAvatar(localStorage.getItem("avatarUrl"));
     };
-
+  
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
+  
 
   const handleChangePassword = async () => {
     setLoading(true);
@@ -52,12 +53,12 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
       }
 
       await changePassword({ oldPassword, newPassword }, userId, accessToken);
-      toast.success("Mật khẩu đã được cập nhật!");
+      toast.success("Password changed successfully!");
       setOpenDialog(false);
       setOldPassword("");
       setNewPassword("");
     } catch {
-      toast.error("Có lỗi xảy ra khi đổi mật khẩu!");
+      // toast.error("Failed to change password. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -69,12 +70,12 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
       const accessToken = localStorage.getItem("accessToken");
 
       if (!userId || !accessToken) {
-        toast.error("Bạn chưa đăng nhập hoặc thông tin không hợp lệ!");
+        toast.error("You are not logged in or the information is invalid!");
         return;
       }
 
       await logoutRequest(userId, accessToken);
-      toast.success("Đăng xuất thành công!");
+      toast.success("Log out successfully!");
 
       localStorage.removeItem("userId");
       localStorage.removeItem("accessToken");
@@ -84,7 +85,7 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
       router.push("/auth/login");
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error("Có lỗi xảy ra khi đăng xuất.");
+      toast.error("An error occurred while logging out.Please try again.");
     }
   };
 
@@ -107,11 +108,12 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
-                {avatar ? (
-                  <img src={avatar} alt="User Avatar" className="w-8 h-8 rounded-full object-cover" />
-                ) : (
-                  <CircleUser className="h-5 w-5" />
-                )}
+              {avatar ? (
+  <img src={avatar} alt="User Avatar" className="w-8 h-8 rounded-full object-cover" />
+) : (
+  <CircleUser className="h-5 w-5" />
+)}
+
               </Button>
             </DropdownMenuTrigger>
 
@@ -158,7 +160,7 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
           <DialogFooter className="flex justify-end space-x-2 mt-6">
             <Button variant="outline" onClick={() => setOpenDialog(false)}>Cancel</Button>
             <Button onClick={handleChangePassword} disabled={loading}>
-              {loading ? "Save..." : "Save"}
+              {loading ? "SAVE..." : "SAVE"}
             </Button>
           </DialogFooter>
         </DialogContent>

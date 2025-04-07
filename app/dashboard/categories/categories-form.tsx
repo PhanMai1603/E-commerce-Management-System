@@ -1,29 +1,24 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Card, CardContent, CardHeader, CardTitle,
+} from "@/components/ui/card";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { ChevronDown, ChevronUp, EllipsisVertical, Plus } from "lucide-react";
 import { getAllCategories, getChildCategories, deleteCategories } from "@/app/api/category";
 import * as Category from "@/interface/category";
-import React from "react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import CategoryModal from "@/components/category/create";
-import { toast } from "react-toastify";
 import CategoryEditModal from "@/components/category/edit";
+import { toast } from "react-toastify";
+import React from "react";
 
 export default function Page() {
   const [categories, setCategories] = useState<Category.CategoryDataResponse[]>([]);
@@ -32,9 +27,8 @@ export default function Page() {
   const [hasChildren, setHasChildren] = useState<Record<string, boolean>>({});
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category.CategoryDataResponse | null>(null); // Lưu danh mục cần chỉnh sửa
+  const [selectedCategory, setSelectedCategory] = useState<Category.CategoryDataResponse | null>(null);
 
-  // Function to fetch all categories
   const fetchCategories = async () => {
     try {
       const data = await getAllCategories();
@@ -55,7 +49,7 @@ export default function Page() {
   }, []);
 
   const checkHasChildren = async (id: string, childCheck: Record<string, boolean>, level: number) => {
-    if (level > 2) return; // Only check up to level 2
+    if (level > 2) return;
 
     try {
       const children = await getChildCategories(id);
@@ -71,27 +65,16 @@ export default function Page() {
     }
   };
 
-  const handleEditCategory = (category: Category.CategoryDataResponse) => {
-    console.log("Selected category for editing:", category); // Add this log for debugging
-    setSelectedCategory(category); // Lưu danh mục cần chỉnh sửa
-    setEditModalOpen(true); // Mở modal chỉnh sửa
-  };
-
   const toggleRow = async (id: string, level: number) => {
-    if (level > 2) return; // Limit to max 2 levels
+    if (level > 2) return;
 
-    setExpandedRows((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    const isExpanded = expandedRows[id];
+    setExpandedRows((prev) => ({ ...prev, [id]: !isExpanded }));
 
-    if (!childCategories[id]) {
+    if (!isExpanded || !childCategories[id]) {
       try {
         const children = await getChildCategories(id);
-        setChildCategories((prev) => ({
-          ...prev,
-          [id]: children,
-        }));
+        setChildCategories((prev) => ({ ...prev, [id]: children }));
       } catch (error) {
         console.error("Error fetching child categories:", error);
       }
@@ -99,13 +82,11 @@ export default function Page() {
   };
 
   const getPadding = (level: number) => {
-    const paddingMap = ["pl-4", "pl-8", "pl-12"];
-    return paddingMap[level] || "pl-12"; // Limit to 3 levels
+    return ["pl-4", "pl-8", "pl-12"][level] || "pl-12";
   };
 
   const renderChildren = (parentId: string, level: number): React.ReactNode => {
-    if (level > 2) return null; // Limit to 3 levels
-
+    if (level > 2) return null;
     const children = childCategories[parentId] || [];
     return children.map((child) => (
       <React.Fragment key={child.id}>
@@ -117,12 +98,8 @@ export default function Page() {
                 <EllipsisVertical />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => handleEditCategory(child)}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDeleteCategory(child.id)}>
-                  Delete
-                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleEditCategory(child)}>Edit</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDeleteCategory(child.id)}>Delete</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </TableCell>
@@ -134,84 +111,99 @@ export default function Page() {
             )}
           </TableCell>
         </TableRow>
-
         {expandedRows[child.id] && renderChildren(child.id, level + 1)}
       </React.Fragment>
     ));
   };
 
-  const handleDeleteCategory = async (categoryId: string) => {
-    const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
-    const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
+  const handleDeleteCategory = async (id: string) => {
+    const userId = localStorage.getItem("userId") || "";
+    const token = localStorage.getItem("accessToken") || "";
 
-    // Optimistic UI update: remove category before API call
-    setCategories((prevCategories) => prevCategories.filter((category) => category.id !== categoryId));
-
+    setCategories((prev) => prev.filter((cat) => cat.id !== id));
     try {
-      await deleteCategories(categoryId, userId, accessToken);
+      await deleteCategories(id, userId, token);
       toast.success("Category deleted successfully!");
     } catch (error) {
-      toast.error("Error deleting category. Please try again.");
-      fetchCategories();  // Reload categories in case of error
+      toast.error("Error deleting category.");
+      fetchCategories();
+    }
+  };
+
+  const handleEditCategory = (category: Category.CategoryDataResponse) => {
+    setSelectedCategory(category);
+    setEditModalOpen(true);
+  };
+
+  const handleCategoryCreated = async () => {
+    await fetchCategories();
+
+    // Refetch all child lists that are currently expanded
+    for (const id in expandedRows) {
+      if (expandedRows[id]) {
+        const children = await getChildCategories(id);
+        setChildCategories((prev) => ({ ...prev, [id]: children }));
+      }
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>All Categories</CardTitle>
-        <Button onClick={() => setModalOpen(true)} className="flex items-center gap-2">
-          <Plus className="w-5 h-5" />
-          Add Category
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Categories Name</TableHead>
-              <TableHead>Action</TableHead>
-              <TableHead className="text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {categories.map((category) => (
-              <React.Fragment key={category.id}>
-                <TableRow>
-                  <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <EllipsisVertical />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => handleEditCategory(category)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDeleteCategory(category.id)}>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {hasChildren[category.id] && (
-                      <button onClick={() => toggleRow(category.id, 1)}>
-                        {expandedRows[category.id] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </button>
-                    )}
-                  </TableCell>
-                </TableRow>
-
-                {expandedRows[category.id] && renderChildren(category.id, 1)}
-              </React.Fragment>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-      <CategoryModal open={modalOpen} onOpenChange={setModalOpen} onCategoryCreated={fetchCategories} />
-      <CategoryEditModal
-        open={editModalOpen}
-        onOpenChange={setEditModalOpen}
-        category={selectedCategory} // Ensure the full category object is passed
-        onCategoryUpdated={fetchCategories}
-      />
-    </Card>
+    <div className="p-0 grid grid-cols-1 lg:grid-cols-1 gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>All Categories</CardTitle>
+          <Button onClick={() => setModalOpen(true)} className="flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            Add Category
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Category Name</TableHead>
+                <TableHead>Action</TableHead>
+                <TableHead className="text-right" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {categories.map((category) => (
+                <React.Fragment key={category.id}>
+                  <TableRow>
+                    <TableCell className="font-medium">{category.name}</TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <EllipsisVertical />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem onClick={() => handleEditCategory(category)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDeleteCategory(category.id)}>Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {hasChildren[category.id] && (
+                        <button onClick={() => toggleRow(category.id, 1)}>
+                          {expandedRows[category.id] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        </button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                  {expandedRows[category.id] && renderChildren(category.id, 1)}
+                </React.Fragment>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+        <CategoryModal open={modalOpen} onOpenChange={setModalOpen} onCategoryCreated={handleCategoryCreated} />
+        <CategoryEditModal
+          open={editModalOpen}
+          onOpenChange={setEditModalOpen}
+          category={selectedCategory}
+          onCategoryUpdated={handleCategoryCreated}
+        />
+      </Card>
+    </div>
   );
 }

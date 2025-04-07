@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -58,7 +59,7 @@ export default function CategoryEditModal({ open, onOpenChange, category, onCate
         <Input placeholder="Category Name" value={categoryName} onChange={(e) => setCategoryName(e.target.value)} />
 
         <Button onClick={handleUpdateCategory} className="mt-2">
-          Save Changes
+          SAVE CHANGE
         </Button>
       </DialogContent>
     </Dialog>
