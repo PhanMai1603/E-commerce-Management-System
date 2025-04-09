@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
@@ -63,7 +64,7 @@ export function ProductTable() {
   // Handle edit product
   const handleEdit = (productId: string) => {
     // Redirect to the product edit page
-    router.push(`/dashboard/products/edit/${productId}`);
+    router.push(`/dashboard/products/${productId}/edit`);
   };
 
 
@@ -136,7 +137,7 @@ export function ProductTable() {
                     </div>
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell className="text-gray-500 font-medium">{product.minPrice}đ</TableCell>
+                  <TableCell className="text-gray-500 font-medium">{product.originalPrice}đ</TableCell>
                   <TableCell>
                     <div className="text-gray-700 font-medium">{product.quantity} Item Left</div>
                     <div className="text-gray-500 text-sm">{product.sold} Sold</div>
@@ -152,7 +153,7 @@ export function ProductTable() {
 
                   <TableCell>
                     <span
-                      className={`inline-block py-1 px-3 rounded-2xl text-sm font-medium ${product.status === "PUBLISHED"
+                      className={`inline-block py-1 px-3 rounded-2xl text-sm font-semibold ${product.status === "PUBLISHED"
                         ? "bg-[#00B8D929] text-[#006C9C]"
                         : product.status === "DRAFT"
                           ? "bg-[#919EAB29] text-[#637381]"

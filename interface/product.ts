@@ -12,6 +12,7 @@ export interface Product {
   video: string;
   mainImage: string;
   qrCode: string;
+  originalPrice: number;
   minPrice: number;
   maxPrice: number;
   discountType: "PERCENT" | "AMOUNT";
@@ -109,8 +110,9 @@ export interface SkuList {
   createdBy: string;  
   updatedBy: string;
 }
+
 // Interface for Product Detail Response
-export interface ProductDetailResponse {
+export interface ProductDetail{
   id: string;
   code: string;
   name: string;
@@ -120,31 +122,62 @@ export interface ProductDetailResponse {
   mainImage: string;
   subImages: string[];
   qrCode: string;
+  originalPrice: number;
   minPrice: number;
   maxPrice: number;
   discountType: "PERCENT" | "AMOUNT";
   discountValue: number;
-  discountStart: string | null; // Can be null if not provided
-  discountEnd: string | null;   // Can be null if not provided
+  discountStart: string | null;
+  discountEnd: string | null;
   quantity: number;
   sold: number;
   category: Category[];
-  attribute: ProductAttribute[]; // Represents product's attributes
+  attributes: ProductAttribute[];
   status: string;
   rating: number;
-  ratingCount: number; // Number of ratings for the product
+  ratingCount: number;
   views: number;
   uniqueViews: string[];
   createdBy: string;
   updatedBy: string;
   returnDays: number;
-  variants: Variant[]; // Corrected typo here
-  variantAttribute: VariantAttribute[]; // Corrected type name
+  variants: Variant[];
+  variantAttributes: VariantAttribute[];
   price: {
     min: number;
     max: number;
   };
-  discountedPrice: number | null; // Can be null if there's no discount
+  discountedPrice: number | null;
   hasDiscount: boolean;
-  skuList: SkuList[];
+}
+
+export interface ProductDetailResponse {
+  product: ProductDetail;
+  skuList: {
+    skuList: SkuList[];
+  };
+}
+
+// Response từ backend
+export interface ProductUpdateResponse {
+  prd_name: string;
+  prd_description: string;
+  prd_video: string;
+  prd_main_image: string;
+  prd_sub_images: string[];
+  prd_category: Category[];
+  prd_attributes: ProductAttribute[];
+  prd_original_price: number;
+  prd_min_price: number;
+  prd_max_price: number;
+  prd_discount_type: "AMOUNT" | "PERCENT";
+  prd_discount_value: number;
+  prd_discount_start: string;
+  prd_discount_end: string;
+  prd_quantity: number;
+  prd_sold: number;
+  prd_varriants: Variant[];
+  return_days: number;
+  prd_rating: number;
+  updatedBy: string;
 }

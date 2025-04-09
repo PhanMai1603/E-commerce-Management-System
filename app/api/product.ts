@@ -84,6 +84,7 @@ export const unPublishProduct = async (id: string, userId: string, accessToken: 
   }
 };
 
+
 export const deleteProduct = async (id: string, userId: string, accessToken: string) => {
   try {
       const response = await api.delete(`${PRODUCT_URL}/${id}`,{
@@ -103,22 +104,52 @@ export const deleteProduct = async (id: string, userId: string, accessToken: str
   }
 };
 
-// export const getProductDetail = async (id: string, userId: string, accessToken: string): Promise<Product.ProductDataDetailResponse> => {
-//   try {
-//     const response = await api.get(`${PRODUCT_URL}/${id}`, {
-//       headers: {
-//         'x-client-id': userId,
-//         'Authorization': accessToken,
-//       },
-//     });
+export const getProductDetail = async (id: string, userId: string, accessToken: string): Promise<Product.ProductDetailResponse> => {
+  try {
+    const response = await api.get(`${PRODUCT_URL}/${id}`, {
+      headers: {
+        'x-client-id': userId,
+        'Authorization': accessToken,
+      },
+    });
 
-//     return response.data.metadata;
-//   } catch (error) {
-//     const errorMessage = get(error, 'response.data.error.message', '');
+    return response.data.metadata;
+  } catch (error) {
+    const errorMessage = get(error, 'response.data.error.message', '');
 
-//     if (errorMessage) {
-//       toast.error(errorMessage);
-//     }
-//     throw new Error(errorMessage || 'An unknown error occurred.');
-//   }
-// };
+    if (errorMessage) {
+      toast.error(errorMessage);
+    }
+    throw new Error(errorMessage || 'An unknown error occurred.');
+  }
+};
+
+
+export const updateProduct = async ( product: Product.ProductDetail, userId: string,accessToken: string): Promise<Product.ProductUpdateResponse> => {
+  try {
+    const payload = {
+      productKey: product.code,
+      name: product.name,
+      description: product.description,
+      originalPrice: product.originalPrice,
+      returnDays: product.returnDays,
+      discountType: product.discountType,
+      discountValue: product.discountValue,
+      discountStart: product.discountStart || undefined,
+      discountEnd: product.discountEnd || undefined,
+    };
+
+    const response = await api.patch(`${PRODUCT_URL}`, payload, {
+      headers: {
+        'x-client-id': userId,
+        'Authorization': accessToken,
+      },
+    });
+
+    return response.data.metadata;
+  } catch (error) {
+    const errorMessage = get(error, 'response.data.error.message', '');
+    if (errorMessage) toast.error(errorMessage);
+    throw new Error(errorMessage || 'Đã có lỗi xảy ra khi cập nhật sản phẩm.');
+  }
+};
