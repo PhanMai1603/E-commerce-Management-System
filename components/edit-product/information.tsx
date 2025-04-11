@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -69,9 +70,10 @@ const InformationForm: React.FC<InformationFormProps> = ({ product, setProduct, 
         <div className='w-full space-y-2 col-span-6'>
           <Label>Product Categories</Label>
           <CategorySelection
-            setProduct={setProduct}
             product={product}
+            setProduct={setProduct}
           />
+
 
         </div>
 
@@ -89,7 +91,10 @@ const InformationForm: React.FC<InformationFormProps> = ({ product, setProduct, 
 
         <div className='space-y-2 col-span-2'>
           <Label>Product Return Day</Label>
-          <Select onValueChange={(value) => handleSelect(value)}>
+          <Select
+            value={String(product.returnDays)} // Convert number to string for Select
+            onValueChange={(value) => setProduct({ ...product, returnDays: Number(value) })}
+          >
             <SelectTrigger className='flex h-10 hover:bg-gray-600/10'>
               <SelectValue placeholder="Select return day" />
             </SelectTrigger>
@@ -110,7 +115,7 @@ const InformationForm: React.FC<InformationFormProps> = ({ product, setProduct, 
             userId={userId}
             accessToken={accessToken}
             setProduct={setProduct}
-          />
+            attributes={[]} />
         </div>
       </CardContent>
     </Card >

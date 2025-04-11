@@ -1,50 +1,81 @@
-'use client'
+/* eslint-disable prefer-const */
+'use client';
 
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Button } from '@/components/ui/button'
-import { ChevronDown, X } from 'lucide-react'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
-import { CategoryDataResponse } from '@/interface/category'
-import { useEffect, useState } from 'react'
-import { getAllCategories } from '@/app/api/category'
-import { ProductData } from '@/interface/product'
+import { useEffect, useState } from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, X } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { getAllCategories } from '@/app/api/category';
+import { CategoryDataResponse } from '@/interface/category';
+import { ProductDetail } from '@/interface/product';
 
 interface CategorySelectionProps {
-  setProduct: React.Dispatch<React.SetStateAction<ProductData>>;
+  product: ProductDetail;
+  setProduct: React.Dispatch<React.SetStateAction<ProductDetail>>;
 }
 
 interface SelectedCategories {
-  id: string,
-  name: string,
+  id: string;
+  name: string;
 }
 
-const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => {
-  const [allCategories, setAllCategories] = useState<Array<CategoryDataResponse>>([]);
+const CategorySelection: React.FC<CategorySelectionProps> = ({ product, setProduct }) => {
+  const [allCategories, setAllCategories] = useState<CategoryDataResponse[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<SelectedCategories[]>([]);
 
   useEffect(() => {
-    setProduct((prevProduct) => ({
-      ...prevProduct,
-      category: selectedCategories.map((category) => category.id),
-    }));
-  }, [selectedCategories, setProduct]);
-
-  const handleOpenCategories = async () => {
-    if (!isPopoverOpen) {
+    const fetchData = async () => {
+      setCategoriesLoading(true);
       try {
-        setCategoriesLoading(true);
-
         const response = await getAllCategories();
         setAllCategories(response);
+  
+        const flattenCategories = (categories: CategoryDataResponse[]): CategoryDataResponse[] => {
+          return categories.reduce<CategoryDataResponse[]>((acc, category) => {
+            return acc.concat(category, flattenCategories(category.children));
+          }, []);
+        };
+  
+        const flatList = flattenCategories(response);
+  
+        const selected = flatList
+          .filter((cat) =>
+            product.category.some((c) =>
+              typeof c === 'string' ? c === cat.id : c.id === cat.id
+            )
+          )
+          .map((cat) => ({ id: cat.id, name: cat.name }));
+  
+        setSelectedCategories(selected);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Failed to fetch categories:", error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+  
+    fetchData();
+  }, [product.category]);
+  
+
+  const handleOpenPopover = async () => {
+    if (!isPopoverOpen && allCategories.length === 0) {
+      setCategoriesLoading(true);
+      try {
+        const response = await getAllCategories();
+        setAllCategories(response);
+      } catch (err) {
+        console.error('Error loading categories', err);
       } finally {
         setCategoriesLoading(false);
       }
     }
+
+    setIsPopoverOpen((prev) => !prev);
   };
 
   const findParentCategories = (categoryId: string, categories: CategoryDataResponse[]): SelectedCategories[] => {
@@ -54,12 +85,8 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
       for (const category of list) {
         if (category.children.some((child) => child.id === id)) {
           parents.push({ id: category.id, name: category.name });
-
-          // Tiếp tục tìm cha của cha (duyệt toàn bộ danh sách)
           findParent(category.id, categories);
         }
-
-        // Kiểm tra con của con (đệ quy xuống các cấp thấp hơn)
         if (category.children.length > 0) {
           findParent(id, category.children);
         }
@@ -70,132 +97,99 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
     return parents;
   };
 
-  const handleCategoryChange = (categoryId: string, categoryName: string) => {
+  const toggleCategory = (id: string, name: string) => {
     setSelectedCategories((prev) => {
-      let updatedCategories: SelectedCategories[] = [...prev];
+      const exists = prev.some((cat) => cat.id === id);
+      let updated = exists ? prev.filter((cat) => cat.id !== id) : [...prev, { id, name }];
 
-      if (prev.some((category) => category.id === categoryId)) {
-        // Nếu đã chọn → Xóa khỏi danh sách
-        updatedCategories = updatedCategories.filter((category) => category.id !== categoryId);
-
-      } else {
-        // Nếu chưa chọn → Thêm vào danh sách
-        updatedCategories.push({ id: categoryId, name: categoryName });
-
-        // Thêm tất cả category cha vào danh sách
-        const parents = findParentCategories(categoryId, allCategories);
+      if (!exists) {
+        const parents = findParentCategories(id, allCategories);
         parents.forEach((parent) => {
-          if (!updatedCategories.some((cat) => cat.id === parent.id)) {
-            updatedCategories.push(parent);
+          if (!updated.find((cat) => cat.id === parent.id)) {
+            updated.push(parent);
           }
         });
       }
 
-      return updatedCategories;
+      // Cập nhật category trong product luôn
+      setProduct((prevProduct) => ({
+        ...prevProduct,
+        category: updated.map((cat) => ({ id: cat.id, name: cat.name })),
+      }));
+
+      return updated;
     });
   };
 
+  const isSelected = (id: string) => selectedCategories.some((cat) => cat.id === id);
 
-  const handleDelete = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, categoryId: string) => {
-    event.preventDefault();
+  const handleDelete = (e: React.MouseEvent<HTMLButtonElement>, id: string) => {
+    e.preventDefault();
+    setSelectedCategories((prev) => {
+      const updated = prev.filter((cat) => cat.id !== id);
+      setProduct((prevProduct) => ({
+        ...prevProduct,
+        category: updated.map((cat) => ({ id: cat.id, name: cat.name })),
+      }));
+      return updated;
+    });
+  };
 
-    setSelectedCategories((prev) => prev.filter((category) => category.id !== categoryId));
+  const renderCategoryTree = (categories: CategoryDataResponse[], level = 0) => {
+    return categories.map((category) => (
+      <div key={category.id} className="ml-2">
+        <div className="flex items-center space-x-2 pl-2" style={{ marginLeft: `${level * 10}px` }}>
+          <Checkbox
+            id={category.id}
+            checked={isSelected(category.id)}
+            onCheckedChange={() => toggleCategory(category.id, category.name)}
+          />
+          <Label htmlFor={category.id} className="text-sm">{category.name}</Label>
+        </div>
+        {category.children && category.children.length > 0 &&
+          renderCategoryTree(category.children, level + 1)}
+      </div>
+    ));
   };
 
   return (
-    <div className='w-full border rounded-md'>
-      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-        <PopoverTrigger
-          asChild
-          onClick={handleOpenCategories}
+    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          onClick={handleOpenPopover}
+          className="w-full justify-between"
         >
-          <div className='flex items-center'>
-            {selectedCategories.map((selected) => (
-              <div
-                key={selected.id}
-                className='relative'
-              >
-                <span className='text-sm text-nowrap font-medium px-3 py-1 ml-2 bg-gray-600/10 rounded-full'>{selected.name}</span>
-                <Button
-                  onClick={(event) => handleDelete(event, selected.id)}
-                  className='absolute h-auto -top-1 -right-1 p-1 bg-red-300 hover:bg-red-500 [&_svg]:size-2'
-                >
-                  <X />
-                </Button>
-              </div>
-            ))}
-            <Button className='flex justify-between items-center w-full px-3 bg-transparent font-normal text-gray-600 hover:bg-transparent'>
-              Select product categories
-              <ChevronDown />
-            </Button>
-          </div>
-        </PopoverTrigger>
-        <PopoverContent className='w-full min-w-[var(--radix-popper-anchor-width)]'>
-          {categoriesLoading ? (
-            <p> Loading...</p>
-          ) : allCategories.length === 0 ? (
-            <p className="text-center text-gray-500">No categories found.</p>
-          ) : (
-            <div className='grid grid-cols-3 gap-6 items-start'>
-              {allCategories.map((categories) => (
-                categories.children.length === 0 ? (
-                  <div
-                    key={categories.id}
-                    className='flex justify-between items-center'
-                  >
-                    <Label htmlFor={categories.id}>{categories.name}</Label>
-                    <Checkbox
-                      id={categories.id}
-                      checked={selectedCategories.some((c) => c.id === categories.id)}
-                      onCheckedChange={() => handleCategoryChange(categories.id, categories.name)}
-                    />
-                  </div>
-                ) : (
-                  <div key={categories.id}>
-                    <Label htmlFor={categories.id}>{categories.name}</Label>
-                    <div className='ml-3'>
-                      {categories.children.map((category) => (
-                        category.children.length === 0 ? (
-                          <div
-                            key={category.id}
-                            className='flex justify-between items-center'
-                          >
-                            <Label htmlFor={category.id}>{category.name}</Label>
-                            <Checkbox
-                              id={category.id}
-                              checked={selectedCategories.some((c) => c.id === category.id)}
-                              onCheckedChange={() => handleCategoryChange(category.id, category.name)}
-                            />
-                          </div>
-                        ) : (
-                          <div key={categories.id}>
-                            <Label>{category.name}</Label>
-                            {category.children.map((childCategory) => (
-                              <div
-                                key={childCategory.id}
-                                className={`flex justify-between items-center ml-3`}
-                              >
-                                <Label htmlFor={childCategory.id}>{childCategory.name}</Label>
-                                <Checkbox
-                                  id={childCategory.id}
-                                  checked={selectedCategories.some((c) => c.id === childCategory.id)}
-                                  onCheckedChange={() => handleCategoryChange(childCategory.id, childCategory.name)}
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        )
-                      ))}
-                    </div>
-                  </div>
-                )
-              ))}
+          {selectedCategories.length > 0
+            ? `${selectedCategories.length} selected`
+            : 'Select categories'}
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent className="w-[350px] max-h-[400px] overflow-auto" align="start">
+        <div className="mb-2">
+          {selectedCategories.map((cat) => (
+            <div key={cat.id} className="inline-flex items-center bg-gray-100 text-sm px-2 py-1 rounded mr-1 mb-1">
+              {cat.name}
+              <button onClick={(e) => handleDelete(e, cat.id)}>
+                <X className="ml-1 h-4 w-4" />
+              </button>
             </div>
+          ))}
+        </div>
+
+        <div className="space-y-1">
+          {categoriesLoading ? (
+            <div className="text-sm text-muted-foreground">Loading...</div>
+          ) : (
+            renderCategoryTree(allCategories)
           )}
-        </PopoverContent>
-      </Popover>
-    </div>
-  )
-}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 export default CategorySelection;

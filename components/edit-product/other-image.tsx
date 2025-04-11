@@ -1,113 +1,152 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
+import { useRef, useState, useEffect } from 'react'
+import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input';
-import { Images, Trash2, X } from 'lucide-react';
-import { useRef, useState } from 'react';
-import Image from 'next/image';
+import { Input } from '@/components/ui/input'
+import { Images, Trash2, X } from 'lucide-react'
 
 interface SubImageFormProps {
-  setSubImage: React.Dispatch<React.SetStateAction<File[] | undefined>>;
+  subImages?: string[] // from API or existing product
+  setProduct: (prev: any) => void // update product state in parent
 }
 
-const SubImageForm: React.FC<SubImageFormProps> = ({ setSubImage }) => {
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [images, setImages] = useState<string[]>([]);
-  const [isDragOver, setIsDragOver] = useState(false);
+const SubImageForm: React.FC<SubImageFormProps> = ({ subImages = [], setProduct }) => {
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+  const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  const [fileList, setFileList] = useState<File[]>([])
+  const [isDragOver, setIsDragOver] = useState(false)
+
+  // On initial render, populate preview URLs from existing product
+  useEffect(() => {
+    setPreviewUrls(subImages)
+  }, [subImages])
+
+  // Cleanup blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      fileList.forEach(file => URL.revokeObjectURL(URL.createObjectURL(file)))
+    }
+  }, [fileList])
 
   const handleClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files) return;
-
-    const newFiles = Array.from(event.target.files);
-
-    setSubImage(prevFiles => [...(prevFiles || []), ...newFiles]);
-
-    const newPreviewUrls = newFiles.map(file => URL.createObjectURL(file));
-    setImages(prevImages => [...prevImages, ...newPreviewUrls]);
-  };
-
-  const handleDelete = (indexToRemove: number) => {
-    setImages(prevImages => prevImages.filter((_, index) => index !== indexToRemove));
-    setSubImage(prevFiles => prevFiles?.filter((_, index) => index !== indexToRemove));
-  };
-
-  const handleClear = () => {
-    setImages([]);
-    setSubImage(undefined);
+    fileInputRef.current?.click()
   }
 
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setIsDragOver(true);
-  };
+  const addFiles = (newFiles: File[]) => {
+    const newUrls = newFiles.map(file => URL.createObjectURL(file))
 
-  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
-    if (!event.currentTarget.contains(event.relatedTarget as Node)) {
-      setIsDragOver(false);
+    setFileList(prev => [...prev, ...newFiles])
+    setPreviewUrls(prev => [...prev, ...newUrls])
+    setProduct((prev: any) => ({
+      ...prev,
+      newSubImages: [...(prev.newSubImages || []), ...newFiles], // for uploading
+    }))
+  }
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      addFiles(Array.from(event.target.files))
     }
-  };
+  }
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setIsDragOver(false);
+    event.preventDefault()
+    setIsDragOver(false)
+    const droppedFiles = Array.from(event.dataTransfer.files)
+    addFiles(droppedFiles)
+  }
 
-    const newFiles = Array.from(event.dataTransfer.files);
-    setSubImage(prevFiles => [...(prevFiles || []), ...newFiles]);
+  const handleDelete = (index: number) => {
+    const isFile = index >= subImages.length // everything after subImages is a file
 
-    const newPreviewUrls = newFiles.map(file => URL.createObjectURL(file));
-    setImages(prevImages => [...prevImages, ...newPreviewUrls]);
-  };
+    if (isFile) {
+      const fileIndex = index - subImages.length
+      setFileList(prev => prev.filter((_, i) => i !== fileIndex))
+      setProduct((prev: any) => ({
+        ...prev,
+        newSubImages: prev.newSubImages?.filter((_: any, i: number) => i !== fileIndex),
+      }))
+    } else {
+      setProduct((prev: any) => ({
+        ...prev,
+        subImages: prev.subImages?.filter((_: string, i: number) => i !== index),
+      }))
+    }
+
+    setPreviewUrls(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleClear = () => {
+    setPreviewUrls([])
+    setFileList([])
+    setProduct((prev: any) => ({
+      ...prev,
+      subImages: [],
+      newSubImages: [],
+    }))
+  }
 
   return (
-    <Card className='col-span-5'>
-      <CardHeader className='flex justify-between items-center'>
-        <CardTitle className='text-base'>Add Product Other Image</CardTitle>
-
-        <Button
-          onClick={handleClear} 
-          className='h-6'
-        >
-          <Trash2 />
+    <Card className="col-span-5">
+      <CardHeader className="flex justify-between items-center">
+        <CardTitle className="text-base">Edit Product Other Images</CardTitle>
+        <Button 
+        onClick={handleClear} 
+        className="h-6" 
+        variant="destructive">
+          <Trash2 className="w-4 h-4" />
         </Button>
       </CardHeader>
 
-      <CardContent className={`w-full ${images.length === 0 ? '' : 'space-y-4'}`}>
-        <div className='w-full flex gap-x-6'>
-          {images.map((image, index) => (
-            <div key={index} className='relative group'>
-              <Image
-                src={image}
-                alt={image}
-                width={1000}
-                height={1000}
-                className='w-full h-56 object-contain rounded-md'
-              />
-              <Button
-                onClick={() => handleDelete(index)}
-                className='absolute h-auto -top-2 -right-2 p-1 bg-red-300 hover:bg-red-500 [&_svg]:size-4'
-              >
-                <X />
-              </Button>
-            </div>
-          ))}
-        </div>
-        <div className='w-auto'>
+      <CardContent className={previewUrls.length > 0 ? 'space-y-4' : ''}>
+        {previewUrls.length > 0 && (
+          <div className="flex gap-4 flex-wrap">
+            {previewUrls.map((url, index) => (
+              <div key={index} className="relative group w-32 h-32 border rounded-md overflow-hidden">
+                <Image
+                  src={url}
+                  alt={`Other image ${index + 1}`}
+                  width={128}
+                  height={128}
+                  className="object-contain w-full h-full"
+                />
+                <Button
+                  type="button"
+                  onClick={() => handleDelete(index)}
+                  className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 rounded-full text-white"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="w-auto">
           <div
-            className={`relative w-auto flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 group overflow-hidden ${images.length === 0 ? 'h-72 [&_svg]:size-8' : 'h-12 [&_svg]:size-5'}`}
             onClick={handleClick}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
+            onDragOver={(e) => {
+              e.preventDefault()
+              setIsDragOver(true)
+            }}
+            onDragLeave={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDragOver(false)
+            }}
             onDrop={handleDrop}
+            className={`relative flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer overflow-hidden transition-all
+              ${previewUrls.length === 0 ? 'h-72' : 'h-12'} 
+              group`}
           >
-            <div className={`absolute bottom-0 left-0 w-full bg-gray-600/10 transition-all duration-300 group-hover:h-full ${isDragOver ? 'h-full' : 'h-0'}`} />
-            <Images className='text-gray-400 group-hover:text-gray-500' />
+            <div
+              className={`absolute bottom-0 left-0 w-full bg-gray-600/10 transition-all duration-300 group-hover:h-full ${
+                isDragOver ? 'h-full' : 'h-0'
+              }`}
+            />
+            <Images className="text-gray-400 group-hover:text-gray-500" />
           </div>
           <Input
             type="file"
@@ -123,4 +162,4 @@ const SubImageForm: React.FC<SubImageFormProps> = ({ setSubImage }) => {
   )
 }
 
-export default SubImageForm;
+export default SubImageForm

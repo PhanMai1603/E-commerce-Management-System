@@ -132,6 +132,7 @@ export const updateProduct = async ( product: Product.ProductDetail, userId: str
       name: product.name,
       description: product.description,
       originalPrice: product.originalPrice,
+      attribute: product.attributes,
       returnDays: product.returnDays,
       discountType: product.discountType,
       discountValue: product.discountValue,

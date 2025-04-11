@@ -70,16 +70,14 @@ export function ProductTable() {
 
   const handleDelete = async (productId: string) => {
     try {
-      // Call the API to delete the product
-      await deleteProduct(userId, accessToken, productId);
+      await deleteProduct(productId, userId, accessToken);
       toast.success("Product deleted successfully!");
-      // Refresh the list or remove the product from state
       setProducts(products.filter((product) => product.id !== productId));
     } catch (error) {
       toast.error("Failed to delete the product.");
     }
   };
-
+  
   return (
     <Card>
       {/* Header chứa tiêu đề, thanh tìm kiếm và nút thêm sản phẩm */}

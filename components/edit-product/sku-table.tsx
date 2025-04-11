@@ -1,4 +1,4 @@
-import { ProductDetail, Variant } from "@/interface/product";
+import { ProductDetail, SkuList, Variant } from "@/interface/product";
 import React, { useEffect, useRef, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { ImagePlus, LoaderCircle, X } from "lucide-react";
@@ -8,9 +8,10 @@ import { Button } from "../ui/button";
 import { uploadProductImage } from "@/app/api/upload";
 
 interface SkuTableProps {
-  userId: string,
-  accessToken: string,
-  variants: Array<Variant> | undefined;
+  userId: string;
+  accessToken: string;
+  variants: Variant[];
+  skuList: SkuList[]; // Thêm dòng này
   setProduct: React.Dispatch<React.SetStateAction<ProductDetail>>;
 }
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,15 +7,55 @@ import { getProductDetail, updateProduct } from '@/app/api/product';
 import { toast } from 'react-toastify';
 import { Button } from '@/components/ui/button';
 import InformationForm from '@/components/edit-product/information';
-import {ProductDetail } from '@/interface/product';
+import { ProductDetail, SkuList } from '@/interface/product';
 import DescriptionForm from '@/components/edit-product/description';
 import MainImageForm from '@/components/edit-product/main-image';
-import OtherImageForm from '@/components/edit-product/other-image'
+import OtherImageForm from '@/components/edit-product/other-image';
 import SkuTable from '@/components/edit-product/sku-table';
 import PublishProduct from '@/components/edit-product/switch';
+
 const EditProductPage = () => {
-  const { id } = useParams(); // 'id' thực ra là mã code của sản phẩm
-  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const { id } = useParams();
+  const [product, setProduct] = useState<ProductDetail>({
+    id: '',
+    code: '',
+    name: '',
+    slug: '',
+    description: '',
+    video: '',
+    mainImage: '',
+    subImages: [],
+    qrCode: '',
+    originalPrice: 0,
+    minPrice: 0,
+    maxPrice: 0,
+    discountType: 'PERCENT',
+    discountValue: 0,
+    discountStart: null,
+    discountEnd: null,
+    quantity: 0,
+    sold: 0,
+    category: [],
+    attributes: [],
+    status: '',
+    rating: 0,
+    ratingCount: 0,
+    views: 0,
+    uniqueViews: [],
+    createdBy: '',
+    updatedBy: '',
+    returnDays: 0,
+    variants: [],
+    variantAttributes: [],
+    price: {
+      min: 0,
+      max: 0,
+    },
+    discountedPrice: null,
+    hasDiscount: false,
+  });
+
+  const [skuList, setSkuList] = useState<SkuList[]>([]);
   const [loading, setLoading] = useState(false);
 
   const userId =
@@ -28,6 +69,7 @@ const EditProductPage = () => {
         if (id && userId && accessToken) {
           const data = await getProductDetail(id as string, userId, accessToken);
           setProduct(data.product);
+          setSkuList(data.skuList.skuList);
         }
       } catch (error) {
         toast.error('Không thể tải dữ liệu sản phẩm.');
@@ -40,10 +82,8 @@ const EditProductPage = () => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      if (product) {
-        await updateProduct(product, userId, accessToken);
-        toast.success('Cập nhật sản phẩm thành công!');
-      }
+      await updateProduct(product, userId, accessToken);
+      toast.success('Cập nhật sản phẩm thành công!');
     } catch {
       toast.error('Cập nhật thất bại.');
     } finally {
@@ -82,6 +122,7 @@ const EditProductPage = () => {
           userId={userId}
           accessToken={accessToken}
           variants={product.variants}
+          skuList={skuList}
           setProduct={setProduct}
         />
       )}
