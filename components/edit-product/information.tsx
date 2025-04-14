@@ -73,11 +73,20 @@ const InformationForm: React.FC<InformationFormProps> = ({ product, setProduct, 
             product={product}
             setProduct={setProduct}
           />
-
-
         </div>
 
         <div className='space-y-2 col-span-4'>
+          <Label>Product Original Price</Label>
+          <Input
+            name='originalPrice'
+            value={product.originalPrice}
+            type='number'
+            min="0"
+            placeholder='Enter product original price'
+            onChange={handleChange}
+          />
+        </div>
+         <div className='space-y-2 col-span-4'>
           <Label>Product Original Price</Label>
           <Input
             name='originalPrice'
@@ -115,7 +124,7 @@ const InformationForm: React.FC<InformationFormProps> = ({ product, setProduct, 
             userId={userId}
             accessToken={accessToken}
             setProduct={setProduct}
-            attributes={[]} />
+            />
         </div>
       </CardContent>
     </Card >

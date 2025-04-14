@@ -6,6 +6,8 @@ import { Input } from "../ui/input";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { uploadProductImage } from "@/app/api/upload";
+import { toast } from "react-toastify";
+import { importProduct } from "@/app/api/product";
 
 interface SkuTableProps {
   userId: string;
@@ -180,23 +182,46 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
   //   const previewUrl = URL.createObjectURL(file[0]);
   // };
 
-  const handleInputChange = (index: number, field: "price" | "quantity", value: string) => {
+  const handleInputChange = async (index: number, field: "price" | "quantity", value: string) => {
     setSkuList((prev) => {
       const updatedSkuList = prev.map((sku, i) => {
         if (i === index) {
           let newValue = Number(value);
-
+  
           // Nếu là số âm, đặt giá trị thành "0"
           if (newValue < 0) newValue = 0;
-
+  
+          // Cập nhật giá trị field (price/quantity)
           return { ...sku, [field]: value === "" ? "" : newValue };
         }
         return sku;
       });
-
+  
       return updatedSkuList;
     });
+  
+    // Sau khi cập nhật SKU list, gọi API importProduct để cập nhật quantity
+    if (field === "quantity") {
+      const updatedSku = skuList[index];
+      const data = {
+        id: "your_product_id", // Thay bằng ID sản phẩm thực tế
+        skuList: [
+          {
+            id: updatedSku.tierIndex.join("-"), // Hoặc sử dụng SKU ID thực tế nếu có
+            quantity: updatedSku.quantity,
+          }
+        ]
+      };
+  
+      try {
+        await importProduct(data, userId, accessToken);
+        toast.success("Quantity updated successfully!");
+      } catch (error) {
+        toast.error("Failed to update quantity!");
+      }
+    }
   };
+  
 
   const handleDefaultChange = (index: number) => {
     setSkuList(prev => prev.map((sku, i) => ({

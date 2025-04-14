@@ -29,7 +29,7 @@ const EditProductPage = () => {
     originalPrice: 0,
     minPrice: 0,
     maxPrice: 0,
-    discountType: 'PERCENT',
+    discountType: "PERCENT",
     discountValue: 0,
     discountStart: null,
     discountEnd: null,
@@ -46,14 +46,16 @@ const EditProductPage = () => {
     updatedBy: '',
     returnDays: 0,
     variants: [],
-    variantAttributes: [],
+    // variantAttributes: [],
     price: {
-      min: 0,
-      max: 0,
+      minPrice: 0,
+      maxPrice: 0,
     },
     discountedPrice: null,
     hasDiscount: false,
+    skuList: [],
   });
+  
 
   const [skuList, setSkuList] = useState<SkuList[]>([]);
   const [loading, setLoading] = useState(false);

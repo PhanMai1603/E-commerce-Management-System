@@ -132,7 +132,7 @@ export interface ProductDetail{
   quantity: number;
   sold: number;
   category: Category[];
-  attributes: ProductAttribute[];
+  attributes: Attribute[];
   status: string;
   rating: number;
   ratingCount: number;
@@ -141,14 +141,30 @@ export interface ProductDetail{
   createdBy: string;
   updatedBy: string;
   returnDays: number;
-  variants: Variant[];
-  variantAttributes: VariantAttribute[];
-  price: {
-    min: number;
-    max: number;
-  };
+  variants?: Variant[];
+  variantAttributes?: VariantAttribute[];
+  price:{
+    minPrice: number;
+    maxPrice: number;
+  }
   discountedPrice: number | null;
   hasDiscount: boolean;
+  skuList?: SkuLists[];
+}
+export interface SkuLists {
+  tierIndex: number[];
+  price: number;
+  quantity: number;
+  slug: string;
+}
+
+export interface Attribute {
+  type: string;
+  name: string;
+  values: {
+    value: string;
+    descriptionUrl: string;
+  }[];
 }
 
 export interface ProductDetailResponse {
@@ -158,7 +174,7 @@ export interface ProductDetailResponse {
   };
 }
 
-// Response từ backend
+// Interface cho phản hồi khi cập nhật sản phẩm
 export interface ProductUpdateResponse {
   prd_name: string;
   prd_description: string;
@@ -166,7 +182,7 @@ export interface ProductUpdateResponse {
   prd_main_image: string;
   prd_sub_images: string[];
   prd_category: Category[];
-  prd_attributes: ProductAttribute[];
+  prd_attributes: Attribute[];
   prd_original_price: number;
   prd_min_price: number;
   prd_max_price: number;
@@ -176,8 +192,27 @@ export interface ProductUpdateResponse {
   prd_discount_end: string;
   prd_quantity: number;
   prd_sold: number;
-  prd_varriants: Variant[];
+  prd_variants:{
+    var_name: "color";
+    var_options: string[];
+    var_images: string[]
+  }
+  // prd_variant_attributes: VariantAttribute[];
+  // prd_sku_list: SkuList[];
   return_days: number;
   prd_rating: number;
   updatedBy: string;
+}
+
+export interface ImportProductData {
+  id: string;
+  quantity?: number; // Optional if skuList is provided
+  skuList?: { id: string; quantity: number }[]; // Optional if quantity is provided
+}
+
+export interface ImportProductResponse {
+  id: string;
+  name: string;
+  quantity: number;
+  status: string;
 }
