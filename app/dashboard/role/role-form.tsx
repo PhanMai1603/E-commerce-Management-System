@@ -43,10 +43,19 @@ export function RoleTable() {
       }
       const roleData = await getAllRole(userId, accessToken, 1, 10);
       setRoles(roleData.roles);
+  
+      // Auto-select Admin role if not selected
+      if (!selectedRole) {
+        const adminRole = roleData.roles.find((r) => r.name === "Admin");
+        if (adminRole) {
+          setSelectedRole(adminRole.id);
+        }
+      }
     } catch (error) {
       toast.error(get(error, "response.data.error.message", "An unknown error occurred."));
     }
-  }, [userId, accessToken]);
+  }, [userId, accessToken, selectedRole]);
+  
 
   // Fetch role details
   const fetchRoleDetails = useCallback(async (roleId: string) => {
@@ -113,7 +122,7 @@ export function RoleTable() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
+        
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>

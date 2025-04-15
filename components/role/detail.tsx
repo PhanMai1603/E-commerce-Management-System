@@ -33,7 +33,6 @@ const RoleDetails: React.FC<RoleDetailsProps> = ({ roleDetails, setModalOpen }) 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead></TableHead>
               <TableHead>Name</TableHead>
               {actions.map((action) => (
                 <TableHead key={action} className="text-center">

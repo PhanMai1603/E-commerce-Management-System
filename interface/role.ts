@@ -13,7 +13,7 @@ export interface RoleResponse {
 }
 
 export interface RoleData {
-    name: string;
+    name?: string; // 👈 cho phép không gửi name
     permissions: {
         [types: string]: {
             [entity: string]: {
@@ -22,6 +22,7 @@ export interface RoleData {
         };
     };
 }
+
 export interface RoleDetailResponse {
     id: string;
     name: string;
