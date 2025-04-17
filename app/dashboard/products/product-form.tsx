@@ -42,6 +42,7 @@ import {
   PaginationLink,
 } from "@/components/ui/pagination";
 import SearchBar from "@/components/Search";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function ProductTable() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -110,23 +111,25 @@ export function ProductTable() {
             <label className="text-sm text-muted-foreground whitespace-nowrap">
               Show:
             </label>
-            <select
-              value={size}
-              onChange={(e) => {
-                setSize(Number(e.target.value));
+            <Select
+              value={size.toString()}
+              onValueChange={(val) => {
+                setSize(Number(val));
                 setPage(1);
               }}
-              className="h-10 border rounded-md px-3 py-2 text-sm text-gray-700"
             >
-              {[5, 10, 25, 50, 100].map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm">
+                <SelectValue placeholder="Select page size" />
+              </SelectTrigger>
+              <SelectContent>
+                {[5, 10, 25, 50, 100].map((option) => (
+                  <SelectItem key={option} value={option.toString()}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-
-
 
           {/* Search bar */}
           <SearchBar

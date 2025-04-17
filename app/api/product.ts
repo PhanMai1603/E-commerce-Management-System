@@ -26,13 +26,7 @@ export const getAllProduct = async (userId: string, accessToken: string, page: n
   }
 };
 //SEARCH
-export const getTopSearchProduct = async (
-  search: string,
-  userId: string,
-  accessToken: string,
-  page: number,
-  size: number
-): Promise<Product.ProductResponse> => {
+export const getTopSearchProduct = async (search: string, userId: string, accessToken: string, page: number, size: number): Promise<Product.ProductResponse> => {
   try {
     const response = await api.get(`${PRODUCT_URL}/?search=${search}&page=${page}&size=${size}`, {
       headers: {
