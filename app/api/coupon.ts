@@ -5,21 +5,12 @@ import get from "lodash/get";
 
 const COUPON_URL = "/coupon";
 
-export const getAllCoupons = async (
-    userId: string,
-    accessToken: string,
-    page: number,
-    size: number // Đổi Size thành size
-  ): Promise<Coupon.getAllCouponsResponse> => {
+export const getAllCoupons = async (userId: string, accessToken: string, page: number, size: number): Promise<Coupon.getAllCouponsResponse> => {
     try {
-      const response = await api.get(`${COUPON_URL}/all`, {
+      const response = await api.get(`${COUPON_URL}/all?page=${page}&size=${size}`, {
         headers: {
           "x-client-id": userId,
           Authorization: accessToken,
-        },
-        params: {
-          page, 
-          size, 
         },
       });
       return response.data.metadata;

@@ -31,15 +31,15 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
     const storedAvatar = localStorage.getItem("avatarUrl");
     console.log(storedAvatar);  // Add this line to debug
     if (storedAvatar) setAvatar(storedAvatar);
-  
+
     const handleStorageChange = () => {
       setAvatar(localStorage.getItem("avatarUrl"));
     };
-  
+
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
-  
+
 
   const handleChangePassword = async () => {
     setLoading(true);
@@ -108,11 +108,11 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
-              {avatar ? (
-  <img src={avatar} alt="User Avatar" className="w-8 h-8 rounded-full object-cover" />
-) : (
-  <CircleUser className="h-5 w-5" />
-)}
+                {avatar ? (
+                  <img src={avatar} alt="User Avatar" className="w-8 h-8 rounded-full object-cover" />
+                ) : (
+                  <CircleUser className="h-5 w-5" />
+                )}
 
               </Button>
             </DropdownMenuTrigger>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -5,17 +6,27 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { EllipsisVertical, Plus } from "lucide-react";
 import { getAllCoupons } from "@/app/api/coupon";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { toast } from "react-toastify";
 import { getAllCouponsResponse } from "@/interface/coupon";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function CouponTable() {
   const [couponsData, setCouponsData] = useState<getAllCouponsResponse | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(5);
- const router = useRouter();
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(5);
+
+  const router = useRouter();
 
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
@@ -23,35 +34,64 @@ export default function CouponTable() {
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
-        const response = await getAllCoupons(userId, accessToken, currentPage, pageSize);
+        const response = await getAllCoupons(userId, accessToken, page, size);
         setCouponsData(response);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         toast.error("Failed to fetch coupons");
       }
     };
 
     fetchCoupons();
-  }, [userId, accessToken, currentPage, pageSize]);
+  }, [userId, accessToken, page, size]);
+
 
   const totalPages = couponsData?.totalPages || 1;
 
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
     }
   };
 
+
   return (
     <Card>
-      {/* Header với nút Add Coupons */}
-      <CardHeader className="flex justify-between items-center">
+      <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <CardTitle>All Coupons</CardTitle>
-        <Button onClick={() => router.push("/dashboard/coupons/create")} className="flex items-center gap-2">
+
+        {/* Show + Add Coupon cùng hàng */}
+        <div className="flex items-center justify-between gap-4 w-full md:w-auto">
+          {/* Show dropdown */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-muted-foreground whitespace-nowrap">Show:</label>
+            <Select
+              value={size.toString()}
+              onValueChange={(val) => {
+                setSize(Number(val));
+                setPage(1); // Reset về page 1 khi đổi size
+              }}
+            >
+              <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm">
+                <SelectValue placeholder="Select page size" />
+              </SelectTrigger>
+              <SelectContent>
+                {[5, 10, 25, 50, 100].map((option) => (
+                  <SelectItem key={option} value={option.toString()}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Nút Add */}
+          <Button onClick={() => router.push("/dashboard/coupons/create")} className="flex items-center gap-2 h-10">
             <Plus className="w-5 h-5" />
             Add Coupon
           </Button>
+        </div>
       </CardHeader>
+
 
       <CardContent>
         <Table>
@@ -73,22 +113,21 @@ export default function CouponTable() {
             {couponsData?.coupons?.map((coupon) => (
               <TableRow key={coupon.id}>
                 <TableCell className="font-medium">{coupon.name}</TableCell>
-                <TableCell className="font-medium">
+                <TableCell>
                   <span className="px-2 py-1 rounded-full text-sm font-semibold bg-gray-200 text-gray-700">
                     {coupon.code}
                   </span>
                 </TableCell>
-                <TableCell className="font-medium">{new Date(coupon.startDate).toLocaleDateString()}</TableCell>
-                <TableCell className="font-medium">{new Date(coupon.endDate).toLocaleDateString()}</TableCell>
-                <TableCell className="font-medium">{coupon.type}</TableCell>
-
-                <TableCell className="font-medium">
+                <TableCell>{new Date(coupon.startDate).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(coupon.endDate).toLocaleDateString()}</TableCell>
+                <TableCell>{coupon.type}</TableCell>
+                <TableCell>
                   <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 font-semibold">
                     -{coupon.value} {coupon.type === "PERCENT" ? "%" : "VND"}
                   </span>
                 </TableCell>
-                <TableCell className="font-medium">{coupon.targetType}</TableCell>
-                <TableCell className="font-medium">
+                <TableCell>{coupon.targetType}</TableCell>
+                <TableCell>
                   <span
                     className={`px-2 py-1 rounded-full text-sm font-semibold ${coupon.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                       }`}
@@ -96,7 +135,6 @@ export default function CouponTable() {
                     {coupon.isActive ? "Active" : "Expired"}
                   </span>
                 </TableCell>
-
                 <TableCell className="text-right">
                   <EllipsisVertical />
                 </TableCell>
@@ -106,67 +144,50 @@ export default function CouponTable() {
         </Table>
       </CardContent>
 
-      {/* Pagination */}
       <CardFooter className="border-t pt-3 flex justify-between">
         <Pagination>
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
                 href="#"
-                onClick={() => handlePageChange(currentPage - 1)}
-                className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPage((prev) => Math.max(prev - 1, 1));
+                }}
               />
             </PaginationItem>
 
-            {currentPage > 2 && (
-              <>
-                <PaginationItem>
-                  <PaginationLink href="#" onClick={() => handlePageChange(1)}>
-                    1
+            {Array.from({ length: totalPages }).map((_, i) => {
+              const pageNumber = i + 1;
+              return (
+                <PaginationItem key={pageNumber}>
+                  <PaginationLink
+                    href="#"
+                    isActive={pageNumber === page}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setPage(pageNumber);
+                    }}
+                  >
+                    {pageNumber}
                   </PaginationLink>
                 </PaginationItem>
-                {currentPage > 3 && <PaginationItem>...</PaginationItem>}
-              </>
-            )}
+              );
+            })}
 
-            {currentPage > 1 && (
+            {totalPages > 5 && (
               <PaginationItem>
-                <PaginationLink href="#" onClick={() => handlePageChange(currentPage - 1)}>
-                  {currentPage - 1}
-                </PaginationLink>
+                <PaginationEllipsis />
               </PaginationItem>
-            )}
-
-            <PaginationItem>
-              <PaginationLink href="#" isActive>
-                {currentPage}
-              </PaginationLink>
-            </PaginationItem>
-
-            {currentPage < totalPages && (
-              <PaginationItem>
-                <PaginationLink href="#" onClick={() => handlePageChange(currentPage + 1)}>
-                  {currentPage + 1}
-                </PaginationLink>
-              </PaginationItem>
-            )}
-
-            {currentPage < totalPages - 1 && (
-              <>
-                {currentPage < totalPages - 2 && <PaginationItem>...</PaginationItem>}
-                <PaginationItem>
-                  <PaginationLink href="#" onClick={() => handlePageChange(totalPages)}>
-                    {totalPages}
-                  </PaginationLink>
-                </PaginationItem>
-              </>
             )}
 
             <PaginationItem>
               <PaginationNext
                 href="#"
-                onClick={() => handlePageChange(currentPage + 1)}
-                className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPage((prev) => Math.min(prev + 1, totalPages));
+                }}
               />
             </PaginationItem>
           </PaginationContent>

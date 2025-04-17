@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getSale } from '@/app/api/statistics'
 import { Sales } from '@/interface/statistics'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Box, Layers, ShoppingBag, Users } from 'lucide-react'
 
 export default function Page() {
   const [statistics, setStatistics] = useState<Sales | null>(null);
@@ -35,6 +36,7 @@ export default function Page() {
       <Card className='col-span-1'>
         <CardHeader>
           <CardTitle className='text-base'>Total Orders</CardTitle>
+          <ShoppingBag />
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -48,6 +50,7 @@ export default function Page() {
       <Card className='col-span-1'>
         <CardHeader>
           <CardTitle className='text-base'>Total Products</CardTitle>
+          <Box />
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -61,6 +64,7 @@ export default function Page() {
       <Card className='col-span-1'>
         <CardHeader>
           <CardTitle className='text-base'>Total Users</CardTitle>
+          <Users/>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -74,6 +78,7 @@ export default function Page() {
       <Card className='col-span-1'>
         <CardHeader>
           <CardTitle className='text-base'>Total Sold Products</CardTitle>
+          <Layers />
         </CardHeader>
         <CardContent>
           {loading ? (

@@ -14,7 +14,7 @@ interface SidebarProps {
 
 const sidebarGroups = [
   {
-    title: "GENERAL",
+    title: "General",
     links: [
       { title: "Dashboard", icon: ChartNoAxesCombined, href: "/dashboard" },
       { title: "Category", icon: LayoutGrid, href: "/dashboard/categories" },
@@ -26,7 +26,7 @@ const sidebarGroups = [
     ],
   },
   {
-    title: "USERS",
+    title: "User",
     links: [
       { title: "Users", icon: Users2, href: "/dashboard/users" },
       { title: "Roles", icon: UserRoundCog, href: "/dashboard/role" },
@@ -34,7 +34,7 @@ const sidebarGroups = [
     ],
   },
   {
-    title: "OTHER",
+    title: "Other",
     links: [
       { title: "Delivery", icon: Truck, href: "/dashboard/delivery" },
     ],
@@ -69,15 +69,15 @@ export default function Sidebar({ showSidebar }: SidebarProps) {
       <nav className="p-4 space-y-4">
         {sidebarGroups.map((group, index) => (
           <div key={index}>
-            <h2 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
+            <h2 className="px-4 py-2 text-sm font-medium text-gray-500 ">
               {group.title}
             </h2>
-            <div className="space-y-2">
+            <div className="space-y-1">
               {group.links.map((item, idx) => (
                 <Link
                   key={idx}
                   href={item.href}
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-md transition-all"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all"
                 >
                   <item.icon size={20} />
                   <span>{item.title}</span>
