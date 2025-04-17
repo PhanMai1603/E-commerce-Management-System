@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -66,26 +67,23 @@ export default function RoleEditForm({ role, onSave, onCancel }: RoleEditFormPro
   const handleSubmit = async () => {
     const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
     const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
-
+  
     if (!userId || !accessToken) {
       toast.error("User ID or Access Token is missing");
       return;
     }
-
-    const updatedData: any = { permissions };
-
-    // Chỉ gửi name nếu người dùng thay đổi tên
-    const currentTrimmed = role.name?.trim?.() ?? "";
+  
     const newTrimmed = roleName.trim();
-
-    if (newTrimmed !== currentTrimmed) {
-      if (!newTrimmed) {
-        toast.error("Role name cannot be empty");
-        return;
-      }
-      updatedData.name = newTrimmed;
+    if (!newTrimmed) {
+      toast.error("Role name cannot be empty");
+      return;
     }
-
+  
+    const updatedData: any = {
+      name: newTrimmed, // luôn gửi name!
+      permissions,
+    };
+  
     try {
       await updateRole(role.id, updatedData, userId, accessToken);
       toast.success("Role updated successfully!");
@@ -95,6 +93,8 @@ export default function RoleEditForm({ role, onSave, onCancel }: RoleEditFormPro
       toast.error("Failed to update role");
     }
   };
+  
+  
 
   return (
     <div className="flex flex-col gap-4">

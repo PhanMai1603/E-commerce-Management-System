@@ -26,8 +26,11 @@ const RoleDetails: React.FC<RoleDetailsProps> = ({ roleDetails, setModalOpen }) 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Role Details</CardTitle>
-        <div className="text-sm text-gray-600">Role Name: {roleDetails.name}</div> {/* Hiển thị tên vai trò */}
+        <CardTitle>Role Detail</CardTitle>
+        <div className="mt-2 px-4 py-2 rounded-md bg-gray-100 text-gray-800 text-base font-semibold inline-block shadow-sm items-center gap-2">
+          🛡️ Role Name: <span className="text-primary font-bold">{roleDetails.name}</span>
+        </div>
+
       </CardHeader>
       <CardContent>
         <Table>

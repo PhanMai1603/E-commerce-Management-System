@@ -43,7 +43,7 @@ export default function AttributeTable({ attributes, loading, onEdit, onView }: 
                   <TableCell className="font-medium">{attr.name}</TableCell>
                   <TableCell>{attr.type}</TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap gap-2 max-h-[100px] overflow-y-auto pr-2">
+                  <div className="flex flex-wrap gap-2 max-h-[100px] overflow-y-auto pr-2 custom-scrollbar">
                       {attr.values.map((val, i) => (
                         <div key={`${val.valueId}-${i}`} className="flex items-center gap-1 border border-gray-300 px-2 py-1 rounded text-sm break-all">
                           {attr.type === "COLOR" ? (

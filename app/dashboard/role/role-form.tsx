@@ -20,7 +20,6 @@ import RoleCreationForm from "@/components/role/create";
 import RoleEditForm from "@/components/role/edit";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-// Importing Shadcn Dialog components
 
 export function RoleTable() {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -28,13 +27,12 @@ export function RoleTable() {
   const [roleDetails, setRoleDetails] = useState<RoleDetailResponse | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false); // Dialog state for delete
-  const [roleToDelete, setRoleToDelete] = useState<string>(""); // Store the role to delete
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [roleToDelete, setRoleToDelete] = useState<string>("");
 
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
 
-  // Fetch all roles
   const fetchRoles = useCallback(async () => {
     try {
       if (!userId || !accessToken) {
@@ -42,9 +40,9 @@ export function RoleTable() {
         return;
       }
       const roleData = await getAllRole(userId, accessToken, 1, 10);
+      console.log("Fetched roles:", roleData); // Debugging log
       setRoles(roleData.roles);
-  
-      // Auto-select Admin role if not selected
+
       if (!selectedRole) {
         const adminRole = roleData.roles.find((r) => r.name === "Admin");
         if (adminRole) {
@@ -55,9 +53,7 @@ export function RoleTable() {
       toast.error(get(error, "response.data.error.message", "An unknown error occurred."));
     }
   }, [userId, accessToken, selectedRole]);
-  
 
-  // Fetch role details
   const fetchRoleDetails = useCallback(async (roleId: string) => {
     try {
       if (!userId || !accessToken) {
@@ -65,6 +61,7 @@ export function RoleTable() {
         return;
       }
       const details = await getRoleDetail(roleId, userId, accessToken);
+      console.log("Fetched role details:", details); // Debugging log
       setRoleDetails(details);
     } catch (error) {
       toast.error(get(error, "response.data.error.message", "An unknown error occurred."));
@@ -91,7 +88,7 @@ export function RoleTable() {
       await deleteRole(roleToDelete, userId, accessToken);
       toast.success("Role deleted successfully!");
       setRoles((prevRoles) => prevRoles.filter((role) => role.id !== roleToDelete));
-      setIsDeleteDialogOpen(false); // Close dialog after deletion
+      setIsDeleteDialogOpen(false);
       if (selectedRole === roleToDelete) {
         setSelectedRole("");
         setRoleDetails(null);
@@ -122,7 +119,7 @@ export function RoleTable() {
             <Table>
               <TableHeader>
                 <TableRow>
-        
+                  <TableHead>Name</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -130,8 +127,15 @@ export function RoleTable() {
                 {roles.map((role) => (
                   <TableRow
                     key={role.id}
-                    className={selectedRole === role.id ? "bg-gray-50" : "hover:bg-gray-100"}
+                    className={`${
+                      role.name === "Admin" || role.name === "Basic"
+                        ? "cursor-not-allowed"
+                        : selectedRole === role.id
+                        ? "bg-gray-50"
+                        : "hover:bg-gray-100"
+                    }`}
                     onClick={() => {
+                      if (role.name === "Admin" || role.name === "Basic") return;
                       setSelectedRole(role.id);
                       setIsCreating(false);
                       setIsEditing(false);
@@ -145,9 +149,9 @@ export function RoleTable() {
                         <Pencil
                           onClick={async (e) => {
                             e.stopPropagation();
-                            await fetchRoleDetails(role.id); // Fetch role details before editing
+                            await fetchRoleDetails(role.id);
                             setSelectedRole(role.id);
-                            setTimeout(() => setIsEditing(true), 300); // Wait for data fetching
+                            setTimeout(() => setIsEditing(true), 300);
                           }}
                         />
                       )}
@@ -155,8 +159,8 @@ export function RoleTable() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setRoleToDelete(role.id); // Set the role to delete
-                            setIsDeleteDialogOpen(true); // Open delete confirmation dialog
+                            setRoleToDelete(role.id);
+                            setIsDeleteDialogOpen(true);
                           }}
                         >
                           <Trash2 />
@@ -178,8 +182,9 @@ export function RoleTable() {
         ) : isEditing && roleDetails?.id === selectedRole ? (
           <RoleEditForm
             role={roleDetails}
-            onSave={() => {
-              fetchRoles();
+            onSave={async () => {
+              await fetchRoles();
+              await fetchRoleDetails(selectedRole);
               setIsEditing(false);
             }}
             onCancel={() => setIsEditing(false)}
@@ -190,24 +195,17 @@ export function RoleTable() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={isDeleteDialogOpen} 
-      onOpenChange={(open: boolean | ((prevState: boolean) => boolean)) => setIsDeleteDialogOpen(open)}>
+      <Dialog open={isDeleteDialogOpen} onOpenChange={(open: boolean | ((prevState: boolean) => boolean)) => setIsDeleteDialogOpen(open)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Are you sure you want to delete this role?</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone.
-            </DialogDescription>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 mt-4">
             <Button onClick={() => setIsDeleteDialogOpen(false)} variant="outline">
               Cancel
             </Button>
-            <Button
-              onClick={handleDelete}
-            >
-              Delete 
-            </Button>
+            <Button onClick={handleDelete}>Delete</Button>
           </div>
         </DialogContent>
       </Dialog>

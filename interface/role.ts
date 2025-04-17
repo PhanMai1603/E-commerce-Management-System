@@ -13,7 +13,7 @@ export interface RoleResponse {
 }
 
 export interface RoleData {
-    name?: string; // 👈 cho phép không gửi name
+    name?: string; 
     permissions: {
         [types: string]: {
             [entity: string]: {
