@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, X } from 'lucide-react';
@@ -9,23 +9,27 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { getAllCategories } from '@/app/api/category';
 import { CategoryDataResponse } from '@/interface/category';
-import { ProductDetail } from '@/interface/product';
+import { Category, ProductDetail, ProductUpdate } from '@/interface/product';
 
 interface CategorySelectionProps {
   product: ProductDetail;
-  setProduct: React.Dispatch<React.SetStateAction<ProductDetail>>;
+  setUpdatedProduct: React.Dispatch<React.SetStateAction<ProductUpdate>>;
 }
 
-interface SelectedCategories {
-  id: string;
-  name: string;
-}
-
-const CategorySelection: React.FC<CategorySelectionProps> = ({ product, setProduct }) => {
+const CategorySelection: React.FC<CategorySelectionProps> = ({ product, setUpdatedProduct }) => {
   const [allCategories, setAllCategories] = useState<CategoryDataResponse[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<SelectedCategories[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+
+  const isDifferent = useMemo(() => {
+    const sortById = (a: Category, b: Category) => a.id.localeCompare(b.id);
+    return JSON.stringify([...product.category].sort(sortById)) !== JSON.stringify([...selectedCategories].sort(sortById));
+  }, [product.category, selectedCategories]);
+
+  const shouldUpdate = useMemo(() => {
+    return isDifferent && product.category.length > 0 && selectedCategories.length > 0;
+  }, [isDifferent, product.category, selectedCategories]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,34 +37,36 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ product, setProdu
       try {
         const response = await getAllCategories();
         setAllCategories(response);
-  
-        const flattenCategories = (categories: CategoryDataResponse[]): CategoryDataResponse[] => {
-          return categories.reduce<CategoryDataResponse[]>((acc, category) => {
-            return acc.concat(category, flattenCategories(category.children));
-          }, []);
-        };
-  
-        const flatList = flattenCategories(response);
-  
-        const selected = flatList
-          .filter((cat) =>
-            product.category.some((c) =>
-              typeof c === 'string' ? c === cat.id : c.id === cat.id
-            )
-          )
-          .map((cat) => ({ id: cat.id, name: cat.name }));
-  
-        setSelectedCategories(selected);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
       } finally {
         setCategoriesLoading(false);
       }
     };
-  
+
     fetchData();
-  }, [product.category]);
-  
+  }, []);
+
+  useEffect(() => {
+    if (allCategories.length > 0) {
+      setSelectedCategories(product.category);
+    }
+  }, [allCategories.length, product.category]);
+
+  useEffect(() => {
+    setUpdatedProduct((prev) => {
+      if (shouldUpdate) {
+        return {
+          ...prev,
+          category: selectedCategories.map(selected => selected.id),
+        };
+      } else {
+        const updated = { ...prev };
+        delete updated["category"];
+        return updated;
+      }
+    });
+  }, [shouldUpdate, selectedCategories, setUpdatedProduct]);
 
   const handleOpenPopover = async () => {
     if (!isPopoverOpen && allCategories.length === 0) {
@@ -78,8 +84,8 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ product, setProdu
     setIsPopoverOpen((prev) => !prev);
   };
 
-  const findParentCategories = (categoryId: string, categories: CategoryDataResponse[]): SelectedCategories[] => {
-    const parents: SelectedCategories[] = [];
+  const findParentCategories = (categoryId: string, categories: CategoryDataResponse[]): Category[] => {
+    const parents: Category[] = [];
 
     const findParent = (id: string, list: CategoryDataResponse[]) => {
       for (const category of list) {
@@ -111,12 +117,6 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ product, setProdu
         });
       }
 
-      // Cập nhật category trong product luôn
-      setProduct((prevProduct) => ({
-        ...prevProduct,
-        category: updated.map((cat) => ({ id: cat.id, name: cat.name })),
-      }));
-
       return updated;
     });
   };
@@ -127,10 +127,6 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ product, setProdu
     e.preventDefault();
     setSelectedCategories((prev) => {
       const updated = prev.filter((cat) => cat.id !== id);
-      setProduct((prevProduct) => ({
-        ...prevProduct,
-        category: updated.map((cat) => ({ id: cat.id, name: cat.name })),
-      }));
       return updated;
     });
   };

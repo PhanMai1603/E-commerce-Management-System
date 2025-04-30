@@ -8,22 +8,17 @@ import { Label } from '@/components/ui/label'
 import { CategoryDataResponse } from '@/interface/category'
 import { useEffect, useState } from 'react'
 import { getAllCategories } from '@/app/api/category'
-import { ProductData } from '@/interface/product'
+import { Category, ProductData } from '@/interface/product'
 
 interface CategorySelectionProps {
   setProduct: React.Dispatch<React.SetStateAction<ProductData>>;
 }
 
-interface SelectedCategories {
-  id: string,
-  name: string,
-}
-
 const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => {
-  const [allCategories, setAllCategories] = useState<Array<CategoryDataResponse>>([]);
+  const [allCategories, setAllCategories] = useState<CategoryDataResponse[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<SelectedCategories[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     setProduct((prevProduct) => ({
@@ -47,8 +42,8 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
     }
   };
 
-  const findParentCategories = (categoryId: string, categories: CategoryDataResponse[]): SelectedCategories[] => {
-    const parents: SelectedCategories[] = [];
+  const findParentCategories = (categoryId: string, categories: CategoryDataResponse[]): Category[] => {
+    const parents: Category[] = [];
 
     const findParent = (id: string, list: CategoryDataResponse[]) => {
       for (const category of list) {
@@ -72,7 +67,7 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
 
   const handleCategoryChange = (categoryId: string, categoryName: string) => {
     setSelectedCategories((prev) => {
-      let updatedCategories: SelectedCategories[] = [...prev];
+      let updatedCategories: Category[] = [...prev];
 
       if (prev.some((category) => category.id === categoryId)) {
         // Nếu đã chọn → Xóa khỏi danh sách
@@ -168,12 +163,12 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
                             />
                           </div>
                         ) : (
-                          <div key={categories.id}>
+                          <div key={category.id}>
                             <Label>{category.name}</Label>
                             {category.children.map((childCategory) => (
                               <div
                                 key={childCategory.id}
-                                className={`flex justify-between items-center ml-3`}
+                                className={`flex justify-between items-center ml-3 my-1`}
                               >
                                 <Label htmlFor={childCategory.id}>{childCategory.name}</Label>
                                 <Checkbox

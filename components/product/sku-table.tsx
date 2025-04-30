@@ -1,4 +1,4 @@
-import { ProductData, Variant } from "@/interface/product";
+import { ProductData, ProductSKU, Variant } from "@/interface/product";
 import React, { useEffect, useRef, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { ImagePlus, LoaderCircle, X } from "lucide-react";
@@ -10,7 +10,7 @@ import { uploadProductImage } from "@/app/api/upload";
 interface SkuTableProps {
   userId: string,
   accessToken: string,
-  variants: Array<Variant> | undefined;
+  variants: Variant[] | undefined;
   setProduct: React.Dispatch<React.SetStateAction<ProductData>>;
 }
 
@@ -37,21 +37,36 @@ const generateCombinations = (variants: Variant[] | undefined) => {
 };
 
 const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setProduct }) => {
-  // const [selectedDefault, setSelectedDefault] = useState(0);
-  // const [skuList, setSkuList] = useState<ProductSKU>([]);
-  const fileInputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const [skuList, setSkuList] = useState<ProductSKU[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [images, setImages] = useState<{ [key: string]: string }>({});
-  const [loading, setLoading] = useState<Array<boolean>>([]);
+  const [loading, setLoading] = useState<boolean[]>([]);
+
+  const fileInputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const combinations = generateCombinations(variants);
 
-  const [skuList, setSkuList] = useState<{
-    tierIndex: number[];
-    isDefault: boolean;
-    price: number;
-    quantity: number
-  }[]>([]);
+  useEffect(() => {
+    if (!variants) return;
+  
+    const colorVariant = variants.find(v => v.name === "Color");
+    if (!colorVariant) return;
+  
+    const validColors = new Set(colorVariant.options);
+    const filteredImages: { [key: string]: string } = {};
+  
+    Object.entries(images).forEach(([color, url]) => {
+      if (validColors.has(color)) {
+        filteredImages[color] = url;
+      }
+    });
+  
+    // Chỉ setImages nếu có khác biệt thật sự
+    if (JSON.stringify(filteredImages) !== JSON.stringify(images)) {
+      setImages(filteredImages);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variants]);  
 
   useEffect(() => {
     if (combinations.length > 0) {
@@ -81,7 +96,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
           ? { ...variant, images: Object.values(images) }
           : variant
       );
-  
+
       return {
         ...prev,
         variants: updatedVariants,
@@ -145,7 +160,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
   const handleDelete = (color: string) => {
     setImages(prev => {
       const newImages = { ...prev };
-      delete newImages[color];
+      newImages[color] = '';
       return newImages;
     });
 

@@ -1,20 +1,33 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
-import { ProductDetail } from '@/interface/product';
+import { ProductUpdate } from '@/interface/product';
 
 interface DescriptionFormProps {
   description: string,
-  setProduct: React.Dispatch<React.SetStateAction<ProductDetail>>;
+  updatedProduct: ProductUpdate,
+  setUpdatedProduct: React.Dispatch<React.SetStateAction<ProductUpdate>>;
 }
 
-const DescriptionForm: React.FC<DescriptionFormProps> = ({ description, setProduct }) => {
+const DescriptionForm: React.FC<DescriptionFormProps> = ({ description, updatedProduct, setUpdatedProduct }) => {
+  const displayDescription = updatedProduct.description ?? description;
+
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newDescription = event.target.value;
 
-    setProduct((prev) => ({
-      ...prev,
-      description: newDescription,
-    }));
+    const isDifferent = newDescription !== description;
+
+    setUpdatedProduct((prev) => {
+      if (isDifferent) {
+        return {
+          ...prev,
+          description: newDescription,
+        }
+      } else {
+        const updated = { ...prev };
+        delete updated["description" as keyof ProductUpdate];
+        return updated;
+      }
+    });
   };
 
   return (
@@ -26,7 +39,7 @@ const DescriptionForm: React.FC<DescriptionFormProps> = ({ description, setProdu
       <CardContent className='flex flex-1'>
         <Textarea
           name='description'
-          value={description}
+          value={displayDescription ?? ''}
           placeholder='Enter product description...'
           onChange={handleChange}
           className='flex-1 overflow-y-auto'

@@ -12,9 +12,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
 interface AttributeFormProps {
+  setProduct: React.Dispatch<React.SetStateAction<ProductData>>;
   userId: string,
   accessToken: string,
-  setProduct: React.Dispatch<React.SetStateAction<ProductData>>;
 }
 
 interface SelectedValues {
@@ -24,10 +24,15 @@ interface SelectedValues {
 
 const AttributeForm: React.FC<AttributeFormProps> = ({ setProduct, userId, accessToken }) => {
   const [attributes, setAttributes] = useState<AllAttributeResponse>();
-  const [newAttributes, setNewAttributes] = useState<Array<ProductAttribute>>([]);
-  const [isSelectOpen, setIsSelectOpen] = useState<Array<boolean>>([]);
-  const [isPopoverOpen, setIsPopoverOpen] = useState<Array<boolean>>([]);
-  const [selectedValues, setSelectedValues] = useState<Array<SelectedValues[]>>([]);
+  const [newAttributes, setNewAttributes] = useState<ProductAttribute[]>([]);
+  const [isSelectOpen, setIsSelectOpen] = useState<boolean[]>([]);
+  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean[]>([]);
+  const [selectedValues, setSelectedValues] = useState<SelectedValues[][]>([]);
+  const [deletedInfo, setDeletedInfo] = useState<{
+    valueId: string;
+    valueName: string;
+    attrName: string;
+  } | null>(null);
 
   useEffect(() => {
     const fetchAttribute = async () => {
@@ -44,20 +49,66 @@ const AttributeForm: React.FC<AttributeFormProps> = ({ setProduct, userId, acces
     fetchAttribute();
   }, [accessToken, isSelectOpen, userId]);
 
+  // Set product.attributes
   useEffect(() => {
     setProduct((prev) => {
       const validAttributes = newAttributes.filter(attr => attr.id !== "" && attr.values.length > 0);
-  
+
       return { ...prev, attributes: [...validAttributes] };
     });
   }, [newAttributes, setProduct]);
 
+  // Set product.variants
   useEffect(() => {
-    if (!attributes) return; // Kiểm tra dữ liệu hợp lệ
+    if (!attributes) return;
 
-    updateVariants(attributes, newAttributes);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newAttributes, attributes]);
+    // Set variants dựa trên thứ tự của newAttributes
+    setProduct((prev) => {
+      const newVariants = newAttributes.map((newAttr) => {
+        const matchingAttr = attributes.items.find(attr =>
+          newAttr.id === attr.id &&
+          attr.isVariantAttribute &&
+          newAttr.values.length >= 2
+        );
+        if (!matchingAttr) return null;
+
+        // Lọc giá trị options của variant theo thứ tự values trong newAttr
+        const options = matchingAttr.values
+          .filter((value) => newAttr.values.includes(value.valueId))
+          .sort((a, b) => {
+            // Sắp xếp options theo thứ tự values trong newAttr
+            const indexA = newAttr.values.indexOf(a.valueId);
+            const indexB = newAttr.values.indexOf(b.valueId);
+            return indexA - indexB;
+          })
+          .map((value) => value.value);
+
+        const oldVariant = prev.variants?.find((v) => v.name === matchingAttr.name);
+
+        let images: string[] = [];
+        if (oldVariant && oldVariant.name === "Color") {
+          images = options.map((option) => {
+            const oldIdx = oldVariant.options.findIndex((opt) => opt === option);
+            return oldIdx !== -1 ? oldVariant.images?.[oldIdx] || "" : "";
+          });
+        }
+
+        return {
+          name: matchingAttr.name,
+          options,
+          images,
+        };
+      }).filter((variant) => variant !== null);
+
+      return {
+        ...prev,
+        variants: newVariants.length === 0 ? undefined : newVariants,
+      };
+    });
+
+    // Reset sau khi xử lý
+    if (deletedInfo) setDeletedInfo(null);
+  }, [newAttributes, attributes, deletedInfo, setProduct]);
 
   const handleAdd = () => {
     setNewAttributes((prev) => [...prev, { id: "", values: [] }]);
@@ -132,16 +183,25 @@ const AttributeForm: React.FC<AttributeFormProps> = ({ setProduct, userId, acces
     });
   };
 
-  const handleDeleteValue = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, valueId: string, index: number) => {
+  const handleDeleteValue = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    selected: SelectedValues,
+    index: number
+  ) => {
     event.preventDefault();
 
+    const currentAttr = attributes?.items.find(attr => attr.id === newAttributes[index].id);
+    if (!currentAttr) return;
+
+    const deletedValue = currentAttr.values.find(v => v.valueId === selected.valueId);
+    if (!deletedValue) return;
+
     setSelectedValues((prev) => {
-      // Cập nhật mảng tại index cụ thể
       const updatedValues = prev.map((values, i) =>
-        i === index ? values.filter((value) => value.valueId !== valueId) : values
+        i === index ? values.filter((value) => value.valueId !== selected.valueId) : values
       );
 
-      // Cập nhật setNewAttributes sau khi setSelectedValues đã hoàn tất
+      // Cập nhật newAttributes
       setNewAttributes((prevAttributes) =>
         prevAttributes.map((item, i) =>
           i === index
@@ -150,42 +210,16 @@ const AttributeForm: React.FC<AttributeFormProps> = ({ setProduct, userId, acces
         )
       );
 
-      return updatedValues; // Trả về state mới cho setSelectedValues
-    });
-  };
+      // Gửi thông tin xóa cho useEffect xử lý
+      setDeletedInfo({
+        valueId: selected.valueId,
+        valueName: selected.value,
+        attrName: currentAttr.name,
+      })
 
-  const updateVariants = (attributes: AllAttributeResponse, newAttributes: ProductAttribute[]) => {
-    if (!attributes || !newAttributes) return;
-  
-    // Lọc danh sách các thuộc tính cần cập nhật
-    const filteredAttributes = attributes.items.filter(attr =>
-      newAttributes.some(newAttr => 
-        newAttr.id === attr.id && 
-        attr.isVariantAttribute && 
-        newAttr.values.length >= 2 // Chỉ lấy những thuộc tính có ít nhất 2 giá trị
-      )
-    );
-  
-    // Tạo danh sách biến thể (variants) mới
-    const newVariants = filteredAttributes.map(attr => {
-      // Tìm các giá trị `value` có trong `newAttributes`
-      const matchingValues = newAttributes.find(newAttr => newAttr.id === attr.id)?.values || [];
-  
-      return {
-        name: attr.name,
-        images: [],
-        options: attr.values
-          .filter(value => matchingValues.includes(value.valueId)) // Chỉ lấy giá trị khớp với newAttributes
-          .map(value => value.value), // Chuyển về dạng mảng `options`
-      };
+      return updatedValues;
     });
-  
-    setProduct(prev => ({
-      ...prev,
-      variants: newVariants.length === 0 ? undefined : newVariants, // Gán lại danh sách variants mới
-    }));
   };
-  
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -238,7 +272,7 @@ const AttributeForm: React.FC<AttributeFormProps> = ({ setProduct, userId, acces
                     >
                       <span className='text-sm text-nowrap font-medium px-3 py-1 ml-2 bg-gray-600/10 rounded-full'>{selected.value}</span>
                       <Button
-                        onClick={(event) => handleDeleteValue(event, selected.valueId, index)}
+                        onClick={(event) => handleDeleteValue(event, selected, index)}
                         className='absolute h-auto -top-1 -right-1 p-1 bg-red-300 hover:bg-red-500 [&_svg]:size-2'
                       >
                         <X />
@@ -253,25 +287,66 @@ const AttributeForm: React.FC<AttributeFormProps> = ({ setProduct, userId, acces
               </div>
             </PopoverTrigger>
             <PopoverContent className='grid grid-cols-3 gap-x-14 gap-y-2 w-full min-w-[var(--radix-popper-anchor-width)]'>
-              {/* Lấy mảng values từ phần tử có id bằng id của attribute */}
-              {attributes && attributes.items ? attributes.items
-                .find(item => item.id === attribute.id)?.values
-                .map((value) => (
-                  <div
-                    key={value.valueId}
-                    className='flex justify-between items-center space-x-4'
-                  >
-                    <Label htmlFor={value.valueId}>{value.value}</Label>
-                    <Checkbox
-                      id={value.valueId}
-                      checked={selectedValues[index] && selectedValues[index].some((c) => c.valueId === value.valueId)}
-                      onCheckedChange={() => handleValueChange(value.valueId, value.value, index)}
-                    />
-                  </div>
-                )) : (
-                <div>No values found.</div>
-              )}
+              {/* Lấy values của attribute hiện tại */}
+              {(() => {
+                const currentAttribute = attributes?.items.find(item => item.id === attribute.id);
+                const currentValues = currentAttribute?.values || [];
+
+                // Kiểm tra xem tất cả values đã được chọn chưa
+                const isAllSelected = currentValues.length > 0 && currentValues.every(value =>
+                  selectedValues[index]?.some(selected => selected.valueId === value.valueId)
+                );
+
+                return (
+                  <>
+                    {/* Select All Checkbox */}
+                    <div className='flex justify-between items-center space-x-4'>
+                      <Label>Select All</Label>
+                      <Checkbox
+                        checked={isAllSelected}
+                        onCheckedChange={() => {
+                          const updated = isAllSelected ? [] : currentValues.map(value => ({
+                            valueId: value.valueId,
+                            value: value.value
+                          }));
+
+                          setSelectedValues((prev) => {
+                            const updatedValues = [...prev];
+                            updatedValues[index] = updated;
+
+                            setNewAttributes((prevAttributes) =>
+                              prevAttributes.map((item, i) =>
+                                i === index
+                                  ? { ...item, values: updated.map((v) => v.valueId) }
+                                  : item
+                              )
+                            );
+
+                            return updatedValues;
+                          });
+                        }}
+                      />
+                    </div>
+
+                    {/* Các value cụ thể */}
+                    {currentValues.map((value) => (
+                      <div
+                        key={value.valueId}
+                        className='flex justify-between items-center space-x-4'
+                      >
+                        <Label htmlFor={value.valueId}>{value.value}</Label>
+                        <Checkbox
+                          id={value.valueId}
+                          checked={selectedValues[index]?.some((c) => c.valueId === value.valueId)}
+                          onCheckedChange={() => handleValueChange(value.valueId, value.value, index)}
+                        />
+                      </div>
+                    ))}
+                  </>
+                );
+              })()}
             </PopoverContent>
+
           </Popover>
 
           <Button

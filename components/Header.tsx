@@ -29,7 +29,7 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
 
   useEffect(() => {
     const storedAvatar = localStorage.getItem("avatarUrl");
-    console.log(storedAvatar);  // Add this line to debug
+    // console.log(storedAvatar);  // Add this line to debug
     if (storedAvatar) setAvatar(storedAvatar);
 
     const handleStorageChange = () => {

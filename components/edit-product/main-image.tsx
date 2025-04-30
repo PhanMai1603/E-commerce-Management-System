@@ -4,18 +4,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ImagePlus, X } from 'lucide-react';
 import Image from 'next/image';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ProductDetail } from '@/interface/product';
+import { ProductUpdate } from '@/interface/product';
 
 interface MainImageFormProps {
   mainImage: string;
-  setProduct: React.Dispatch<React.SetStateAction<ProductDetail>>;
+  updatedProduct: ProductUpdate;
+  setUpdatedProduct: React.Dispatch<React.SetStateAction<ProductUpdate>>;
 }
 
-const MainImageForm: React.FC<MainImageFormProps> = ({ mainImage, setProduct }) => {
+const MainImageForm: React.FC<MainImageFormProps> = ({ mainImage, updatedProduct, setUpdatedProduct }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [displayImage, setDisplayImage] = useState<string>(updatedProduct.mainImage ?? mainImage);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  useEffect(() => {
+    if (displayImage !== mainImage) {
+      setUpdatedProduct(prev => ({
+        ...prev,
+        mainImage: displayImage,
+      }));
+    }
+  }, [displayImage, mainImage, setUpdatedProduct]);
 
   const handleClick = () => {
     fileInputRef.current?.click();
@@ -26,17 +37,11 @@ const MainImageForm: React.FC<MainImageFormProps> = ({ mainImage, setProduct }) 
     if (!file) return;
 
     const previewUrl = URL.createObjectURL(file);
-    setProduct(prev => ({
-      ...prev,
-      mainImage: previewUrl,
-    }));
+    setDisplayImage(previewUrl);
   };
 
   const handleDelete = () => {
-    setProduct(prev => ({
-      ...prev,
-      mainImage: '',
-    }));
+    setDisplayImage('');
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -57,7 +62,9 @@ const MainImageForm: React.FC<MainImageFormProps> = ({ mainImage, setProduct }) 
     if (!file) return;
 
     const previewUrl = URL.createObjectURL(file);
-    setProduct(prev => ({
+    setDisplayImage(previewUrl);
+
+    setUpdatedProduct(prev => ({
       ...prev,
       mainImage: previewUrl,
     }));
@@ -70,7 +77,7 @@ const MainImageForm: React.FC<MainImageFormProps> = ({ mainImage, setProduct }) 
       </CardHeader>
 
       <CardContent className="w-full">
-        {mainImage === '' ? (
+        {displayImage === '' ? (
           <div>
             <div
               className="relative w-full h-72 flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 [&_svg]:size-8 group overflow-hidden"
@@ -97,7 +104,7 @@ const MainImageForm: React.FC<MainImageFormProps> = ({ mainImage, setProduct }) 
         ) : (
           <div className="relative group">
             <Image
-              src={mainImage}
+              src={displayImage ?? ''}
               alt="Main"
               width={1000}
               height={1000}

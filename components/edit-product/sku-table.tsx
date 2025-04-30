@@ -1,20 +1,20 @@
-import { ProductDetail, SkuList, Variant } from "@/interface/product";
-import React, { useEffect, useRef, useState } from "react";
+import { ImportProduct, ProductDetailResponse, ProductUpdate, UpdateSkuList, Variant } from "@/interface/product";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { ImagePlus, LoaderCircle, X } from "lucide-react";
 import { Input } from "../ui/input";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { uploadProductImage } from "@/app/api/upload";
-import { toast } from "react-toastify";
-import { importProduct } from "@/app/api/product";
+import Publish from "./switch";
 
 interface SkuTableProps {
   userId: string;
   accessToken: string;
-  variants: Variant[];
-  skuList: SkuList[]; // Thêm dòng này
-  setProduct: React.Dispatch<React.SetStateAction<ProductDetail>>;
+  product: ProductDetailResponse;
+  updatedProduct: ProductUpdate;
+  setUpdatedProduct: React.Dispatch<React.SetStateAction<ProductUpdate>>;
+  setImportQuantity: React.Dispatch<React.SetStateAction<ImportProduct>>;
 }
 
 const generateCombinations = (variants: Variant[] | undefined) => {
@@ -39,69 +39,148 @@ const generateCombinations = (variants: Variant[] | undefined) => {
   );
 };
 
-const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setProduct }) => {
-  // const [selectedDefault, setSelectedDefault] = useState(0);
-  // const [skuList, setSkuList] = useState<ProductSKU>([]);
-  const fileInputRefs = useRef<Array<HTMLInputElement | null>>([]);
+const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updatedProduct, setUpdatedProduct, setImportQuantity }) => {
+  type InternalSku = {
+    tierIndex: number[];
+    price: number;
+    isOld: boolean; // Key này để biết cũ hay mới
+  };
+
+  const [skuList, setSkuList] = useState<InternalSku[]>([]);
+  const [newSkuList, setNewSkuList] = useState<UpdateSkuList[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [images, setImages] = useState<{ [key: string]: string }>({});
-  const [loading, setLoading] = useState<Array<boolean>>([]);
+  const [loading, setLoading] = useState<boolean[]>([]);
 
-  const combinations = generateCombinations(variants);
+  const fileInputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const sourceSkuListRef = useRef(
+    updatedProduct.skuList ?? product.skuList.skuList.map(({ tierIndex, price, quantity, slug }) => ({
+      tierIndex,
+      price,
+      quantity,
+      slug,
+    }))
+  );
 
-  const [skuList, setSkuList] = useState<{
-    tierIndex: number[];
-    isDefault: boolean;
-    price: number;
-    quantity: number
-  }[]>([]);
+  const sortSkuList = (list: UpdateSkuList[]) =>
+    [...list].sort((a, b) => a.slug.localeCompare(b.slug));
+
+  const shouldUpdate = useMemo(() => {
+    const sortedNew = sortSkuList(newSkuList);
+    const sortedSource = sortSkuList(sourceSkuListRef.current);
+
+    const omitQuantity = (arr: UpdateSkuList[]) =>
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      arr.map(({ quantity, ...rest }) => rest);
+
+    return JSON.stringify(omitQuantity(sortedNew)) !== JSON.stringify(omitQuantity(sortedSource));
+  }, [newSkuList, sourceSkuListRef]);
+
+  const sourceVariants = updatedProduct.variants ?? product.product.variants;
+
+  const generatedCombinations = generateCombinations(sourceVariants);
+
+  const hasColor = (!updatedProduct.variants && product.product.variants?.some(variant => variant.name === "Color"))
+    || updatedProduct.variants?.some(variant => variant.name === "Color");
 
   useEffect(() => {
-    if (combinations.length > 0) {
-      setSkuList(prevSkuList => {
-        const newSkuList = combinations.map((combination, index) => {
-          const existingSku = prevSkuList.find(sku =>
-            JSON.stringify(sku.tierIndex) === JSON.stringify(combination.map(item => item.index))
-          );
+    setSkuList((prevSkuList) => {
+      const newSkuList = generatedCombinations.map((combination) => {
+        const matchedOldSku = sourceSkuListRef.current.find((sku) =>
+          JSON.stringify(sku.tierIndex) === JSON.stringify(combination.map((item) => item.index))
+        );
 
-          return existingSku || {
-            tierIndex: combination.map(item => item.index),
-            isDefault: index === 0,
-            price: 0,
-            quantity: 0
+        if (matchedOldSku) {
+          return {
+            tierIndex: matchedOldSku.tierIndex,
+            price: matchedOldSku.price,
+            isOld: true,
           };
-        });
-
-        return JSON.stringify(prevSkuList) !== JSON.stringify(newSkuList) ? newSkuList : prevSkuList;
+        } else {
+          return {
+            tierIndex: combination.map(item => item.index),
+            price: 0,
+            isOld: false,
+          };
+        }
       });
+
+      return JSON.stringify(prevSkuList) !== JSON.stringify(newSkuList) ? newSkuList : prevSkuList;
+    });
+  }, [product, updatedProduct, generatedCombinations]);
+
+  // Chuyển đổi skuList qua newSkuList để setUpdatedProduct
+  useEffect(() => {
+    const variants = updatedProduct.variants ?? product.product.variants;
+    if (Array.isArray(variants)) {
+      const transformed = skuList.map((sku) => {
+        const slug = sku.tierIndex
+          .map((index, i) => variants[i]?.options[index])
+          .join("/");
+
+        return {
+          tierIndex: sku.tierIndex,
+          price: sku.price,
+          quantity: 0,
+          slug,
+        };
+      });
+
+      setNewSkuList(transformed);
     }
-  }, [combinations]);
+  }, [updatedProduct.variants, product.product.variants, skuList]);
 
   useEffect(() => {
-    setProduct(prev => {
-      const updatedVariants = prev.variants?.map(variant =>
+    setUpdatedProduct((prev) => {
+      if (shouldUpdate && newSkuList.length > 0) {
+        return {
+          ...prev,
+          skuList: newSkuList,
+        }
+      } else {
+        const updated = { ...prev };
+        delete updated["skuList"];
+        return updated;
+      }
+    });
+  }, [updatedProduct.variants, shouldUpdate, newSkuList, setUpdatedProduct]);
+
+  // Set images của variants vào skuList
+  useEffect(() => {
+    if (!updatedProduct.variants && product.product.variants) {
+      const colorVariant = product.product.variants.find(v => v.name === "Color");
+      if (colorVariant && colorVariant.images?.length) {
+        const mappedImages: { [key: string]: string } = {};
+        colorVariant.options.forEach((color, index) => {
+          if (colorVariant.images && colorVariant.images[index]) {
+            mappedImages[color] = colorVariant.images[index];
+          }
+        });
+        setImages(mappedImages);
+      }
+    }
+  }, [product, updatedProduct.variants, setImages]);
+
+  useEffect(() => {
+    setUpdatedProduct(prev => {
+      if (!prev.variants) return prev;
+
+      const updatedVariants = prev.variants.map(variant =>
         variant.name === "Color"
           ? { ...variant, images: Object.values(images) }
           : variant
       );
-  
+
       return {
         ...prev,
         variants: updatedVariants,
       };
     });
-  }, [images, setProduct]);
+  }, [images, setUpdatedProduct]);
 
   useEffect(() => {
-    setProduct(prev => ({
-      ...prev,
-      skuList,
-    }));
-  }, [skuList, setProduct]);
-
-  useEffect(() => {
-    setLoading(new Array(combinations.length).fill(false));
-  }, [combinations.length, variants]);
+    setLoading(new Array(generatedCombinations.length).fill(false));
+  }, [generatedCombinations.length, updatedProduct.variants]);
 
   const handleClick = (rowIndex: number) => {
     if (fileInputRefs.current[rowIndex]) {
@@ -116,7 +195,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
     try {
       setLoading(prev => {
         const newLoading = [...prev];
-        combinations.forEach((combination, index) => {
+        generatedCombinations.forEach((combination, index) => {
           if (combination.some(item => item.name === "Color" && item.value === color)) {
             newLoading[index] = true;
           }
@@ -135,7 +214,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
     } finally {
       setLoading(prev => {
         const newLoading = [...prev];
-        combinations.forEach((combination, index) => {
+        generatedCombinations.forEach((combination, index) => {
           if (combination.some(item => item.name === "Color" && item.value === color)) {
             newLoading[index] = false;
           }
@@ -154,7 +233,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
 
     setLoading(prev => {
       const newLoading = [...prev];
-      combinations.forEach((combination, index) => {
+      generatedCombinations.forEach((combination, index) => {
         if (combination.some(item => item.name === "Color" && item.value === color)) {
           newLoading[index] = false;
         }
@@ -182,52 +261,45 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
   //   const previewUrl = URL.createObjectURL(file[0]);
   // };
 
-  const handleInputChange = async (index: number, field: "price" | "quantity", value: string) => {
-    setSkuList((prev) => {
+  const handleInputChange = (index: number, field: "price" | "quantity", value: string) => {
+    setNewSkuList((prev) => {
       const updatedSkuList = prev.map((sku, i) => {
         if (i === index) {
           let newValue = Number(value);
-  
+
           // Nếu là số âm, đặt giá trị thành "0"
           if (newValue < 0) newValue = 0;
-  
-          // Cập nhật giá trị field (price/quantity)
+
           return { ...sku, [field]: value === "" ? "" : newValue };
         }
         return sku;
       });
-  
+
       return updatedSkuList;
     });
-  
-    // Sau khi cập nhật SKU list, gọi API importProduct để cập nhật quantity
-    if (field === "quantity") {
-      const updatedSku = skuList[index];
-      const data = {
-        id: "your_product_id", // Thay bằng ID sản phẩm thực tế
-        skuList: [
-          {
-            id: updatedSku.tierIndex.join("-"), // Hoặc sử dụng SKU ID thực tế nếu có
-            quantity: updatedSku.quantity,
-          }
-        ]
-      };
-  
-      try {
-        await importProduct(data, userId, accessToken);
-        toast.success("Quantity updated successfully!");
-      } catch (error) {
-        toast.error("Failed to update quantity!");
+
+    if (field === "quantity" && Number(value) > 0) {
+      const matchSku = product.skuList.skuList.find(item => item.slug === newSkuList[index]?.slug);
+
+      if (matchSku) {
+        setImportQuantity(prev => {
+          const existingList = prev.skuList || [];
+
+          const updatedList = existingList.some(item => item.id === matchSku.id)
+            ? existingList.map(item =>
+              item.id === matchSku.id
+                ? { ...item, quantity: Number(value) }
+                : item
+            )
+            : [...existingList, { id: matchSku.id, quantity: Number(value) }];
+
+          return {
+            ...prev,
+            skuList: updatedList,
+          };
+        });
       }
     }
-  };
-  
-
-  const handleDefaultChange = (index: number) => {
-    setSkuList(prev => prev.map((sku, i) => ({
-      ...sku,
-      isDefault: i === index,
-    })));
   };
 
   return (
@@ -235,24 +307,25 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
       <Table>
         <TableHeader>
           <TableRow>
-            {variants?.some(variant => variant.name === "Color") && (
+            {hasColor && (
               <TableHead>Image</TableHead>
             )}
-            {variants?.map((variant, index) => (
+            {(updatedProduct.variants ?? product.product.variants)?.map((variant, index) => (
               <TableHead key={index}>{variant.name}</TableHead>
             ))}
             <TableHead>Price</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Default</TableHead>
+            <TableHead>Import Quantity</TableHead>
+            <TableHead>Public</TableHead>
+            {/* <TableHead>Default</TableHead> */}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {combinations.map((combination, rowIndex) => {
+          {generatedCombinations.map((combination, rowIndex) => {
             const colorItem = combination.find(item => item.name === "Color");
             const color = colorItem ? colorItem.value : "";
             return (
               <TableRow key={rowIndex}>
-                {variants?.some(variant => variant.name === "Color") && (
+                {hasColor && (
                   <TableCell className="border p-2 w-32">
                     {color ? (
                       images[color] ? (
@@ -264,12 +337,14 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
                             height={1000}
                             className='w-full h-44 object-contain rounded-md'
                           />
-                          <Button
-                            onClick={() => handleDelete(color)}
-                            className='absolute h-auto -top-2 -right-2 p-1 bg-red-300 hover:bg-red-500 [&_svg]:size-3'
-                          >
-                            <X />
-                          </Button>
+                          {!product.skuList.skuList.find(item => item.slug === newSkuList[rowIndex]?.slug) && (
+                            <Button
+                              onClick={() => handleDelete(color)}
+                              className='absolute h-auto -top-2 -right-2 p-1 bg-red-300 hover:bg-red-500 [&_svg]:size-3'
+                            >
+                              <X />
+                            </Button>
+                          )}
                         </div>
                       ) : (
                         loading[rowIndex] ? (
@@ -277,27 +352,29 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
                             <LoaderCircle className="animate-spin" />
                           </div>
                         ) : (
-                          <div>
-                            <div
-                              className='relative w-full h-44 flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 [&_svg]:size-6 group overflow-hidden'
-                              onClick={() => handleClick(rowIndex)}
-                              onDragOver={handleDragOver}
-                              onDragLeave={handleDragLeave}
-                            // onDrop={handleDrop}
-                            >
-                              <div className={`absolute bottom-0 left-0 w-full bg-gray-600/10 transition-all duration-300 group-hover:h-full ${isDragOver ? 'h-full' : 'h-0'}`} />
-                              <ImagePlus className='text-gray-400 group-hover:text-gray-500' />
+                          !skuList[rowIndex]?.isOld && (
+                            <div>
+                              <div
+                                className='relative w-full h-44 flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 [&_svg]:size-6 group overflow-hidden'
+                                onClick={() => handleClick(rowIndex)}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                              // onDrop={handleDrop}
+                              >
+                                <div className={`absolute bottom-0 left-0 w-full bg-gray-600/10 transition-all duration-300 group-hover:h-full ${isDragOver ? 'h-full' : 'h-0'}`} />
+                                <ImagePlus className='text-gray-400 group-hover:text-gray-500' />
+                              </div>
+                              <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={(event) => handleChange(event, color)}
+                                ref={(el) => {
+                                  if (el) fileInputRefs.current[rowIndex] = el;
+                                }}
+                                className="hidden"
+                              />
                             </div>
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={(event) => handleChange(event, color)}
-                              ref={(el) => {
-                                if (el) fileInputRefs.current[rowIndex] = el;
-                              }}
-                              className="hidden"
-                            />
-                          </div>
+                          )
                         )
                       )
                     ) : (
@@ -313,7 +390,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
                     type="number"
                     min="0"
                     placeholder="Enter price"
-                    value={skuList[rowIndex]?.price ?? 0}
+                    value={newSkuList[rowIndex]?.price ?? 0}
                     onChange={(e) => handleInputChange(rowIndex, "price", e.target.value)}
                   />
                 </TableCell>
@@ -321,20 +398,28 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
                   <Input
                     type="number"
                     min="0"
+                    disabled={!product.skuList.skuList.find(item => item.slug === newSkuList[rowIndex]?.slug)}
                     placeholder="Enter quantity"
-                    value={skuList[rowIndex]?.quantity ?? 0}
+                    value={newSkuList[rowIndex]?.quantity ?? 0}
                     onChange={(e) => handleInputChange(rowIndex, "quantity", e.target.value)}
                   />
                 </TableCell>
                 <TableCell>
+                  <Publish
+                    id={product.skuList.skuList.find(item => item.slug === newSkuList[rowIndex]?.slug)?.id}
+                    status={product.skuList.skuList.find(item => item.slug === newSkuList[rowIndex]?.slug)?.status}
+                    item="variant"
+                  />
+                </TableCell>
+                {/* <TableCell>
                   <Input
                     type="radio"
                     name="defaultSku"
+                    disabled={true}
                     checked={skuList[rowIndex]?.isDefault ?? false}
-                    onChange={() => handleDefaultChange(rowIndex)}
                     className="h-5"
                   />
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             );
           })}

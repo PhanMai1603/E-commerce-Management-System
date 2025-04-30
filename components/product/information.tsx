@@ -103,9 +103,10 @@ const InformationForm: React.FC<InformationFormProps> = ({ product, setProduct, 
         <div className='space-y-2 col-span-6'>
           <Label>Product Attributes</Label>
           <AttributeForm
+            product={product}
+            setProduct={setProduct}
             userId={userId}
             accessToken={accessToken}
-            setProduct={setProduct}
           />
         </div>
       </CardContent>
