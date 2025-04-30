@@ -1,4 +1,4 @@
-import * as   Product from "@/interface/product"
+import * as Product from "@/interface/product"
 
 import { toast } from 'react-toastify';
 import api from './index';
@@ -125,26 +125,9 @@ export const getProductDetail = async (id: string, userId: string, accessToken: 
 };
 
 
-export const updateProduct = async ( product: Product.ProductDetail, userId: string,accessToken: string): Promise<Product.ProductUpdateResponse> => {
+export const updateProduct = async ( data: Product.ProductUpdate, userId: string, accessToken: string): Promise<Product.ProductUpdateResponse> => {
   try {
-    const payload = {
-      productKey: product.code,
-      name: product.name,
-      description: product.description,
-      originalPrice: product.originalPrice,
-      attribute: product.attributes,
-      variants: product.variants,
-      returnDays: product.returnDays,
-      quantity: product.quantity,
-      discountType: product.discountType,
-      discountValue: product.discountValue,
-      discountStart: product.discountStart || undefined,
-      discountEnd: product.discountEnd || undefined,
-      variantAttributes: product.variantAttributes,
-      skulist: product.skuList,
-    };
-
-    const response = await api.patch(`${PRODUCT_URL}`, payload, {
+    const response = await api.patch(`${PRODUCT_URL}`, data, {
       headers: {
         'x-client-id': userId,
         'Authorization': accessToken,
@@ -155,11 +138,11 @@ export const updateProduct = async ( product: Product.ProductDetail, userId: str
   } catch (error) {
     const errorMessage = get(error, 'response.data.error.message', '');
     if (errorMessage) toast.error(errorMessage);
-    throw new Error(errorMessage || 'Đã có lỗi xảy ra khi cập nhật sản phẩm.');
+    throw new Error(errorMessage || 'An unknown error occurred.');
   }
 };
 
-export const importProduct = async (data: Product.ImportProductData, userId: string, accessToken: string): Promise<Product.ImportProductResponse> => {
+export const importProduct = async (data: Product.ImportProduct, userId: string, accessToken: string): Promise<Product.ImportProductResponse> => {
   try {
     const response = await api.patch(`${PRODUCT_URL}/update-quantity`, data,
       {

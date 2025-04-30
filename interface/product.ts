@@ -89,14 +89,6 @@ export interface Category {
   id: string;
   name: string;
 }
-export interface VariantAttribute {
-  type: string;
-  name: string[];
-  values: {
-    value: string;
-    descriptionUrl: string;
-  }[];
-}
 
 export interface SkuList {
   id: string;
@@ -142,16 +134,13 @@ export interface ProductDetail{
   updatedBy: string;
   returnDays: number;
   variants?: Variant[];
-  variantAttributes?: VariantAttribute[];
-  price:{
-    minPrice: number;
-    maxPrice: number;
-  }
+  variantAttributes?: Attribute[];
+  price: number;
   discountedPrice: number | null;
   hasDiscount: boolean;
-  skuList?: SkuLists[];
 }
-export interface SkuLists {
+
+export interface UpdateSkuList {
   tierIndex: number[];
   price: number;
   quantity: number;
@@ -167,6 +156,41 @@ export interface Attribute {
   }[];
 }
 
+export interface ProductUpdate{
+  productKey: string;
+  name?: string;
+  slug?: string;
+  description?: string;
+  video?: string;
+  mainImage?: string;
+  subImages?: string[];
+  qrCode?: string;
+  originalPrice?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  discountType?: "PERCENT" | "AMOUNT";
+  discountValue?: number;
+  discountStart?: string | null;
+  discountEnd?: string | null;
+  quantity?: number;
+  sold?: number;
+  category?: string[];
+  attributes?: ProductAttribute[];
+  status?: string;
+  rating?: number;
+  ratingCount?: number;
+  views?: number;
+  uniqueViews?: string[];
+  createdBy?: string;
+  updatedBy?: string;
+  returnDays?: number;
+  variants?: Variant[] | null;
+  price?: number;
+  discountedPrice?: number | null;
+  hasDiscount?: boolean;
+  skuList?: UpdateSkuList[];
+}
+
 export interface ProductDetailResponse {
   product: ProductDetail;
   skuList: {
@@ -176,38 +200,41 @@ export interface ProductDetailResponse {
 
 // Interface cho phản hồi khi cập nhật sản phẩm
 export interface ProductUpdateResponse {
-  prd_name: string;
-  prd_description: string;
-  prd_video: string;
-  prd_main_image: string;
-  prd_sub_images: string[];
-  prd_category: Category[];
-  prd_attributes: Attribute[];
-  prd_original_price: number;
+  prd_name?: string;
+  prd_description?: string;
+  prd_video?: string;
+  prd_main_image?: string;
+  prd_sub_images?: string[];
+  prd_category?: Category[];
+  prd_attributes?: Attribute[];
+  prd_original_price?: number;
   prd_min_price: number;
   prd_max_price: number;
-  prd_discount_type: "AMOUNT" | "PERCENT";
-  prd_discount_value: number;
-  prd_discount_start: string;
-  prd_discount_end: string;
-  prd_quantity: number;
-  prd_sold: number;
-  prd_variants:{
-    var_name: "color";
-    var_options: string[];
-    var_images: string[]
+  prd_discount_type?: "AMOUNT" | "PERCENT";
+  prd_discount_value?: number;
+  prd_discount_start?: string;
+  prd_discount_end?: string;
+  prd_quantity?: number;
+  prd_sold?: number;
+  prd_variants?:{
+    var_name?: "color";
+    var_options?: string[];
+    var_images?: string[]
   }
-  // prd_variant_attributes: VariantAttribute[];
-  // prd_sku_list: SkuList[];
-  return_days: number;
-  prd_rating: number;
+  // prd_variant_attributes?: VariantAttribute[];
+  // prd_sku_list?: SkuList[];
+  return_days?: number;
+  prd_rating?: number;
   updatedBy: string;
 }
 
-export interface ImportProductData {
+export interface ImportProduct {
   id: string;
   quantity?: number; // Optional if skuList is provided
-  skuList?: { id: string; quantity: number }[]; // Optional if quantity is provided
+  skuList?: { 
+    id: string; 
+    quantity: number;
+  }[]; // Optional if quantity is provided
 }
 
 export interface ImportProductResponse {

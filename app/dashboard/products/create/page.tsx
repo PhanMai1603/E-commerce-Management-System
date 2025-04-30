@@ -91,6 +91,12 @@ export default function Page() {
       return;
     }
 
+    const colorVariant = product.variants?.find(variant => variant.name === "Color");
+    if (colorVariant && colorVariant.options.some(option => option.trim() === "")) {
+      setErrorMessage("*Color variant contains an empty option.");
+      return;
+    }
+
     try {
       if (userId && accessToken) {
         setLoading(true);
@@ -115,10 +121,8 @@ export default function Page() {
 
         // Gửi sản phẩm lên API
         await createProduct(updatedProduct, userId, accessToken);
-
-        setLoading(false);
-
         toast.success("Create product successful!");
+        
         router.push("/dashboard/products");
       }
     } catch (error) {
@@ -127,6 +131,10 @@ export default function Page() {
       setLoading(false);
     }
   };
+
+  const handleGoBack = () => {
+    router.back();
+  }
 
   if (!accessToken || !userId) return <p>Loading...</p>;
 
@@ -163,13 +171,21 @@ export default function Page() {
         <Label className='col-span-6 flex place-self-end text-red-600'>{errorMessage}</Label>
       )}
 
-      <Button
-        onClick={handleSubmit}
-        disabled={loading}
-        className='col-span-6 flex place-self-end'
-      >
-        CREATE PRODUCT
-      </Button>
+      <div className="col-span-6 flex place-self-end gap-x-4">
+        <Button
+          onClick={handleGoBack}
+          className='bg-gray-200 text-gray-900 hover:bg-gray-300'
+        >
+          CANCEL
+        </Button>
+
+        <Button
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          CREATE PRODUCT
+        </Button>
+      </div>
     </div>
   )
 }

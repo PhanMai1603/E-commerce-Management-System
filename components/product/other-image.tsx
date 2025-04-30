@@ -69,7 +69,6 @@ const SubImageForm: React.FC<SubImageFormProps> = ({ setSubImage }) => {
     <Card className='col-span-5'>
       <CardHeader className='flex justify-between items-center'>
         <CardTitle className='text-base'>Add Product Other Image</CardTitle>
-
         <Button
           onClick={handleClear} 
           className='h-6'

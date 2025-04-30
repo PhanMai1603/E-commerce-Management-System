@@ -1,80 +1,94 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { getProductDetail, updateProduct } from '@/app/api/product';
+import { useParams, useRouter } from 'next/navigation';
+import { getProductDetail, importProduct, updateProduct } from '@/app/api/product';
 import { toast } from 'react-toastify';
 import { Button } from '@/components/ui/button';
 import InformationForm from '@/components/edit-product/information';
-import { ProductDetail, SkuList } from '@/interface/product';
+import { ImportProduct, ProductDetailResponse, ProductUpdate } from '@/interface/product';
 import DescriptionForm from '@/components/edit-product/description';
 import MainImageForm from '@/components/edit-product/main-image';
 import OtherImageForm from '@/components/edit-product/other-image';
 import SkuTable from '@/components/edit-product/sku-table';
-import PublishProduct from '@/components/edit-product/switch';
+import Publish from '@/components/edit-product/switch';
+import { Label } from '@radix-ui/react-label';
+import { uploadProductImage } from '@/app/api/upload';
 
 const EditProductPage = () => {
   const { id } = useParams();
-  const [product, setProduct] = useState<ProductDetail>({
-    id: '',
-    code: '',
-    name: '',
-    slug: '',
-    description: '',
-    video: '',
-    mainImage: '',
-    subImages: [],
-    qrCode: '',
-    originalPrice: 0,
-    minPrice: 0,
-    maxPrice: 0,
-    discountType: "PERCENT",
-    discountValue: 0,
-    discountStart: null,
-    discountEnd: null,
-    quantity: 0,
-    sold: 0,
-    category: [],
-    attributes: [],
-    status: '',
-    rating: 0,
-    ratingCount: 0,
-    views: 0,
-    uniqueViews: [],
-    createdBy: '',
-    updatedBy: '',
-    returnDays: 0,
-    variants: [],
-    // variantAttributes: [],
-    price: {
+  const [product, setProduct] = useState<ProductDetailResponse>({
+    product: {
+      id: '',
+      code: '',
+      name: '',
+      slug: '',
+      description: '',
+      video: '',
+      mainImage: '',
+      subImages: [],
+      qrCode: '',
+      originalPrice: 0,
       minPrice: 0,
       maxPrice: 0,
+      discountType: "PERCENT",
+      discountValue: 0,
+      discountStart: null,
+      discountEnd: null,
+      quantity: 0,
+      sold: 0,
+      category: [],
+      attributes: [],
+      status: '',
+      rating: 0,
+      ratingCount: 0,
+      views: 0,
+      uniqueViews: [],
+      createdBy: '',
+      updatedBy: '',
+      returnDays: 0,
+      variants: [],
+      variantAttributes: [],
+      price: 0,
+      discountedPrice: null,
+      hasDiscount: false,
     },
-    discountedPrice: null,
-    hasDiscount: false,
-    skuList: [],
+    skuList: {
+      skuList: []
+    },
   });
-  
-
-  const [skuList, setSkuList] = useState<SkuList[]>([]);
+  const [updatedProduct, setUpdatedProduct] = useState<ProductUpdate>({
+    productKey: "",
+  });
+  const [importQuantity, setImportQuantity] = useState<ImportProduct>({
+    id: typeof (id) === "string" ? id : "",
+  });
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   const userId =
     typeof window !== 'undefined' ? localStorage.getItem('userId') || '' : '';
   const accessToken =
     typeof window !== 'undefined' ? localStorage.getItem('accessToken') || '' : '';
 
+  const isAnySkuPublished = product.skuList.skuList.some(item => item.status !== 'PUBLISHED');
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         if (id && userId && accessToken) {
           const data = await getProductDetail(id as string, userId, accessToken);
-          setProduct(data.product);
-          setSkuList(data.skuList.skuList);
+          setProduct(data);
+          setUpdatedProduct(prev => {
+            return {
+              ...prev,
+              productKey: data.product.code,
+            };
+          });
         }
       } catch (error) {
-        toast.error('Không thể tải dữ liệu sản phẩm.');
+        console.error("Error fetching product:", error);
       }
     };
 
@@ -83,64 +97,133 @@ const EditProductPage = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
+
     try {
-      await updateProduct(product, userId, accessToken);
-      toast.success('Cập nhật sản phẩm thành công!');
-    } catch {
-      toast.error('Cập nhật thất bại.');
+      const updatedClone = { ...updatedProduct };
+
+      // Helper function để fetch file từ blob URL và upload
+      const uploadBlobIfNeeded = async (url: string): Promise<string> => {
+        if (url.startsWith('blob:http://localhost:3031')) {
+          const blob = await fetch(url).then(res => res.blob());
+          const file = new File([blob], 'image.webp', { type: blob.type });
+          const uploadedUrl = await uploadProductImage(file, userId, accessToken);
+          return uploadedUrl;
+        }
+        return url;
+      };
+
+      // Xử lý mainImage nếu là blob
+      if (updatedClone.mainImage?.startsWith('blob:http://localhost:3031')) {
+        updatedClone.mainImage = await uploadBlobIfNeeded(updatedClone.mainImage);
+      }
+
+      // Xử lý subImages nếu có blob
+      if (Array.isArray(updatedClone.subImages)) {
+        const updatedImages = await Promise.all(
+          updatedClone.subImages.map((img) => uploadBlobIfNeeded(img))
+        );
+        updatedClone.subImages = updatedImages;
+      } else {
+        updatedClone.subImages = [];
+      }
+
+      // Call importProduct nếu cần
+      if (
+        (importQuantity.skuList && importQuantity.skuList.length > 0) ||
+        (importQuantity.quantity && importQuantity.quantity > 0)
+      ) {
+        await importProduct(importQuantity, userId, accessToken);
+        toast.success('Update quantity successful!');
+      }
+
+      // Call updateProduct nếu có data
+      if (
+        (updatedClone.productKey && updatedClone.productKey.trim() !== "") ||
+        (Object.keys(updatedClone).length > 1)
+      ) {
+        await updateProduct(updatedClone, userId, accessToken);
+        toast.success('Update product successful!');
+      }
+
+      router.push("/dashboard/products");
+    } catch (error) {
+      console.error("Error fetching product:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!product) return <div>Đang tải dữ liệu...</div>;
+  const handleGoBack = () => {
+    router.back();
+  }
+
+  if (product.product.id === '') return <div>Loading...</div>;
 
   return (
     <div className="grid grid-cols-6 gap-4">
       <MainImageForm
-        mainImage={product.mainImage}
-        setProduct={setProduct}
+        mainImage={product.product.mainImage}
+        updatedProduct={updatedProduct}
+        setUpdatedProduct={setUpdatedProduct}
       />
 
       <OtherImageForm
-        subImages={product.subImages}
-        setProduct={setProduct}
+        subImages={product.product.subImages}
+        updatedProduct={updatedProduct}
+        setUpdatedProduct={setUpdatedProduct}
       />
 
       <InformationForm
-        product={product}
-        setProduct={setProduct}
+        product={product.product}
+        updatedProduct={updatedProduct}
+        setUpdatedProduct={setUpdatedProduct}
         userId={userId}
         accessToken={accessToken}
       />
 
       <DescriptionForm
-        description={product.description}
-        setProduct={setProduct}
+        description={product.product.description}
+        updatedProduct={updatedProduct}
+        setUpdatedProduct={setUpdatedProduct}
       />
 
-      {product.variants && (
-        <SkuTable
-          userId={userId}
-          accessToken={accessToken}
-          variants={product.variants}
-          skuList={skuList}
-          setProduct={setProduct}
-        />
+      {product.product.variants && (
+        <>
+          <SkuTable
+            userId={userId}
+            accessToken={accessToken}
+            product={product}
+            updatedProduct={updatedProduct}
+            setUpdatedProduct={setUpdatedProduct}
+            setImportQuantity={setImportQuantity}
+          />
+
+          <div className='space-x-4 col-span-6 flex justify-end items-center'>
+            <Label>Publish All Variant</Label>
+            <Publish
+              id={id}
+              status={!isAnySkuPublished ? 'PUBLISHED' : 'DRAFT'}
+              item="all-variant"
+            />
+          </div>
+        </>
       )}
 
-      <PublishProduct
-        id={id}
-        status={product.status}
-      />
+      <div className="col-span-6 flex place-self-end gap-x-4">
+        <Button
+          onClick={handleGoBack}
+          className='bg-gray-200 text-gray-900 hover:bg-gray-300'
+        >
+          CANCEL
+        </Button>
 
-      <Button
-        onClick={handleSubmit}
-        disabled={loading}
-        className="col-span-6 flex place-self-end"
-      >
-        UPDATE PRODUCT
-      </Button>
+        <Button
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          UPDATE PRODUCT
+        </Button>
+      </div>
     </div>
   );
 };
