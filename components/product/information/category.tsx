@@ -103,23 +103,26 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
         <PopoverTrigger
           asChild
           onClick={handleOpenCategories}
+          className='w-full'
         >
-          <div className='flex items-center'>
-            {selectedCategories.map((selected) => (
-              <div
-                key={selected.id}
-                className='relative'
-              >
-                <span className='text-sm text-nowrap font-medium px-3 py-1 ml-2 bg-gray-600/10 rounded-full'>{selected.name}</span>
-                <Button
-                  onClick={(event) => handleDelete(event, selected.id)}
-                  className='absolute h-auto -top-1 -right-1 p-1 bg-red-300 hover:bg-red-500 [&_svg]:size-2'
+          <div className='flex justify-between items-center w-full'>
+            <div className={`${selectedCategories.length > 0 ? 'flex': 'hidden'} flex-wrap items-center my-2 gap-y-2 w-full`}>
+              {selectedCategories.map((selected) => (
+                <div
+                  key={selected.id}
+                  className='relative'
                 >
-                  <X />
-                </Button>
-              </div>
-            ))}
-            <Button className='flex justify-between items-center w-full px-3 bg-transparent font-normal text-gray-600 hover:bg-transparent'>
+                  <span className='text-sm text-nowrap font-medium px-3 py-1 ml-2 bg-gray-600/10 rounded-full'>{selected.name}</span>
+                  <Button
+                    onClick={(event) => handleDelete(event, selected.id)}
+                    className='absolute h-auto -top-1 -right-1 p-1 bg-red-300 hover:bg-red-500 [&_svg]:size-2'
+                  >
+                    <X />
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <Button className={`flex justify-between items-center px-3 bg-transparent font-normal text-gray-600 hover:bg-transparent ${selectedCategories.length > 0 ? 'w-auto' : 'w-full'}`}>
               Select product categories
               <ChevronDown />
             </Button>
