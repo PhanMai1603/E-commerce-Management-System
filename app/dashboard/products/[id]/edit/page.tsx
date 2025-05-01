@@ -13,7 +13,7 @@ import OtherImageForm from '@/components/edit-product/other-image';
 import SkuTable from '@/components/edit-product/sku-table';
 import Publish from '@/components/edit-product/switch';
 import { Label } from '@radix-ui/react-label';
-import { uploadProductImage } from '@/app/api/upload';
+// import { uploadProductImage } from '@/app/api/upload';
 
 const EditProductPage = () => {
   const { id } = useParams();
@@ -75,6 +75,10 @@ const EditProductPage = () => {
   const isAnySkuPublished = product.skuList.skuList.some(item => item.status !== 'PUBLISHED');
 
   useEffect(() => {
+    console.log("updatedProduct:", updatedProduct);
+  }, [updatedProduct])
+
+  useEffect(() => {
     const fetchProduct = async () => {
       try {
         if (id && userId && accessToken) {
@@ -99,33 +103,31 @@ const EditProductPage = () => {
     setLoading(true);
 
     try {
-      const updatedClone = { ...updatedProduct };
+      // // Helper function để fetch file từ blob URL và upload
+      // const uploadBlobIfNeeded = async (url: string): Promise<string> => {
+      //   if (url.startsWith('blob:http://localhost:3031')) {
+      //     const blob = await fetch(url).then(res => res.blob());
+      //     const file = new File([blob], 'image.webp', { type: blob.type });
+      //     const uploadedUrl = await uploadProductImage(file, userId, accessToken);
+      //     return uploadedUrl;
+      //   }
+      //   return url;
+      // };
 
-      // Helper function để fetch file từ blob URL và upload
-      const uploadBlobIfNeeded = async (url: string): Promise<string> => {
-        if (url.startsWith('blob:http://localhost:3031')) {
-          const blob = await fetch(url).then(res => res.blob());
-          const file = new File([blob], 'image.webp', { type: blob.type });
-          const uploadedUrl = await uploadProductImage(file, userId, accessToken);
-          return uploadedUrl;
-        }
-        return url;
-      };
+      // // Xử lý mainImage nếu là blob
+      // if (updatedProduct.mainImage?.startsWith('blob:http://localhost:3031')) {
+      //   updatedProduct.mainImage = await uploadBlobIfNeeded(updatedProduct.mainImage);
+      // }
 
-      // Xử lý mainImage nếu là blob
-      if (updatedClone.mainImage?.startsWith('blob:http://localhost:3031')) {
-        updatedClone.mainImage = await uploadBlobIfNeeded(updatedClone.mainImage);
-      }
-
-      // Xử lý subImages nếu có blob
-      if (Array.isArray(updatedClone.subImages)) {
-        const updatedImages = await Promise.all(
-          updatedClone.subImages.map((img) => uploadBlobIfNeeded(img))
-        );
-        updatedClone.subImages = updatedImages;
-      } else {
-        updatedClone.subImages = [];
-      }
+      // // Xử lý subImages nếu có blob
+      // if (Array.isArray(updatedProduct.subImages)) {
+      //   const updatedImages = await Promise.all(
+      //     updatedProduct.subImages.map((img) => uploadBlobIfNeeded(img))
+      //   );
+      //   updatedProduct.subImages = updatedImages;
+      // } else {
+      //   updatedProduct.subImages = [];
+      // }
 
       // Call importProduct nếu cần
       if (
@@ -138,10 +140,10 @@ const EditProductPage = () => {
 
       // Call updateProduct nếu có data
       if (
-        (updatedClone.productKey && updatedClone.productKey.trim() !== "") ||
-        (Object.keys(updatedClone).length > 1)
+        (updatedProduct.productKey && updatedProduct.productKey.trim() !== "") ||
+        (Object.keys(updatedProduct).length > 1)
       ) {
-        await updateProduct(updatedClone, userId, accessToken);
+        await updateProduct(updatedProduct, userId, accessToken);
         toast.success('Update product successful!');
       }
 
