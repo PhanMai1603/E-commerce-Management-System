@@ -186,7 +186,7 @@ export function ProductTable() {
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell className="text-gray-500 font-medium">
-                    {product.originalPrice}đ
+                    {product.minPrice}đ
                   </TableCell>
                   <TableCell>
                     <div className="text-gray-700 font-medium">
