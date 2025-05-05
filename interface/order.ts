@@ -36,6 +36,7 @@ export interface OrderItem {
     price: number;
     image: string;
     quantity: number;
+    discount: number;
   }
   
   export interface ShippingAddressDetail {
@@ -55,14 +56,16 @@ export interface OrderItem {
   export interface OrderMetadata {
     id: string;
     userId: string;
-    couponId: string;
+    couponCode: string;
     items: OrderItem[];
     shippingAddress: ShippingAddressDetail;
     paymentMethod: string;
     deliveryMethod: DeliveryMethodDetail;
     itemsPrice: number;
-    discountPrice: number;
+    itemsDiscount: number;
     shippingPrice: number;
+    shippingDiscount: number;
+    discountPrice: number;
     totalPrice: number;
     status: string;
   }
