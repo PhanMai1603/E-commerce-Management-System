@@ -44,37 +44,6 @@ export const getTopSearchProduct = async (search: string, userId: string, access
   }
 };
 
-// export const getShopProducts = async (params: Product.FetchProductsParams = {}): Promise<Product.Product> => {
-//   const { search, categoryId, minPrice, maxPrice, sort } = params;
-
-//   try {
-//       let url = `${PRODUCT_URL}?size=20`;
-
-//       if (search) {
-//           url += `&search=${search}`;
-//       } if (categoryId) {
-//           url += `&category=${categoryId}`;
-//       } if (minPrice) {
-//           url += `&minPrice=${minPrice}`;
-//       } if (maxPrice) {
-//           url += `&maxPrice=${maxPrice}`;
-//       } if (sort) {
-//           url += `&sort=${sort}`;
-//       }
-
-//       const response = await api.get(url);
-//       return response.data.metadata;
-//   } catch (error) {
-//       const errorMessage = get(error, 'response.data.error.message', '');
-
-//       if (errorMessage) {
-//           toast.error(errorMessage);
-//       }
-//       throw new Error(errorMessage || 'An unknown error occurred.');
-//   }
-// }
-
-//
 export const createProduct = async (data: Product.ProductData, userId: string, accessToken: string): Promise<Product.ProductDataResponse> => {
   try {
     const response = await api.post(`${PRODUCT_URL}/`, data, {
