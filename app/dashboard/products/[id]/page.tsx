@@ -3,6 +3,7 @@ import { getProductDetail } from "@/app/api/product";
 import ProductDescription from "@/components/detail-product/description";
 import ProductImage from "@/components/detail-product/image";
 import ProductInformation from "@/components/detail-product/information";
+import ProductVariant from "@/components/detail-product/variant";
 import { ProductDetailResponse } from "@/interface/product";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -50,6 +51,9 @@ export default function Page() {
     },
   });
 
+  // State để quản lý hình ảnh đang được chọn
+  const [selectedImage, setSelectedImage] = useState<string>("");
+
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken =
@@ -67,17 +71,10 @@ export default function Page() {
             accessToken
           );
           setProduct(data);
-          if (data) {
-            setProduct({
-              ...data,
-              product: {
-                ...data.product,
-                mainImage: data.product.mainImage || "/images/product.png", // fallback nếu không có ảnh
-              },
-            });
-          } else {
-            console.error("Product not found or invalid data format.");
-          }
+
+          // Đặt hình ảnh chính khi tải trang
+          const mainImage = data.product.mainImage || "/images/product.png";
+          setSelectedImage(mainImage);
         }
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -88,16 +85,25 @@ export default function Page() {
   }, [id, userId, accessToken]);
 
   return (
-    <div className="grid grid-cols-10 gap-4 mt-20">
-      <ProductImage mainImage={product.product.mainImage} 
-       subImages={product.product.subImages}
+    <div className="grid grid-cols-10 gap-4 mt-4">
+      <ProductImage
+        mainImage={product.product.mainImage}
+        subImages={product.product.subImages}
+        selectedImage={selectedImage}
+        setSelectedImage={setSelectedImage}
       />
 
-      <ProductInformation 
-        product={product.product} 
+      <ProductInformation
+        product={product.product}
+        selectedImage={selectedImage}
+        setSelectedImage={setSelectedImage}
       />
-      <ProductDescription 
-      product={product.product}
+
+      <ProductDescription product={product.product} />
+
+      <ProductVariant
+        skuList={product.skuList.skuList} 
+        setProduct={setProduct}
       />
     </div>
   );

@@ -1,26 +1,31 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card } from "../ui/card";
 
 interface ProductImageProps {
   mainImage: string;
   subImages: string[];
+  selectedImage: string;
+  setSelectedImage: (image: string) => void;
 }
 
-export default function ProductImage({ mainImage, subImages }: ProductImageProps) {
-  const [selectedImage, setSelectedImage] = useState(mainImage || "/images/product.png");
-
+export default function ProductImage({
+  mainImage,
+  subImages,
+  selectedImage,
+  setSelectedImage,
+}: ProductImageProps) {
   return (
     <Card className="col-start-2 col-span-4 p-4 overflow-hidden mb-0">
-      {/* Ảnh chính - tràn sát viền */}
+      {/* Main Image */}
       <div className="w-full">
         <img
-          src={selectedImage}
+          src={selectedImage || mainImage || "/images/product.png"}
           alt="Main product"
           className="w-full h-[500px] object-cover"
         />
       </div>
 
-      {/* Ảnh phụ (thumbnail) */}
+      {/* Thumbnail images */}
       <div className="flex justify-start gap-3 flex-wrap p-4">
         {subImages && subImages.length > 0 ? (
           subImages.map((img, index) => (

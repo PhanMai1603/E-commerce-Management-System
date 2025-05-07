@@ -1,6 +1,6 @@
 import { BarCharts } from '@/components/dashboard/barchart'
 import { Chart } from '@/components/dashboard/chart'
-import { Invoice } from '@/components/dashboard/invoice'
+import { Order } from '@/components/dashboard/invoice'
 import Sales from '@/components/dashboard/sales'
 import React from 'react'
 
@@ -24,7 +24,7 @@ export default function Page() {
       </div>
 
       <div>
-        <Invoice/>
+        <Order/>
       </div>
     </div>
   )
