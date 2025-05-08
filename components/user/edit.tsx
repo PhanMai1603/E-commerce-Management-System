@@ -40,7 +40,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, onStatusCh
     };
 
     fetchRoles();
-  }, []);
+  }, [userId, accessToken]);
 
   // Xử lý cập nhật trạng thái (ACTIVE / BLOCKED)
   const handleStatusChange = (newStatus: string) => {

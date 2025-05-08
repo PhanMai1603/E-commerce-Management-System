@@ -36,7 +36,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -83,7 +82,7 @@ export function OrderPage() {
       toast.success("Order status updated successfully!");
       fetchOrders();
     } catch (error) {
-      // lỗi đã được xử lý trong API
+      toast.error("Failed to update order status");
     } finally {
       setSelectedOrderId(null);
     }

@@ -59,8 +59,33 @@ export function ProductTable() {
       ? localStorage.getItem("accessToken") || ""
       : "";
 
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     console.log("Fetching products...");
+  //     setLoading(true);
+  //     try {
+  //       const response = await getAllProduct(userId, accessToken, page, size);
+  //       setProducts(response.products);
+  //       setTotalPages(response.totalPages);
+  //     } catch {
+  //       toast.error("Failed to fetch products");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   // Nếu không có query, lấy tất cả sản phẩm
+  //   if (!query.trim()) {
+  //     fetchProducts();
+  //   }
+  // }, [query, page, size, userId, accessToken]);
+
+
   useEffect(() => {
+    if (query.trim()) return;
+    
     const fetchProducts = async () => {
+      console.log("Fetching products...");
       setLoading(true);
       try {
         const response = await getAllProduct(userId, accessToken, page, size);
@@ -72,15 +97,10 @@ export function ProductTable() {
         setLoading(false);
       }
     };
-
-    // Nếu không có query, lấy tất cả sản phẩm
-    if (!query.trim()) {
-      fetchProducts();
-    }
+  
+    fetchProducts();
   }, [query, page, size, userId, accessToken]);
-
-
-
+  
   const handleView = (product: Product) => {
     router.push(`/dashboard/products/${product.id}`);
   };

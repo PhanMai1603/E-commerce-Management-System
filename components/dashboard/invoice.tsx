@@ -60,7 +60,7 @@ export function Order() {
 
   useEffect(() => {
     fetchOrders();
-  }, [userId, accessToken, page, size]);
+  }, []);
 
   const handleView = (order: Order) => {
     router.push(`/dashboard/orders/${order.id}`);

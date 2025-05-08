@@ -29,7 +29,7 @@ export const OrderDetail = () => {
         const accessToken = localStorage.getItem("accessToken") || "";
         const data = await getOrderDetail(id, userId, accessToken);
         setOrder(data.orders);
-      } catch (err) {
+      } catch (error) {
         toast.error("Không thể tải thông tin đơn hàng.");
       } finally {
         setLoading(false);
@@ -127,7 +127,7 @@ export const OrderDetail = () => {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-2">
       <Card>
         <CardHeader>
           <CardTitle>Order #{id}</CardTitle>

@@ -1,16 +1,6 @@
-import {
-  Tag,
-  Star,
-  ShoppingCart,
-  Heart,
-  Share2,
-  Award,
-  Package,
-  Truck,
-} from "lucide-react";
+import { Tag, Star } from "lucide-react";
 import React, { useState } from "react";
 import { Card } from "../ui/card";
-import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
 import { ProductDetail } from "@/interface/product";
@@ -27,13 +17,6 @@ export default function ProductInformation({
   setSelectedImage,
 }: ProductInformationProps) {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const hasDiscount =
-    product.originalPrice && product.originalPrice > product.price;
-  const discountPercentage = hasDiscount
-    ? Math.round(
-        ((product.originalPrice - product.price) / product.originalPrice) * 100
-      )
-    : 0;
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -97,7 +80,8 @@ export default function ProductInformation({
         <span className="text-sm text-gray-600">
           {product.rating.toFixed(1)} ({product.ratingCount} Reviews)
         </span>
-        {product.sold && (
+
+        {Number(product.sold) > 0 && (
           <>
             <span className="mx-2 text-gray-400">|</span>
             <span className="text-sm text-gray-600">{product.sold} Sold</span>
@@ -173,18 +157,6 @@ export default function ProductInformation({
             ))}
           </div>
         )}
-      </div>
-
-      <Separator className="my-4" />
-      <div className="grid grid-cols-3 gap-4">
-        <div className="flex items-center justify-between col-span-3">
-          <span>Quantity:</span>
-          <span className="ml-auto">{product.quantity}</span>
-        </div>
-        <div className="flex items-center justify-between col-span-3 text-sm ">
-          <span>Return Day:</span>
-          <span className="ml-auto">{product.returnDays}</span>
-        </div>
       </div>
     </Card>
   );

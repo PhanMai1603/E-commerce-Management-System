@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable prefer-const */
 "use client";
 import DescriptionCouponForm from "@/components/coupon/description";
 import LimitCouponForm from "@/components/coupon/limit";

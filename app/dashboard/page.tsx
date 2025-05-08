@@ -13,14 +13,14 @@ export default function Page() {
 
       <div className="grid grid-cols-4 gap-4">
         {/* Chart chiếm 1 cột */}
-        <div className="col-span-1">
+        {/* <div className="col-span-1">
           <Chart />
-        </div>
+        </div> */}
 
         {/* BarCharts chiếm 3 cột */}
-        <div className="col-span-3">
+        {/* <div className="col-span-3">
           <BarCharts />
-        </div>
+        </div> */}
       </div>
 
       <div>

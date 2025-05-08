@@ -17,7 +17,6 @@ interface ProductVariantProps {
 
 export default function ProductVariant({
   skuList,
-  setProduct,
 }: ProductVariantProps) {
   return (
     <Card className="col-start-2 col-span-8 flex flex-col p-4">
