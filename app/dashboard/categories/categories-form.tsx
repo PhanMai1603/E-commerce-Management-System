@@ -2,17 +2,27 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Card, CardContent, CardHeader, CardTitle,
-} from "@/components/ui/card";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { ChevronDown, ChevronUp, EllipsisVertical, Plus } from "lucide-react";
-import { getAllCategories, getChildCategories, deleteCategories } from "@/app/api/category";
+import {
+  getAllCategories,
+  getChildCategories,
+  deleteCategories,
+} from "@/app/api/category";
 import * as Category from "@/interface/category";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import CategoryModal from "@/components/category/create";
@@ -21,13 +31,18 @@ import { toast } from "react-toastify";
 import React from "react";
 
 export default function Page() {
-  const [categories, setCategories] = useState<Category.CategoryDataResponse[]>([]);
-  const [childCategories, setChildCategories] = useState<Record<string, Category.CategoryDataResponse[]>>({});
+  const [categories, setCategories] = useState<Category.CategoryDataResponse[]>(
+    []
+  );
+  const [childCategories, setChildCategories] = useState<
+    Record<string, Category.CategoryDataResponse[]>
+  >({});
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [hasChildren, setHasChildren] = useState<Record<string, boolean>>({});
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category.CategoryDataResponse | null>(null);
+  const [selectedCategory, setSelectedCategory] =
+    useState<Category.CategoryDataResponse | null>(null);
 
   const fetchCategories = async () => {
     try {
@@ -48,7 +63,11 @@ export default function Page() {
     fetchCategories();
   }, []);
 
-  const checkHasChildren = async (id: string, childCheck: Record<string, boolean>, level: number) => {
+  const checkHasChildren = async (
+    id: string,
+    childCheck: Record<string, boolean>,
+    level: number
+  ) => {
     if (level > 2) return;
 
     try {
@@ -98,15 +117,25 @@ export default function Page() {
                 <EllipsisVertical />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => handleEditCategory(child)}>Edit</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDeleteCategory(child.id)}>Delete</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleEditCategory(child)}>
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleDeleteCategory(child.id)}
+                >
+                  Delete
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </TableCell>
           <TableCell className="text-right">
             {hasChildren[child.id] && level < 2 && (
               <button onClick={() => toggleRow(child.id, level + 1)}>
-                {expandedRows[child.id] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {expandedRows[child.id] ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
               </button>
             )}
           </TableCell>
@@ -120,13 +149,56 @@ export default function Page() {
     const userId = localStorage.getItem("userId") || "";
     const token = localStorage.getItem("accessToken") || "";
 
-    setCategories((prev) => prev.filter((cat) => cat.id !== id));
     try {
       await deleteCategories(id, userId, token);
       toast.success("Category deleted successfully!");
+
+      // Remove from main categories if it is a top-level category
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
+
+      // Remove from childCategories (deep cleaning)
+      setChildCategories((prev) => {
+        const newChildCategories = { ...prev };
+
+        // Remove the category itself
+        delete newChildCategories[id];
+
+        // Remove the category from its parent's children
+        for (const parentId in newChildCategories) {
+          newChildCategories[parentId] = newChildCategories[parentId].filter(
+            (child) => child.id !== id
+          );
+        }
+
+        return newChildCategories;
+      });
+
+      // Remove from expandedRows
+      setExpandedRows((prev) => {
+        const newExpandedRows = { ...prev };
+        delete newExpandedRows[id];
+        return newExpandedRows;
+      });
+
+      // Update hasChildren to reflect the latest structure
+      setHasChildren((prev) => {
+        const newHasChildren = { ...prev };
+
+        // Check if any parents lost their last child
+        for (const parentId in prev) {
+          if (
+            !prev[parentId] ||
+            (childCategories[parentId] || []).length === 0
+          ) {
+            delete newHasChildren[parentId];
+          }
+        }
+
+        return newHasChildren;
+      });
     } catch (error) {
       toast.error("Error deleting category.");
-      fetchCategories();
+      console.error("Error deleting category:", error);
     }
   };
 
@@ -136,15 +208,30 @@ export default function Page() {
   };
 
   const handleCategoryCreated = async () => {
+    // Clear all expanded rows to force a full refresh
+    setExpandedRows({});
+    setChildCategories({});
+    setHasChildren({});
+
+    // Fetch the latest categories
     await fetchCategories();
 
-    // Refetch all child lists that are currently expanded
-    for (const id in expandedRows) {
-      if (expandedRows[id]) {
-        const children = await getChildCategories(id);
-        setChildCategories((prev) => ({ ...prev, [id]: children }));
+    // Re-fetch children for already expanded rows, if any
+    const updatedExpandedRows = { ...expandedRows };
+    const updatedChildCategories = { ...childCategories };
+
+    for (const id in updatedExpandedRows) {
+      if (updatedExpandedRows[id]) {
+        try {
+          const children = await getChildCategories(id);
+          updatedChildCategories[id] = children;
+        } catch (error) {
+          console.error("Error fetching child categories:", error);
+        }
       }
     }
+
+    setChildCategories(updatedChildCategories);
   };
 
   return (
@@ -152,7 +239,10 @@ export default function Page() {
       <Card>
         <CardHeader>
           <CardTitle>All Categories</CardTitle>
-          <Button onClick={() => setModalOpen(true)} className="flex items-center gap-2">
+          <Button
+            onClick={() => setModalOpen(true)}
+            className="flex items-center gap-2"
+          >
             <Plus className="w-5 h-5" />
             Add Category
           </Button>
@@ -170,22 +260,36 @@ export default function Page() {
               {categories.map((category) => (
                 <React.Fragment key={category.id}>
                   <TableRow>
-                    <TableCell className="font-medium">{category.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {category.name}
+                    </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger>
                           <EllipsisVertical />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                          <DropdownMenuItem onClick={() => handleEditCategory(category)}>Edit</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteCategory(category.id)}>Delete</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleEditCategory(category)}
+                          >
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteCategory(category.id)}
+                          >
+                            Delete
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
                     <TableCell className="text-right">
                       {hasChildren[category.id] && (
                         <button onClick={() => toggleRow(category.id, 1)}>
-                          {expandedRows[category.id] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          {expandedRows[category.id] ? (
+                            <ChevronUp className="w-4 h-4" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4" />
+                          )}
                         </button>
                       )}
                     </TableCell>
@@ -196,7 +300,12 @@ export default function Page() {
             </TableBody>
           </Table>
         </CardContent>
-        <CategoryModal open={modalOpen} onOpenChange={setModalOpen} onCategoryCreated={handleCategoryCreated} />
+        <CategoryModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          onCategoryCreated={handleCategoryCreated}
+        />
+
         <CategoryEditModal
           open={editModalOpen}
           onOpenChange={setEditModalOpen}

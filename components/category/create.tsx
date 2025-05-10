@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-"use client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,7 +23,7 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
   const [childCategories, setChildCategories] = useState<Category[]>([]);
   const [subChildCategories, setSubChildCategories] = useState<Category[]>([]);
 
-  // Lấy danh mục cấp 1 (cha)
+  // Fetch top-level categories when the modal is opened
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -36,17 +34,23 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
       }
     };
 
-    if (open) fetchCategories();
+    if (open) {
+      fetchCategories();
+      resetState();  // Reset everything on open
+    }
   }, [open]);
 
-  // Khi chọn danh mục cha, tải danh mục con cấp 2
+  // Reset all states on modal close
+  const resetState = () => {
+    setNewCategory({ name: "", parentId: "", childId: "" });
+    setChildCategories([]);
+    setSubChildCategories([]);
+  };
+
+  // Handle parent category change
   const handleParentChange = async (parentId: string) => {
-    setNewCategory((prev) => ({
-      ...prev,
-      parentId, // Lưu danh mục cha
-      childId: "", // Reset danh mục con khi đổi cha
-    }));
-    setChildCategories([]); 
+    setNewCategory({ name: newCategory.name, parentId, childId: "" });
+    setChildCategories([]);
     setSubChildCategories([]);
 
     if (parentId) {
@@ -59,12 +63,9 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
     }
   };
 
-  // Khi chọn danh mục con, tải danh mục con cấp 3
+  // Handle child category change
   const handleChildChange = async (childId: string) => {
-    setNewCategory((prev) => ({
-      ...prev,
-      childId, // Chỉ cập nhật childId, giữ nguyên parentId
-    }));
+    setNewCategory((prev) => ({ ...prev, childId }));
     setSubChildCategories([]);
 
     if (childId) {
@@ -77,30 +78,31 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
     }
   };
 
+  // Create new category
   const handleCreateCategory = async () => {
     if (!newCategory.name.trim()) {
       toast.error("Category name is required!");
       return;
     }
 
-    // Nếu parentId là chuỗi rỗng, chuyển thành null
     const categoryData = {
       name: newCategory.name,
-      parentId: newCategory.childId || newCategory.parentId || null, // Lấy childId nếu có, nếu không thì lấy parentId
+      parentId: newCategory.childId || newCategory.parentId || null,
     };
 
     try {
-      const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
-      const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
+      const userId = localStorage.getItem("userId") || "";
+      const accessToken = localStorage.getItem("accessToken") || "";
 
       await createCategories(categoryData, userId, accessToken);
       toast.success("Category created successfully!");
 
-      setNewCategory({ name: "", parentId: "", childId: "" });
+      resetState();
       onOpenChange(false);
       onCategoryCreated();
     } catch (error) {
       console.error("Error creating category:", error);
+      toast.error("Failed to create category.");
     }
   };
 
@@ -117,7 +119,7 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
           onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
         />
 
-        {/* Dropdown danh mục cấp 1 */}
+        {/* Dropdown for Parent (Top-level) */}
         <select
           value={newCategory.parentId}
           onChange={(e) => handleParentChange(e.target.value)}
@@ -131,7 +133,7 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
           ))}
         </select>
 
-        {/* Dropdown danh mục cấp 2 */}
+        {/* Dropdown for Child (Level 2) */}
         {childCategories.length > 0 && (
           <select
             value={newCategory.childId}
