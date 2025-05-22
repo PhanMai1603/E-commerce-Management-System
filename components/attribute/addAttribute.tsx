@@ -5,6 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@radix-ui/react-label";
 import clsx from "clsx";
+import { Trash2 } from "lucide-react";
+
+interface ValueInput {
+  value: string;
+  description_url: string;
+}
 
 interface Props {
   attributeName: string;
@@ -13,10 +19,8 @@ interface Props {
   setAttributeType: (val: "COLOR" | "TEXT") => void;
   isVariant: boolean;
   setIsVariant: (val: boolean) => void;
-  newValue: string;
-  setNewValue: (val: string) => void;
-  descriptionUrl: string;
-  setDescriptionUrl: (val: string) => void;
+  attributeValues: ValueInput[];                           // ✅ mới thêm
+  setAttributeValues: (vals: ValueInput[]) => void;        // ✅ mới thêm
   onSubmit: () => void;
   disabled?: boolean;
 }
@@ -25,11 +29,26 @@ export default function AddAttributeForm({
   attributeName, setAttributeName,
   attributeType, setAttributeType,
   isVariant, setIsVariant,
-  newValue, setNewValue,
-  descriptionUrl, setDescriptionUrl,
+  attributeValues, setAttributeValues,
   onSubmit,
   disabled = false,
 }: Props) {
+  const handleValueChange = (index: number, field: "value" | "description_url", val: string) => {
+    const updated = [...attributeValues];
+    updated[index][field] = val;
+    setAttributeValues(updated);
+  };
+
+  const handleAddValue = () => {
+    setAttributeValues([...attributeValues, { value: "", description_url: "" }]);
+  };
+
+  const handleRemoveValue = (index: number) => {
+    const updated = [...attributeValues];
+    updated.splice(index, 1);
+    setAttributeValues(updated);
+  };
+
   return (
     <Card className={clsx("col-span-1", disabled && "opacity-50 pointer-events-none")}>
       <CardHeader>
@@ -42,7 +61,6 @@ export default function AddAttributeForm({
           <Input
             disabled={disabled}
             value={attributeName}
-            type="text"
             onChange={(e) => setAttributeName(e.target.value)}
           />
         </div>
@@ -65,36 +83,55 @@ export default function AddAttributeForm({
         </div>
 
         <div className="flex items-center justify-between col-span-6">
-  <Label>Is Variant</Label>
-  <Switch
-    disabled={disabled}
-    checked={isVariant}
-    onCheckedChange={setIsVariant}
-  />
-</div>
-
-        {/* Luôn hiện nhưng sẽ disable nếu isVariant = false */}
-        <div className="space-y-2 col-span-6">
-          <Label>Value Name</Label>
-          <Input
-            disabled={!isVariant || disabled}
-            value={newValue}
-            onChange={(e) => setNewValue(e.target.value)}
+          <Label>Is Variant</Label>
+          <Switch
+            disabled={disabled}
+            checked={isVariant}
+            onCheckedChange={setIsVariant}
           />
         </div>
 
-        <div className="space-y-2 col-span-6">
-          <Label>{attributeType === "COLOR" ? "Color Hex Code" : "Description"}</Label>
-          <Input
-            disabled={!isVariant || disabled}
-            placeholder={attributeType === "COLOR" ? "#FF5733" : "Enter description"}
-            value={descriptionUrl}
-            onChange={(e) => setDescriptionUrl(e.target.value)}
-          />
-        </div>
+        {/* VALUE INPUTS */}
+        {isVariant && attributeValues.map((v, index) => (
+          <div className="col-span-6 grid grid-cols-6 gap-2 items-center" key={index}>
+            <Input
+              placeholder="Value Name"
+              className="col-span-2"
+              value={v.value}
+              onChange={(e) => handleValueChange(index, "value", e.target.value)}
+              disabled={disabled}
+            />
+            <Input
+              placeholder={attributeType === "COLOR" ? "#FF5733" : "Description"}
+              className="col-span-3"
+              value={v.description_url}
+              onChange={(e) => handleValueChange(index, "description_url", e.target.value)}
+              disabled={disabled}
+            />
+            <Button
+              variant="destructive"
+              className="col-span-1"
+              onClick={() => handleRemoveValue(index)}
+              disabled={disabled}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        ))}
+
+        {isVariant && (
+          <Button
+            className="col-span-6"
+            variant="outline"
+            onClick={handleAddValue}
+            disabled={disabled}
+          >
+            ADD VALUE
+          </Button>
+        )}
 
         <Button
-          disabled={disabled || (isVariant && (!newValue || !descriptionUrl))}
+          disabled={disabled}
           className="w-full col-span-6"
           onClick={onSubmit}
         >

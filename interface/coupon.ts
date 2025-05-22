@@ -45,7 +45,7 @@ export interface CouponData {
     maxValue: number;
     maxUses: number;
     maxUsesPerUser: number;
-    targetType: "Order" | "Delivery" | "Product";
+    targetType: "Order" | "Delivery" | "Product" |"Category";
     targetIds: string[]; // Array of target IDs
     isActive: boolean;
 }

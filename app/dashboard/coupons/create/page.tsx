@@ -9,6 +9,7 @@ import { createCoupon } from "@/app/api/coupon";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { ProductData } from "@/interface/product";
 
 export default function DiscountForm() {
   const [coupon, setCoupon] = useState<CouponData>({
@@ -25,6 +26,17 @@ export default function DiscountForm() {
     targetIds: [],
     startDate: "",
     endDate: "",
+  });
+  const [product, setProduct] = useState<ProductData>({
+    name: '',
+    mainImage: '',
+    subImages: [],
+    video: '',
+    originalPrice: 0,
+    description: '',
+    category: [],
+    attributes: [],
+    returnDays: -1,
   });
 
   const [loading, setLoading] = useState(false);
@@ -74,6 +86,8 @@ export default function DiscountForm() {
         accessToken={accessToken}
         coupon={coupon}
         setCoupon={setCoupon}
+        product={product}
+        setProduct={setProduct} // ✅ This is what you're missing or doing wrong
       />
       <DescriptionCouponForm description={coupon.description} setCoupon={setCoupon} />
 

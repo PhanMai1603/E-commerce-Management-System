@@ -1,12 +1,21 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { getAllAttributes, createAttribute, addValueToAttribute } from "@/app/api/attribute";
+import {
+  getAllAttributes,
+  createAttribute,
+  addValueToAttribute,
+} from "@/app/api/attribute";
 import { AttributeItem } from "@/interface/attribute";
 import AttributeTable from "@/components/attribute/allAttributes";
 import AddAttributeForm from "@/components/attribute/addAttribute";
 import AddValueForm from "@/components/attribute/addValue";
+
+interface ValueInput {
+  value: string;
+  description_url: string;
+}
 
 export default function AttributesTableWrapper() {
   const [attributes, setAttributes] = useState<AttributeItem[]>([]);
@@ -14,12 +23,16 @@ export default function AttributesTableWrapper() {
   const [attributeName, setAttributeName] = useState("");
   const [attributeType, setAttributeType] = useState<"COLOR" | "TEXT" | "">("");
   const [isVariant, setIsVariant] = useState(false);
-  const [newValue, setNewValue] = useState("");
-  const [descriptionUrl, setDescriptionUrl] = useState("");
+  const [attributeValues, setAttributeValues] = useState<ValueInput[]>([
+    { value: "", description_url: "" },
+  ]);
   const [editingAttribute, setEditingAttribute] = useState<AttributeItem | null>(null);
+  const [values, setValues] = useState<ValueInput[]>([]);
 
-  const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
-  const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
+  const userId =
+    typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
+  const accessToken =
+    typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
 
   const fetchAttributes = async () => {
     setLoading(true);
@@ -38,25 +51,32 @@ export default function AttributesTableWrapper() {
   }, []);
 
   const handleAddAttribute = async () => {
-    if (!attributeName || !attributeType) return toast.error("Please fill in all required information!");
-    if (isVariant && (!newValue || !descriptionUrl)) return toast.error("Please fill in all value information!");
+    if (!attributeName || !attributeType) {
+      return toast.error("Please fill in all required information!");
+    }
+
+    if (isVariant && attributeValues.length === 0) {
+      return toast.error("Please add at least one value!");
+    }
+
+    const hasEmpty = attributeValues.some((v) => !v.value || !v.description_url);
+    if (isVariant && hasEmpty) {
+      return toast.error("Please fill all value fields!");
+    }
 
     try {
-      const values = isVariant ? [{ value: newValue, description_url: descriptionUrl }] : [];
-
       await createAttribute(userId, accessToken, {
         name: attributeName,
         type: attributeType,
         isVariantAttribute: isVariant,
-        values,
+        values: isVariant ? attributeValues : [],
       });
 
       toast.success("Attribute added successfully!");
       setAttributeName("");
       setAttributeType("");
       setIsVariant(false);
-      setNewValue("");
-      setDescriptionUrl("");
+      setAttributeValues([{ value: "", description_url: "" }]);
       fetchAttributes();
     } catch {
       toast.error("Failed to add attribute.");
@@ -64,30 +84,33 @@ export default function AttributesTableWrapper() {
   };
 
   const handleAddValue = async () => {
-    if (!editingAttribute || !newValue) return toast.error("Please fill in all required information!");
+    if (!editingAttribute || values.length === 0) {
+      return toast.error("Please fill in at least one value!");
+    }
+
+    const isEmpty = values.some((v) => !v.value || !v.description_url);
+    if (isEmpty) return toast.error("Please fill all value fields!");
 
     try {
       await addValueToAttribute(userId, accessToken, {
         attributeId: editingAttribute.id,
-        values: [{ value: newValue, description_url: descriptionUrl }],
+        values,
       });
 
-      toast.success("Value added successfully!");
-      setNewValue("");
-      setDescriptionUrl("");
+      toast.success("Values added successfully!");
+      setValues([]);
       setEditingAttribute(null);
       fetchAttributes();
     } catch {
-      toast.error("Failed to add value.");
+      toast.error("Failed to add values.");
     }
   };
 
   const handleEdit = (id: string) => {
-    const attr = attributes.find(attr => attr.id === id);
+    const attr = attributes.find((attr) => attr.id === id);
     if (attr) {
       setEditingAttribute(attr);
-      setNewValue("");
-      setDescriptionUrl("");
+      setValues([{ value: "", description_url: "" }]);
     } else {
       toast.error("Attribute not found.");
     }
@@ -105,6 +128,7 @@ export default function AttributesTableWrapper() {
         onEdit={handleEdit}
         onView={handleView}
       />
+
       <AddAttributeForm
         attributeName={attributeName}
         setAttributeName={setAttributeName}
@@ -112,20 +136,17 @@ export default function AttributesTableWrapper() {
         setAttributeType={setAttributeType}
         isVariant={isVariant}
         setIsVariant={setIsVariant}
-        newValue={newValue}
-        setNewValue={setNewValue}
-        descriptionUrl={descriptionUrl}
-        setDescriptionUrl={setDescriptionUrl}
+        attributeValues={attributeValues}
+        setAttributeValues={setAttributeValues}
         onSubmit={handleAddAttribute}
         disabled={!!editingAttribute}
       />
+
       {editingAttribute && (
         <AddValueForm
           attribute={editingAttribute}
-          newValue={newValue}
-          setNewValue={setNewValue}
-          descriptionUrl={descriptionUrl}
-          setDescriptionUrl={setDescriptionUrl}
+          values={values}
+          setValues={setValues}
           onSubmit={handleAddValue}
         />
       )}
