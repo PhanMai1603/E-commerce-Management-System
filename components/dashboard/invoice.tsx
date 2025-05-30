@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -35,6 +36,9 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { PaymentStatusBadge } from "../order/payment-status";
+import { OrderStatusBadge } from "../order/order-status";
+import { OrderStatusModal } from "../order/edit-order";
 
 export function Order() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -42,6 +46,8 @@ export function Order() {
   const [size] = useState(10);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const router = useRouter();
+  const [modalOpen, setModalOpen] = useState(false);
+
 
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
@@ -52,8 +58,8 @@ export function Order() {
 
   const fetchOrders = async () => {
     try {
-      const response = await getAllOrder(userId, accessToken, page, size);
-      setOrders(response.orders || []);
+      const response = await getAllOrder(userId, accessToken);
+      setOrders(response.items || []);
     } catch (error) {
       toast.error("Failed to load orders");
     }
@@ -61,7 +67,8 @@ export function Order() {
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [userId, accessToken, page, size]);
+
 
   const handleView = (order: Order) => {
     router.push(`/dashboard/orders/${order.id}`);
@@ -82,7 +89,7 @@ export function Order() {
 
   return (
     <Card>
-      <CardHeader className="flex justify-between items-center">
+      <CardHeader className="flex justify-between items-start text-xl">
         <CardTitle>All Orders</CardTitle>
       </CardHeader>
 
@@ -90,75 +97,92 @@ export function Order() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Delivery Method</TableHead>
-              <TableHead>Payment Method</TableHead>
-              <TableHead>Order Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell>{order.id}</TableCell>
-                <TableCell>{order.shippingAddress.fullname}</TableCell>
-                <TableCell>{order.totalPrice.toLocaleString()}đ</TableCell>
-                <TableCell>
-                  {new Date(order.createdAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell>{order.deliveryMethod.name}</TableCell>
-                <TableCell className="text-left">{order.paymentMethod}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded-full text-sm font-medium ${
-                      {
-                        pending: "bg-yellow-100 text-yellow-700",
-                        awaiting_payment: "bg-blue-100 text-blue-700",
-                        paid: "bg-blue-100 text-blue-700",
-                        processing: "bg-orange-100 text-orange-700",
-                        awaiting_shipment: "bg-blue-100 text-blue-700",
-                        shipped: "bg-blue-100 text-blue-700",
-                        delivered: "bg-green-100 text-green-700",
-                        cancelled: "bg-red-100 text-red-700",
-                        returned: "bg-gray-100 text-gray-700",
-                        canceled: "bg-red-100 text-red-700",
-                      }[order.status.toLowerCase()] ||
-                      "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    {order.status.replaceAll("_", " ")}
-                  </span>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <EllipsisVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleView(order)}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        View
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setSelectedOrderId(order.id)}>
-                        <PencilLine className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+                <TableHead>Customer</TableHead>
+                <TableHead>Items</TableHead>
+                <TableHead>Total</TableHead>
+                <TableHead>Order Date</TableHead>
+                <TableHead>Delivery Method</TableHead>
+                <TableHead>Payment Method</TableHead>
+                <TableCell>Paymet Status</TableCell>
+                <TableHead>Order Status</TableHead>
+                <TableHead>Next Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
+          </TableHeader>
+            <TableBody>
+              {orders.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell>{order.shippingAddress.fullname}</TableCell>
+                  <TableCell>
+                    {order.items.reduce((total, item) => total + item.quantity, 0)}
+                  </TableCell>
+
+                  <TableCell>{order.totalPrice.toLocaleString()}đ</TableCell>
+                  <TableCell>
+                    {new Date(order.createdAt).toLocaleString("vi-VN", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })}
+                  </TableCell>
+
+                  <TableCell>{order.deliveryMethod}</TableCell>
+                  <TableCell className="text-left">{order.paymentMethod}</TableCell>
+                  <TableCell>
+                    <PaymentStatusBadge status={order.paymentStatus} />
+                  </TableCell>
+                  <TableCell>
+                    <OrderStatusBadge status={order.status} />
+                  </TableCell>
+
+                  <TableCell>{order.nextStatus}</TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <EllipsisVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleView(order)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedOrderId(order.id);
+                            setModalOpen(true);
+                          }}
+                        >
+
+                          <PencilLine className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
         </Table>
       </CardContent>
 
       {/* Alert Dialog Confirm Edit */}
+      <OrderStatusModal
+              open={modalOpen}
+              onClose={() => {
+                setModalOpen(false);
+                setSelectedOrderId(null);
+              }}
+              onConfirm={() => {
+                confirmEdit();
+                setModalOpen(false);
+              }}
+            />
     
 
     </Card>

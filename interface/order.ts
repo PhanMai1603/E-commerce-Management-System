@@ -2,29 +2,45 @@
 export interface ShippingAddress {
     fullname: string;
     phone: string;
+    city: string;
+    district: string;
+    ward: string;
+    street: string;
   }
   
   export interface DeliveryMethod {
     id: string;
     name: string;
+    price: string;
   }
 
+export interface Item{
+  productName: string;
+  image:string;
+  quantity: number;
+}
 export interface Order {
-    createdAt: string | number | Date;
-    id: string;
-    shippingAddress: ShippingAddress;
-    paymentMethod: string;
-    deliveryMethod: DeliveryMethod;
-    totalPrice: number;
-    status: string;
-    nextStatus: string;
+  id: string;
+  userId: string;
+  totalPrice: number;
+  status: string;
+  paymentMethod: string;
+  paymentStatus:string;
+  deliveryMethod: string;
+  items:Item[];  
+  shippingAddress:ShippingAddress;
+  createdAt: string;
+  updatedAt: string;
+  nextStatus: string;
   }
   
   export interface OrderResponse{
+    total: number;
     totalPages: number;
-    totalOrders: number;
-    currentPage: number;
-    orders: Order[];
+    page: number;
+    size: number;
+    hasMore: boolean;
+    items: Order[];
   }
 
   //##GET DETAIL###
@@ -33,46 +49,25 @@ export interface OrderItem {
     variantId: string;
     productName: string;
     variantSlug: string;
-    price: number;
     image: string;
+    price: number;
     quantity: number;
-    discount: number;
-  }
-  
-  export interface ShippingAddressDetail {
-    fullname: string;
-    phone: string;
-    city: string;
-    district: string;
-    ward: string;
-    street: string;
-  }
-  
-  export interface DeliveryMethodDetail{
-    name: string;
-    id: string;
-  }
-  
-  export interface OrderMetadata {
-    id: string;
-    userId: string;
-    couponCode: string;
-    items: OrderItem[];
-    shippingAddress: ShippingAddressDetail;
-    paymentMethod: string;
-    deliveryMethod: DeliveryMethodDetail;
-    itemsPrice: number;
-    itemsDiscount: number;
-    shippingPrice: number;
-    shippingDiscount: number;
-    discountPrice: number;
-    totalPrice: number;
-    status: string;
   }
   
   export interface OrderMetaResponse {
-      orders: OrderMetadata;
+      order: OrderDetail;
   }
-  
-  
-  
+  export interface OrderDetail{
+  id: string;
+  userId: string;
+  totalPrice: number;
+  status: string;
+  paymentMethod: string;
+  deliveryMethod: string;
+  items:OrderItem[];  
+  shippingAddress:ShippingAddress[];
+  createdAt: string;
+  updatedAt: string;
+  deliveredAt:string;
+  nextStatus: string;
+  }

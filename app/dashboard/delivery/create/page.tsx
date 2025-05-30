@@ -84,7 +84,7 @@ export default function Page() {
       toast.success('Delivery created successfully!')
       router.push('/dashboard/delivery')
     } catch (error) {
-      toast.error('Failed to create delivery')
+      // toast.error('Failed to create delivery')
     } finally {
       setLoading(false)
     }
@@ -180,15 +180,24 @@ export default function Page() {
 
 
           {/* Submit Button */}
-          <div className='col-span-2'>
+          <div className='col-span-2 flex gap-4'>
             <Button
-              className='w-full'
+              className='flex-1 bg-gray-200 text-gray-900 hover:bg-gray-300'
+              onClick={() => router.back()}
+              variant='outline'
+              type='button'
+            >
+              CANCEL
+            </Button>
+            <Button
+              className='flex-1'
               onClick={handleCreateDelivery}
               disabled={loading}
             >
               {loading ? 'CREATING...' : 'CREATE DELIVERY'}
             </Button>
           </div>
+
         </CardContent>
       </Card>
 
@@ -201,7 +210,7 @@ export default function Page() {
           <Textarea
             name='description'
             value={delivery.description}
-            placeholder='Enter product description...'
+            placeholder='Enter delivery description...'
             onChange={handleChange}
             className='flex-1 h-full resize-none'
           />

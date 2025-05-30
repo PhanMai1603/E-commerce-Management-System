@@ -3,9 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@radix-ui/react-label";
-import clsx from "clsx";
 import { Trash2 } from "lucide-react";
+import { Label } from "../ui/label";
 
 interface ValueInput {
   value: string;
@@ -50,7 +49,9 @@ export default function AddAttributeForm({
   };
 
   return (
-    <Card className={clsx("col-span-1", disabled && "opacity-50 pointer-events-none")}>
+    <div className="col-span-1 mt-14">
+   <Card>
+
       <CardHeader>
         <CardTitle className="text-center">Add Attribute</CardTitle>
       </CardHeader>
@@ -59,6 +60,9 @@ export default function AddAttributeForm({
         <div className="space-y-2 col-span-6">
           <Label>Attribute Name</Label>
           <Input
+            name='name'
+            type='text'
+            placeholder='Enter name'
             disabled={disabled}
             value={attributeName}
             onChange={(e) => setAttributeName(e.target.value)}
@@ -76,8 +80,8 @@ export default function AddAttributeForm({
               <SelectValue placeholder="Select Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="COLOR">Color</SelectItem>
-              <SelectItem value="TEXT">Text</SelectItem>
+              <SelectItem value="COLOR">COLOR</SelectItem>
+              <SelectItem value="TEXT">TEXT</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -139,5 +143,6 @@ export default function AddAttributeForm({
         </Button>
       </CardContent>
     </Card>
+    </div>
   );
 }

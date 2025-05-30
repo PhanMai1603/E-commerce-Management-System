@@ -6,9 +6,9 @@ import get from 'lodash/get';
 
 const ORDER_URL = '/order';
 
-export const getAllOrder = async (userId: string,accessToken: string,page: number, size: number): Promise<Order.OrderResponse> => {
+export const getAllOrder = async (userId: string,accessToken: string): Promise<Order.OrderResponse> => {
   try {
-    const response = await api.get(`${ORDER_URL}/all/?page=${page}&size=${size}`, {
+    const response = await api.get(`${ORDER_URL}/`, {
       headers: {
         "x-client-id": userId,
         Authorization: accessToken,
@@ -25,9 +25,9 @@ export const getAllOrder = async (userId: string,accessToken: string,page: numbe
   }
 };
 
-export const getOrderDetail = async (id: string, userId: string,accessToken: string):Promise<Order.OrderMetaResponse> => {
+export const getOrderDetail = async (id: string, userId: string, accessToken: string):Promise<Order.OrderMetaResponse> => {
   try {
-    const response = await api.get(`${ORDER_URL}/all/${id}`, {
+    const response = await api.get(`${ORDER_URL}/${id}`, {
       headers: {
         "x-client-id": userId,
         Authorization: accessToken,
@@ -37,15 +37,16 @@ export const getOrderDetail = async (id: string, userId: string,accessToken: str
   } catch (error) {
     const errorMessage = get(error, "response.data.error.message", "");
     if (errorMessage) {
-      toast.error(errorMessage);
+      toast.error(errorMessage);  
     }
     throw new Error(errorMessage || "An unknown error occurred.");
   }
 };
 
-export const updateOrderStatus = async (id: string, userId: string, accessToken: string) => {
+export const updateOrderStatus = async (orderId: string, userId: string, accessToken: string) => {
   try {
-    const response = await api.patch(`${ORDER_URL}/next-status/${id}`,{}, // PATCH không cần body
+    const response = await api.patch(
+      `/order/${orderId}/status`, {},
       {
         headers: {
           "x-client-id": userId,
@@ -55,9 +56,8 @@ export const updateOrderStatus = async (id: string, userId: string, accessToken:
     );
     return response.data.metadata;
   } catch (error) {
-    const errorMessage = get(error, "response.data.error.message","");
+    const errorMessage = get(error, "response.data.error.message", "");
     toast.error(errorMessage);
     throw new Error(errorMessage);
   }
 };
-

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Tag, Star } from "lucide-react";
 import React, { useState } from "react";
 import { Card } from "../ui/card";

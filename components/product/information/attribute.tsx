@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import { getAllAttributes } from "@/app/api/attribute";
@@ -12,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
 interface AttributeFormProps {
+  product: ProductData;
   setProduct: React.Dispatch<React.SetStateAction<ProductData>>;
   userId: string,
   accessToken: string,
@@ -22,7 +24,7 @@ interface SelectedValues {
   value: string,
 }
 
-const AttributeForm: React.FC<AttributeFormProps> = ({ setProduct, userId, accessToken }) => {
+const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userId, accessToken }) => {
   const [attributes, setAttributes] = useState<AllAttributeResponse>();
   const [newAttributes, setNewAttributes] = useState<ProductAttribute[]>([]);
   const [isSelectOpen, setIsSelectOpen] = useState<boolean[]>([]);

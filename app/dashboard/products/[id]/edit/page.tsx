@@ -175,12 +175,22 @@ const EditProductPage = () => {
         setUpdatedProduct={setUpdatedProduct}
       />
 
+      {/* <InformationForm
+        product={product.product}
+        updatedProduct={updatedProduct}
+        setUpdatedProduct={setUpdatedProduct}
+        userId={userId}
+        accessToken={accessToken}
+      /> */}
       <InformationForm
         product={product.product}
         updatedProduct={updatedProduct}
         setUpdatedProduct={setUpdatedProduct}
         userId={userId}
         accessToken={accessToken}
+        importQuantity={importQuantity}
+        setImportQuantity={setImportQuantity}
+        hasSkuTable={Array.isArray(product.product.variants) && product.product.variants.length > 0}
       />
 
       <DescriptionForm

@@ -55,13 +55,13 @@ export default function CouponTable() {
 
 
   return (
-    <Card>
-      <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <CardTitle>All Coupons</CardTitle>
 
-        {/* Show + Add Coupon cùng hàng */}
-        <div className="flex items-center justify-between gap-4 w-full md:w-auto">
-          {/* Show dropdown */}
+    <div>
+      <h1 className="text-2xl font-bold mb-6">All Coupon</h1>
+
+      <Card>
+        <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4">
+          {/* Left side: Show dropdown */}
           <div className="flex items-center gap-2">
             <label className="text-sm text-muted-foreground whitespace-nowrap">Show:</label>
             <Select
@@ -84,115 +84,127 @@ export default function CouponTable() {
             </Select>
           </div>
 
-          {/* Nút Add */}
-          <Button onClick={() => router.push("/dashboard/coupons/create")} className="flex items-center gap-2 h-10">
+          {/* Right side: Add button */}
+          <Button
+            onClick={() => router.push("/dashboard/coupons/create")}
+            className="flex items-center gap-2"
+          >
             <Plus className="w-5 h-5" />
             Add Coupon
           </Button>
-        </div>
-      </CardHeader>
+        </CardHeader>
 
-
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name Coupons</TableHead>
-              <TableHead>Code</TableHead>
-              <TableHead>Start Date</TableHead>
-              <TableHead>End Date</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Discount</TableHead>
-              <TableHead>Applies To</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {couponsData?.coupons?.map((coupon) => (
-              <TableRow key={coupon.id}>
-                <TableCell className="font-medium">{coupon.name}</TableCell>
-                <TableCell>
-                  <span className="px-2 py-1 rounded-full text-sm font-semibold bg-gray-200 text-gray-700">
-                    {coupon.code}
-                  </span>
-                </TableCell>
-                <TableCell>{new Date(coupon.startDate).toLocaleDateString()}</TableCell>
-                <TableCell>{new Date(coupon.endDate).toLocaleDateString()}</TableCell>
-                <TableCell>{coupon.type}</TableCell>
-                <TableCell>
-                  <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 font-semibold">
-                    -{coupon.value} {coupon.type === "PERCENT" ? "%" : "VND"}
-                  </span>
-                </TableCell>
-                <TableCell>{coupon.targetType}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded-full text-sm font-semibold ${coupon.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                      }`}
-                  >
-                    {coupon.isActive ? "Active" : "Expired"}
-                  </span>
-                </TableCell>
-                <TableCell className="text-right">
-                  <EllipsisVertical />
-                </TableCell>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Code</TableHead>
+                <TableHead>Discount</TableHead>
+                <TableHead>Date</TableHead>
+                {/* <TableHead>End Date</TableHead> */}
+                <TableHead>Type</TableHead>
+                <TableHead>Applies To</TableHead>
+                <TableHead>Status</TableHead>
+                {/* <TableHead className="text-right"></TableHead> */}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
+            </TableHeader>
 
-      <CardFooter className="border-t pt-3 flex justify-between">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setPage((prev) => Math.max(prev - 1, 1));
-                }}
-              />
-            </PaginationItem>
+            <TableBody>
+              {couponsData?.items?.map((coupon) => (
+                <TableRow key={coupon.id}>
+                  <TableCell className="font-medium">{coupon.name}</TableCell>
+                  <TableCell>
+                    <span className="px-2 py-1 rounded-full text-sm font-semibold bg-gray-200 text-gray-700">
+                      {coupon.code}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 font-semibold">
+                      {coupon.value} {coupon.type === "PERCENT" ? "%" : "VND"}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span><strong>From:</strong> {new Date(coupon.startDate).toLocaleDateString()}</span>
+                      <span>
+                        <strong>To:</strong> {new Date(coupon.endDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{coupon.type}</TableCell>
 
-            {Array.from({ length: totalPages }).map((_, i) => {
-              const pageNumber = i + 1;
-              return (
-                <PaginationItem key={pageNumber}>
-                  <PaginationLink
-                    href="#"
-                    isActive={pageNumber === page}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setPage(pageNumber);
-                    }}
-                  >
-                    {pageNumber}
-                  </PaginationLink>
-                </PaginationItem>
-              );
-            })}
+                  <TableCell>{coupon.targetType}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded-full text-sm font-semibold ${coupon.isActive
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                        }`}
+                    >
+                      {coupon.isActive ? "Active" : "Expired"}
+                    </span>
+                  </TableCell>
+                  {/* <TableCell className="text-right">
+                  <EllipsisVertical />
+                </TableCell> */}
+                </TableRow>
+              ))}
+            </TableBody>
 
-            {totalPages > 5 && (
+          </Table>
+        </CardContent>
+
+        <CardFooter className="border-t pt-3 flex justify-between">
+          <Pagination>
+            <PaginationContent>
               <PaginationItem>
-                <PaginationEllipsis />
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage((prev) => Math.max(prev - 1, 1));
+                  }}
+                />
               </PaginationItem>
-            )}
 
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setPage((prev) => Math.min(prev + 1, totalPages));
-                }}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </CardFooter>
-    </Card>
+              {Array.from({ length: totalPages }).map((_, i) => {
+                const pageNumber = i + 1;
+                return (
+                  <PaginationItem key={pageNumber}>
+                    <PaginationLink
+                      href="#"
+                      isActive={pageNumber === page}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPage(pageNumber);
+                      }}
+                    >
+                      {pageNumber}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+
+              {totalPages > 5 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage((prev) => Math.min(prev + 1, totalPages));
+                  }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </CardFooter>
+      </Card>
+    </div>
   );
 }

@@ -2,10 +2,11 @@ import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/ui/theme-provider";
-import { AuthProvider } from "./context/AuthContext";
+
 import type { Metadata } from "next";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { AppProvider } from "./context/AppContext";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -23,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthProvider>
+    <AppProvider>
     <html lang="vi" suppressHydrationWarning>
       <body
         className={cn(
@@ -37,6 +38,6 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-    </AuthProvider>
+    </AppProvider>
   );
 }

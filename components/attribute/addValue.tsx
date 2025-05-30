@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@radix-ui/react-label";
 import { Trash2 } from "lucide-react";
 import { AttributeItem } from "@/interface/attribute";
+import { Label } from "../ui/label";
 
 interface ValueInput {
   value: string;
@@ -15,13 +15,16 @@ interface Props {
   values: ValueInput[];
   setValues: (values: ValueInput[]) => void;
   onSubmit: () => void;
+  onCancel: () => void;  // phải có dòng này
 }
+
 
 export default function AddValueForm({
   attribute,
   values,
   setValues,
   onSubmit,
+  onCancel,
 }: Props) {
   const handleChange = (index: number, key: keyof ValueInput, val: string) => {
     const updated = [...values];
@@ -40,7 +43,8 @@ export default function AddValueForm({
   };
 
   return (
-    <Card className="col-start-3">
+    <div className="col-start-3 mt-0">
+    <Card >
       <CardHeader>
         <CardTitle className="text-center">Add Values to {attribute.name}</CardTitle>
       </CardHeader>
@@ -80,10 +84,17 @@ export default function AddValueForm({
           ADD ANOTHER VALUE
         </Button>
 
-        <Button className="w-full" onClick={onSubmit}>
-          ADD VALUES
-        </Button>
+        <div className="flex gap-2">
+          <Button className="flex-1" variant="outline" type="button" onClick={onCancel}>
+            CANCEL
+          </Button>
+          <Button className="flex-1" onClick={onSubmit}>
+            ADD VALUES
+          </Button>
+        </div>
+
       </CardContent>
     </Card>
+    </div>
   );
 }

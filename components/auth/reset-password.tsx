@@ -9,6 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { resetPassword } from "@/app/api/auth";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 export function ResetPasswordForm({
   className,
@@ -49,7 +50,7 @@ export function ResetPasswordForm({
     try {
       await resetPassword(formData);
       toast.success("Your password has been updated successfully. Please log in again.");
-      router.push("/auth/login");
+      router.push("/");
     } catch {
       toast.error("Failed to reset password. Please try again.");
     } finally {
@@ -83,9 +84,9 @@ export function ResetPasswordForm({
         </Button>
       </div>
       <div className="text-center text-sm">
-        <a href="/auth/login" className="hover:underline">
+         <Link href="/" className="hover:underline">
           BACK
-        </a>
+        </Link>
       </div>
     </form>
   );

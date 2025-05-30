@@ -90,10 +90,18 @@ export default function DiscountForm() {
         setProduct={setProduct} // ✅ This is what you're missing or doing wrong
       />
       <DescriptionCouponForm description={coupon.description} setCoupon={setCoupon} />
+      <div className="col-span-2 flex place-self-end gap-x-4">
+        <Button
+          onClick={() => router.push("/dashboard/coupons")}
+          className='bg-gray-200 text-gray-900 hover:bg-gray-300'
+        >
+           CANCEL
+        </Button>
+        <Button onClick={handleSubmit} disabled={loading}>
+          {loading ? "Creating..." : "CREATE COUPON"}
+        </Button>
+      </div>
 
-      <Button onClick={handleSubmit} disabled={loading} className="col-span-2 flex place-self-end">
-        {loading ? "Creating..." : "CREATE COUPON"}
-      </Button>
     </div>
   );
 }

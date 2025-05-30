@@ -15,11 +15,11 @@ import { EllipsisVertical } from "lucide-react";
 import { getAllUser } from "@/app/api/user";
 import { UserData } from "@/interface/user";
 import { toast } from "react-toastify";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import EditUserModal from "@/components/user/edit"; // Import modal
 
@@ -68,94 +68,97 @@ export function UserTable() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>All Users</CardTitle>
-      </CardHeader>
+    <div>
+      <h1 className="text-2xl font-bold mb-6">All Users</h1>
 
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Fullname</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
+      <Card>
+        <CardHeader>
+          {/* <CardTitle>All Users</CardTitle> */}
+        </CardHeader>
 
-          <TableBody>
-            {users.length > 0 ? (
-              users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell className="font-medium">{user.email}</TableCell>
-                  <TableCell className="font-medium">{user.role?.name || "N/A"}</TableCell>
-                  <TableCell className="font-medium">
-                    <span
-                      className={`inline-block py-1 px-3 rounded-full text-sm font-semibold ${
-                        user.status?.toUpperCase() === "ACTIVE"
-                          ? "bg-[#22C55E29] text-[#118D57]"
-                          : user.status?.toUpperCase() === "BLOCKED"
-                          ? "bg-[#FF563029] text-[#B71D18]"
-                          : "bg-[#919EAB29] text-[#637381]"
-                      }`}
-                    >
-                      {user.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="p-2 hover:bg-gray-100 rounded-md"
-                          onClick={() => {
-                            setSelectedUser(user);
-                            setShowModal(true); // 🛠 Hiện modal khi click
-                          }}
-                        >
-                          <EllipsisVertical />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelectedUser(user);
-                            setShowModal(true); // 🛠 Hiện modal khi click
-                          }}
-                        >
-                          Edit
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Fullname</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {users.length > 0 ? (
+                users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell className="font-medium">{user.email}</TableCell>
+                    <TableCell className="font-medium">{user.role?.name || "N/A"}</TableCell>
+                    <TableCell className="font-medium">
+                      <span
+                        className={`inline-block py-1 px-3 rounded-full text-sm font-semibold ${user.status?.toUpperCase() === "ACTIVE"
+                            ? "bg-[#22C55E29] text-[#118D57]"
+                            : user.status?.toUpperCase() === "BLOCKED"
+                              ? "bg-[#FF563029] text-[#B71D18]"
+                              : "bg-[#919EAB29] text-[#637381]"
+                          }`}
+                      >
+                        {user.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            className="p-2 hover:bg-gray-100 rounded-md"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowModal(true); // 🛠 Hiện modal khi click
+                            }}
+                          >
+                            <EllipsisVertical />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowModal(true); // 🛠 Hiện modal khi click
+                            }}
+                          >
+                            Edit
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-gray-500">
+                    No users found
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center text-gray-500">
-                  No users found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
 
-      <CardFooter className="border-t pt-3 flex justify-end">
-        <span className="text-sm text-gray-500">Total Users: {users.length}</span>
-      </CardFooter>
+        <CardFooter className="border-t pt-3 flex justify-end">
+          <span className="text-sm text-gray-500">Total Users: {users.length}</span>
+        </CardFooter>
 
-      {/* 🛠 Chỉ render modal khi showModal = true */}
-      {showModal && selectedUser && (
-        <EditUserModal
-          user={selectedUser}
-          onClose={() => setShowModal(false)}
-          onStatusChange={handleStatusChange}
-          onRoleChange={(roleId, roleName) => handleRoleChange(selectedUser.id, roleId, roleName)}
-        />
-      )}
-    </Card>
+        {/* 🛠 Chỉ render modal khi showModal = true */}
+        {showModal && selectedUser && (
+          <EditUserModal
+            user={selectedUser}
+            onClose={() => setShowModal(false)}
+            onStatusChange={handleStatusChange}
+            onRoleChange={(roleId, roleName) => handleRoleChange(selectedUser.id, roleId, roleName)}
+          />
+        )}
+      </Card>
+    </div>
   );
 }

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react";
@@ -91,6 +92,21 @@ export default function AttributesTableWrapper() {
     const isEmpty = values.some((v) => !v.value || !v.description_url);
     if (isEmpty) return toast.error("Please fill all value fields!");
 
+    // 🔥 Check duplicate in current input
+    const inputSet = new Set(values.map(v => v.value.trim().toLowerCase()));
+    if (inputSet.size !== values.length) {
+      return toast.error("Duplicate values in input!");
+    }
+
+    // 🔥 Check against existing attribute values
+    const existing = new Set(
+      editingAttribute.values?.map(v => v.value.trim().toLowerCase())
+    );
+    const hasDuplicate = values.some(v => existing.has(v.value.trim().toLowerCase()));
+    if (hasDuplicate) {
+      return toast.error("One or more values already exist in this attribute!");
+    }
+
     try {
       await addValueToAttribute(userId, accessToken, {
         attributeId: editingAttribute.id,
@@ -121,7 +137,7 @@ export default function AttributesTableWrapper() {
   };
 
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-3 gap-4 ">
       <AttributeTable
         attributes={attributes}
         loading={loading}
@@ -148,8 +164,10 @@ export default function AttributesTableWrapper() {
           values={values}
           setValues={setValues}
           onSubmit={handleAddValue}
+          onCancel={() => setEditingAttribute(null)} // 🆕
         />
       )}
+
     </div>
   );
 }

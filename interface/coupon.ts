@@ -11,10 +11,12 @@ export interface GetAllCoupon {
 }
 
 export interface getAllCouponsResponse {
-    totalCoupons: number; // Sửa lại tên cho rõ ràng
+    total: number; // Sửa lại tên cho rõ ràng
     totalPages: number; 
-    currentPage: number;
-    coupons: GetAllCoupon[];
+    page: number;
+    size: number;
+    hasMore: boolean;
+    items: GetAllCoupon[];
 }
 
 export interface CouponData {

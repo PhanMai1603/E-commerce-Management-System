@@ -18,7 +18,6 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -67,77 +66,79 @@ export function TableDemo() {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex justify-between items-center">
-        <CardTitle>All Deliveries</CardTitle>
-        <Button
-          onClick={() => router.push("/dashboard/delivery/create")}
-          className="flex items-center gap-2"
-        >
-          <Plus className="w-5 h-5" />
-          Add Delivery
-        </Button>
-      </CardHeader>
+    <div>
+      <h1 className="text-2xl font-bold mb-6">All Deliveries</h1>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-end pb-0">
+          <Button
+            onClick={() => router.push("/dashboard/delivery/create")}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            Add Delivery
+          </Button>
+        </CardHeader>
 
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
 
-          <TableBody>
-            {deliveries.length > 0 ? (
-              deliveries.map((delivery) => (
-                <TableRow key={delivery.id}>
-                  <TableCell className="font-medium">{delivery.name}</TableCell>
-                  <TableCell className="font-medium">{delivery.description}</TableCell>
-                  <TableCell className="font-medium">
-                    <span
-                      className={`inline-block py-1 px-3 rounded-full text-sm font-semibold ${
-                        delivery.isActive
+            <TableBody>
+              {deliveries.length > 0 ? (
+                deliveries.map((delivery) => (
+                  <TableRow key={delivery.id}>
+                    <TableCell className="font-medium">{delivery.name}</TableCell>
+                    <TableCell className="font-medium">{delivery.description}</TableCell>
+                    <TableCell className="font-medium">
+                      <span
+                        className={`inline-block py-1 px-3 rounded-full text-sm font-semibold ${delivery.isActive
                           ? "bg-[#22C55E29] text-[#118D57]"
                           : "bg-[#FF563029] text-[#B71D18]"
-                      }`}
-                    >
-                      {delivery.isActive ? "Available" : "Unavailable"}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <EllipsisVertical className="cursor-pointer" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleView(delivery)}>
-                          View
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleEdit(delivery.id)}>
-                          Edit
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          }`}
+                      >
+                        {delivery.isActive ? "Available" : "Unavailable"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <EllipsisVertical className="cursor-pointer" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleView(delivery)}>
+                            View
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEdit(delivery.id)}>
+                            Edit
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center">
+                    No deliveries found.
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  No deliveries found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
 
-      <CardFooter className="border-t pt-3 flex justify-end">
-        <span className="text-sm text-gray-500">Total Methods: {deliveries.length}</span>
-      </CardFooter>
-    </Card>
+        <CardFooter className="border-t pt-3 flex justify-end">
+          <span className="text-sm text-gray-500">Total delivery: {deliveries.length}</span>
+        </CardFooter>
+      </Card>
+
+    </div>
   );
 }

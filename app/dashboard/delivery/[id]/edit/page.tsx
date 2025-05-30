@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DeliveryDataResponse } from "@/interface/delivery"; // Import interface
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { getDeliveryDetail, updateActive, updateDeactivate, updateDelivery } from "@/app/api/delivery"; // Import API functions
 import { toast } from "react-toastify";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,7 +28,7 @@ export default function Page() {
     typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken =
     typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
-
+  const router = useRouter();
   useEffect(() => {
     const fetchDeliveryDetail = async () => {
       try {
@@ -243,13 +243,21 @@ export default function Page() {
         </CardContent>
       </Card>
 
-      {/* Save Button */}
-      <Button
-        className="col-span-2 flex place-self-end"
-        onClick={handleSave}
-      >
-        SAVE
-      </Button>
+      <div className="col-span-2 flex justify-end gap-4 mt-4">
+        <Button
+          onClick={() => router.push("/dashboard/delivery")}
+          className='bg-gray-200 text-gray-900 hover:bg-gray-300'
+        >
+          CANCEL
+        </Button>
+
+        <Button
+          className="col-span-2 flex place-self-end"
+          onClick={handleSave}
+        >
+          SAVE
+        </Button>
+      </div>
     </div>
   );
 }

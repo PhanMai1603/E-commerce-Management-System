@@ -1,8 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -235,18 +234,22 @@ export default function Page() {
   };
 
   return (
-    <div className="p-0 grid grid-cols-1 lg:grid-cols-1 gap-4">
+    <div>
+      <h1 className="text-2xl font-bold mb-6">All Categories</h1>
       <Card>
-        <CardHeader>
-          <CardTitle>All Categories</CardTitle>
-          <Button
-            onClick={() => setModalOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            Add Category
-          </Button>
+        <CardHeader className="pb-0"> {/* giảm padding-bottom */}
+          <div className="w-full flex justify-end">
+            <Button
+              onClick={() => setModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              Add Category
+            </Button>
+          </div>
         </CardHeader>
+
+
         <CardContent>
           <Table>
             <TableHeader>
@@ -299,6 +302,7 @@ export default function Page() {
               ))}
             </TableBody>
           </Table>
+
         </CardContent>
         <CategoryModal
           open={modalOpen}

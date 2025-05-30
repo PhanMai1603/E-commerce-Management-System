@@ -79,15 +79,17 @@ const SubImageForm: React.FC<SubImageFormProps> = ({ subImages, updatedProduct, 
 
   return (
     <Card className="col-span-5">
-      <CardHeader className="flex justify-between items-center">
-        <CardTitle className="text-base">Edit Product Other Images</CardTitle>
+      <CardHeader className="relative">
+        <CardTitle className="text-base">Add Product Other Image</CardTitle>
         <Button
           onClick={handleClear}
-          className="h-6"
-          variant="destructive">
+          variant="destructive"
+          className="absolute top-2 right-2 h-6 w-6 p-0"
+        >
           <Trash2 className="w-4 h-4" />
         </Button>
       </CardHeader>
+
 
       <CardContent className={`w-full ${displayImages.length === 0 ? '' : 'space-y-4'}`}>
         <div className='w-full flex gap-x-6'>

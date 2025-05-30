@@ -111,9 +111,15 @@ export default function UploadAvatarPage() {
           <Button type="submit" className="w-full" disabled={isUploading}>
             {isUploading ? "Uploading..." : "Upload Avatar"}
           </Button>
-          <Button variant="secondary" className="w-full" onClick={() => router.back()}>
+          <Button
+            type="button" // THÊM DÒNG NÀY
+            variant="secondary"
+            className="w-full"
+            onClick={() => router.back()}
+          >
             Cancel
           </Button>
+
         </form>
       </div>
     </div>

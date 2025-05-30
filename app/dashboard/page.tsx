@@ -1,5 +1,3 @@
-import { BarCharts } from '@/components/dashboard/barchart'
-import { Chart } from '@/components/dashboard/chart'
 import { Order } from '@/components/dashboard/invoice'
 import Sales from '@/components/dashboard/sales'
 import React from 'react'

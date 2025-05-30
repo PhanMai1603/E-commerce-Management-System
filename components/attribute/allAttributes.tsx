@@ -1,5 +1,5 @@
 import { AttributeItem } from "@/interface/attribute";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader} from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EllipsisVertical } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -14,9 +14,11 @@ interface Props {
 
 export default function AttributeTable({ attributes, loading, onEdit, onView }: Props) {
   return (
-    <Card className="col-span-2">
+    <div className="col-span-2">
+       <h1 className="text-2xl font-bold mb-6">All Attributes</h1>
+    <Card>
       <CardHeader>
-        <CardTitle>All Attributes</CardTitle>
+    
       </CardHeader>
       <CardContent>
         <Table>
@@ -85,5 +87,6 @@ export default function AttributeTable({ attributes, loading, onEdit, onView }: 
         </Table>
       </CardContent>
     </Card>
+        </div>
   );
 }

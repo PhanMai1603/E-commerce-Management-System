@@ -82,7 +82,7 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("tokenTimestamp");
 
-      router.push("/auth/login");
+      router.push("/");
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("An error occurred while logging out.Please try again.");

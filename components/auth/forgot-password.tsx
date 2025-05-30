@@ -1,10 +1,10 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Link from "next/link"; // ✅ Import Link
 
 import { forgotPassword } from '@/app/api/auth';
 import { toast } from 'react-toastify';
@@ -15,7 +15,7 @@ export function ForgotForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'form'>) {
-  const [loading, setLoading] = useState(false); // ✅ Correct place for useState
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -24,14 +24,14 @@ export function ForgotForm({
       isPanel: true,
     };
 
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       await forgotPassword(formData);
       toast.success('Password reset link sent successfully!');
     } catch {
       toast.error("There was an error sending the reset link. Please try again.");
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
@@ -46,7 +46,7 @@ export function ForgotForm({
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" placeholder="Enter your email   " required />
+          <Input id="email" name="email" type="email" placeholder="Enter your email" required />
         </div>
         <Button 
           type="submit" 
@@ -57,9 +57,9 @@ export function ForgotForm({
         </Button>
       </div>
       <div className="text-center text-sm">
-        <a href="/auth/login" className="hover:underline">
+        <Link href="/" className="hover:underline">
           BACK
-        </a>
+        </Link>
       </div>
     </form>
   );
