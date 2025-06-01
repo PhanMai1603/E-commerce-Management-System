@@ -9,6 +9,10 @@ import { getOrderDetail } from "@/app/api/order";
 import { OrderDetail } from "@/interface/order";
 
 import OrderTimeline from "./orderstatus";
+import Summary from "./summary";
+import Product from "./product";
+import Customer from "./customer";
+import OrderTimelineCard from "./timeline";
 
 export default function OrderDetailPage() {
   const params = useParams();
@@ -41,12 +45,30 @@ export default function OrderDetailPage() {
   if (!order) return <p className="text-center mt-10 text-red-500">Order not found.</p>;
 
   return (
-    <div className="max-w-7xl mx-auto p-4 space-y-4">
+    <div className="grid grid-cols-4 gap-4">
       {/* Timeline luôn nằm trên cùng */}
       <OrderTimeline
         paymentMethod={order.paymentMethod}
         currentStatus={order.status.toUpperCase()}
       />
-      </div>
+   <Customer address={order.shippingAddress} />
+     
+
+ 
+      <Product items={order.items} />
+       <Summary totalPrice={order.totalPrice} />
+      <OrderTimelineCard
+        createdAt={order.createdAt}
+        updatedAt={order.updatedAt}
+        deliveredAt={order.deliveredAt}
+      />
+
+
+   
+      
+     
+
+    </div>
   );
 }
+//className="max-w-7xl mx-auto p-4 space-y-4"

@@ -1,101 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React from "react";
 import {
-    User,
-    MoreHorizontal,
-    Truck,
     ClipboardList,
-    ClipboardCheck,
-    CreditCard,
-    CheckCircle,
-    Clock,
     Package,
+    Clock,
+    Truck,
+    CheckCircle,
+    CreditCard,
+    Ban,
+    Undo2,
+    DollarSign,
 } from "lucide-react";
-
-const CODStatus = [
-    {
-        index: 0,
-        name: "PENDING",
-        label: "Order Placed",
-        icon: ClipboardList,
-        description: "Order has been placed"
-    },
-    {
-        index: 1,
-        name: "PROCESSING",
-        label: "Processing",
-        icon: Package,
-        description: "Preparing your order"
-    },
-    {
-        index: 2,
-        name: "AWAITING_SHIPMENT",
-        label: "Ready to Ship",
-        icon: Clock,
-        description: "Order ready for shipment"
-    },
-    {
-        index: 3,
-        name: "SHIPPED",
-        label: "Shipped",
-        icon: Truck,
-        description: "Order is on the way"
-    },
-    {
-        index: 4,
-        name: "DELIVERED",
-        label: "Delivered",
-        icon: CheckCircle,
-        description: "Order delivered successfully"
-    },
-];
-
-const VNPayStatus = [
-    {
-        index: 0,
-        name: "AWAITING_PAYMENT",
-        label: "Awaiting Payment",
-        icon: CreditCard,
-        description: "Waiting for payment"
-    },
-    {
-        index: 1,
-        name: "PAID",
-        label: "Payment Confirmed",
-        icon: CheckCircle,
-        description: "Payment received"
-    },
-    {
-        index: 2,
-        name: "PROCESSING",
-        label: "Processing",
-        icon: Package,
-        description: "Preparing your order"
-    },
-    {
-        index: 3,
-        name: "AWAITING_SHIPMENT",
-        label: "Ready to Ship",
-        icon: Clock,
-        description: "Order ready for shipment"
-    },
-    {
-        index: 4,
-        name: "SHIPPED",
-        label: "Shipped",
-        icon: Truck,
-        description: "Order is on the way"
-    },
-    {
-        index: 5,
-        name: "DELIVERED",
-        label: "Delivered",
-        icon: CheckCircle,
-        description: "Order delivered successfully"
-    },
-];
 
 interface StatusStep {
     index: number;
@@ -106,13 +22,93 @@ interface StatusStep {
 }
 
 interface Props {
-    paymentMethod: string; // hoặc 'COD' | 'VNPay' | string
+    paymentMethod: string;
     currentStatus: string;
 }
 
+const CODStatus: StatusStep[] = [
+    { index: 0, name: "PENDING", label: "Order Placed", icon: ClipboardList, description: "Order has been placed" },
+    { index: 1, name: "PROCESSING", label: "Processing", icon: Package, description: "Preparing your order" },
+    { index: 2, name: "AWAITING_SHIPMENT", label: "Ready to Ship", icon: Clock, description: "Order ready for shipment" },
+    { index: 3, name: "SHIPPED", label: "Shipped", icon: Truck, description: "Order is on the way" },
+    { index: 4, name: "DELIVERED", label: "Delivered", icon: CheckCircle, description: "Order delivered successfully" },
+];
+
+const VNPayStatus: StatusStep[] = [
+    { index: 0, name: "AWAITING_PAYMENT", label: "Awaiting Payment", icon: CreditCard, description: "Waiting for payment" },
+    { index: 1, name: "PROCESSING", label: "Processing", icon: Package, description: "Preparing your order" },
+    { index: 2, name: "AWAITING_SHIPMENT", label: "Ready to Ship", icon: Clock, description: "Order ready for shipment" },
+    { index: 3, name: "SHIPPED", label: "Shipped", icon: Truck, description: "Order is on the way" },
+    { index: 4, name: "DELIVERED", label: "Delivered", icon: CheckCircle, description: "Order delivered successfully" },
+];
+
+const MOMOStatus = VNPayStatus;
+
+const exceptionalStatuses: {
+    [key: string]: {
+        label: string;
+        description: string;
+        color: string;
+        icon: React.ComponentType<{ size?: number; className?: string }>;
+    };
+} = {
+    CANCELLED: {
+        label: "Cancelled",
+        description: "The order has been cancelled.",
+        color: "bg-red-100 text-red-700 border-red-200",
+        icon: Ban,
+    },
+    RETURN_REQUESTED: {
+        label: "Return Requested",
+        description: "Customer requested a return.",
+        color: "bg-yellow-100 text-yellow-700 border-yellow-200",
+        icon: Undo2,
+    },
+    RETURNED: {
+        label: "Returned",
+        description: "Order was returned.",
+        color: "bg-yellow-100 text-yellow-700 border-yellow-200",
+        icon: Undo2,
+    },
+    PENDING_REFUND: {
+        label: "Pending Refund",
+        description: "Waiting to process refund.",
+        color: "bg-orange-100 text-orange-700 border-orange-200",
+        icon: Clock,
+    },
+    REFUNDED: {
+        label: "Refunded",
+        description: "Customer has been refunded.",
+        color: "bg-green-100 text-green-700 border-green-200",
+        icon: DollarSign,
+    },
+};
+
 export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
-    const steps = paymentMethod === "COD" ? CODStatus : VNPayStatus;
-    const currentIndex = steps.findIndex((step) => step.name === currentStatus);
+    const isExceptional = currentStatus in exceptionalStatuses;
+
+    const baseSteps =
+        paymentMethod === "COD"
+            ? CODStatus
+            : paymentMethod === "MOMO"
+                ? MOMOStatus
+                : VNPayStatus;
+
+    const currentIndexInBase = baseSteps.findIndex((s) => s.name === currentStatus);
+    const steps = [...baseSteps];
+
+    if (isExceptional && currentIndexInBase === -1) {
+        const exceptional = exceptionalStatuses[currentStatus];
+        steps.push({
+            index: steps.length,
+            name: currentStatus,
+            label: exceptional.label,
+            description: exceptional.description,
+            icon: exceptional.icon,
+        });
+    }
+
+    const currentIndex = steps.findIndex((s) => s.name === currentStatus);
 
     const getStepStatus = (stepIndex: number) => {
         if (stepIndex < currentIndex) return "completed";
@@ -127,38 +123,57 @@ export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
                     circle: "bg-green-500 text-white shadow-lg ring-4 ring-green-100",
                     line: "bg-green-500",
                     text: "text-green-600",
-                    badge: "bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium border border-green-200"
+                    badge:
+                        "bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium border border-green-200",
                 };
             case "current":
                 return {
                     circle: "bg-blue-500 text-white shadow-lg ring-4 ring-blue-100",
                     line: "bg-gray-200",
                     text: "text-blue-600 font-semibold",
-                    badge: "bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium border border-blue-200"
+                    badge:
+                        "bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium border border-blue-200",
                 };
-
             default:
                 return {
                     circle: "bg-gray-200 text-gray-400",
                     line: "bg-gray-200",
                     text: "text-gray-400",
-                    badge: "bg-gray-50 text-gray-500 px-3 py-1 rounded-full text-xs font-medium border border-gray-200"
+                    badge:
+                        "bg-gray-50 text-gray-500 px-3 py-1 rounded-full text-xs font-medium border border-gray-200",
                 };
         }
     };
 
     return (
-        <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 col-span-2">
+        <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 col-span-3">
             <div className="p-6">
                 <div className="mb-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Order Status</h3>
                     <div className="flex items-center gap-2 flex-wrap">
                         <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-medium border border-purple-200">
-                            {paymentMethod === "COD" ? "Cash on Delivery" : "VNPay Payment"}
+                            {paymentMethod === "COD"
+                                ? "Cash on Delivery"
+                                : paymentMethod === "MOMO"
+                                    ? "MoMo Payment"
+                                    : "VNPay Payment"}
                         </span>
-                        <span className={getStepStyles(getStepStatus(currentIndex)).badge}>
-                            {steps[currentIndex]?.label || "Unknown"}
-                        </span>
+
+                        {isExceptional ? (
+                            <span
+                                className={`px-3 py-1 rounded-full text-xs font-medium border ${exceptionalStatuses[currentStatus as keyof typeof exceptionalStatuses].color
+                                    }`}
+                            >
+                                {
+                                    exceptionalStatuses[currentStatus as keyof typeof exceptionalStatuses]
+                                        .label
+                                }
+                            </span>
+                        ) : (
+                            <span className={getStepStyles(getStepStatus(currentIndex)).badge}>
+                                {steps[currentIndex]?.label || "Unknown"}
+                            </span>
+                        )}
                     </div>
                 </div>
 
@@ -173,19 +188,22 @@ export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
 
                             return (
                                 <div key={step.name} className="flex flex-col items-center relative flex-1">
-                                    {/* Connection Line */}
                                     {!isLast && (
-                                        <div className={`absolute top-6 left-1/2 w-full h-0.5 ${styles.line} z-0 translate-x-1/2`} />
+                                        <div
+                                            className={`absolute top-6 left-1/2 w-full h-0.5 ${styles.line} z-0 translate-x-1/2`}
+                                        />
                                     )}
 
-                                    {/* Step Circle */}
-                                    <div className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${styles.circle}`}>
+                                    <div
+                                        className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${styles.circle}`}
+                                    >
                                         <IconComponent size={20} />
                                     </div>
 
-                                    {/* Step Content */}
                                     <div className="mt-4 text-center max-w-[120px]">
-                                        <p className={`text-sm font-medium transition-colors duration-300 ${styles.text}`}>
+                                        <p
+                                            className={`text-sm font-medium transition-colors duration-300 ${styles.text}`}
+                                        >
                                             {step.label}
                                         </p>
                                         <p className="text-xs text-gray-500 mt-1 leading-tight">
@@ -208,24 +226,23 @@ export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
 
                         return (
                             <div key={step.name} className="flex items-start gap-4 relative">
-                                {/* Vertical Connection Line */}
                                 {!isLast && (
                                     <div className={`absolute left-6 top-12 w-0.5 h-8 ${styles.line}`} />
                                 )}
 
-                                {/* Step Circle */}
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${styles.circle} flex-shrink-0`}>
+                                <div
+                                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${styles.circle} flex-shrink-0`}
+                                >
                                     <IconComponent size={20} />
                                 </div>
 
-                                {/* Step Content */}
                                 <div className="flex-1 min-w-0 pt-2">
-                                    <p className={`text-sm font-medium transition-colors duration-300 ${styles.text}`}>
+                                    <p
+                                        className={`text-sm font-medium transition-colors duration-300 ${styles.text}`}
+                                    >
                                         {step.label}
                                     </p>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {step.description}
-                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">{step.description}</p>
                                 </div>
                             </div>
                         );
@@ -237,7 +254,10 @@ export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
                     <div
                         className="bg-gradient-to-r from-blue-500 to-green-500 h-full transition-all duration-700 ease-out"
                         style={{
-                            width: `${currentIndex >= 0 ? ((currentIndex + 1) / steps.length) * 100 : 0}%`
+                            width:
+                                currentIndex >= 0
+                                    ? `${((currentIndex + 1) / steps.length) * 100}%`
+                                    : "0%",
                         }}
                     />
                 </div>
@@ -245,7 +265,10 @@ export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
                 {/* Progress Text */}
                 <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
                     <span>Progress</span>
-                    <span>{currentIndex >= 0 ? currentIndex + 1 : 0}/{steps.length} steps completed</span>
+                    <span>
+                        {currentIndex >= 0 ? currentIndex + 1 : 0}/{steps.length} steps
+                        completed
+                    </span>
                 </div>
             </div>
         </div>

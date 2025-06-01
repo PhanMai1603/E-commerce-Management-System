@@ -52,6 +52,9 @@ export interface OrderItem {
     image: string;
     price: number;
     quantity: number;
+    productDiscount: number,
+    couponDiscount: number;
+    returnDays: number;
   }
   
   export interface OrderMetaResponse {
@@ -65,7 +68,8 @@ export interface OrderItem {
   paymentMethod: string;
   deliveryMethod: string;
   items:OrderItem[];  
-  shippingAddress:ShippingAddress[];
+  shippingAddress:ShippingAddress;
+  returnReason: string;
   createdAt: string;
   updatedAt: string;
   deliveredAt:string;
