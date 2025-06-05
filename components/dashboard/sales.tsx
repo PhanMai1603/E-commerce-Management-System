@@ -33,10 +33,11 @@ export default function Page() {
 
   return (
     <div className='grid grid-cols-4 gap-4'>
+      {/* Total Orders */}
       <Card className='col-span-1'>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className='text-base'>Total Orders</CardTitle>
-          <ShoppingBag />
+          <ShoppingBag className="w-5 h-5 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -47,10 +48,11 @@ export default function Page() {
         </CardContent>
       </Card>
 
+      {/* Total Products */}
       <Card className='col-span-1'>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className='text-base'>Total Products</CardTitle>
-          <Box />
+          <Box className="w-5 h-5 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -61,10 +63,11 @@ export default function Page() {
         </CardContent>
       </Card>
 
+      {/* Total Users */}
       <Card className='col-span-1'>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className='text-base'>Total Users</CardTitle>
-          <Users/>
+          <Users className="w-5 h-5 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -75,10 +78,11 @@ export default function Page() {
         </CardContent>
       </Card>
 
+      {/* Total Sold Products */}
       <Card className='col-span-1'>
-        <CardHeader>
-          <CardTitle className='text-base'>Total Sold Products</CardTitle>
-          <Layers />
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className='text-base'>Sold Products</CardTitle>
+          <Layers className="w-5 h-5 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           {loading ? (

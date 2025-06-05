@@ -126,9 +126,9 @@ export default function Page() {
     try {
       const updatedDelivery = await updateDelivery(Array.isArray(id) ? id[0] : id || "", delivery, userId, accessToken);
       setDelivery(updatedDelivery); // Update state with the latest delivery details
-      toast.success("Delivery details saved successfully.");
+      toast.success("Update delivery successfully.");
     } catch (error) {
-      toast.error("Failed to save delivery details.");
+      toast.error("Failed to update delivery.");
     }
   };
 

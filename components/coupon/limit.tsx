@@ -62,7 +62,7 @@ const LimitCouponForm: React.FC<LimitCouponFormProps> = ({
           if (!userId || !accessToken) return;
 
           const response = await getAllProduct(userId, accessToken, 1, 50);
-          setProducts(response.products);
+          setProducts(response.items);
           setTotalPages(response.totalPages);
         }
       } catch (error) {

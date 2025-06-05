@@ -29,7 +29,9 @@ export default function AttributesTableWrapper() {
   ]);
   const [editingAttribute, setEditingAttribute] = useState<AttributeItem | null>(null);
   const [values, setValues] = useState<ValueInput[]>([]);
-
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(5);
+  const [totalPages, setTotalPages] = useState<number>(1);
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken =
@@ -38,7 +40,7 @@ export default function AttributesTableWrapper() {
   const fetchAttributes = async () => {
     setLoading(true);
     try {
-      const response = await getAllAttributes(userId, accessToken);
+      const response = await getAllAttributes(userId, accessToken, page, size);
       setAttributes(response.items);
     } catch (error) {
       toast.error("Failed to fetch attributes.");
@@ -49,7 +51,7 @@ export default function AttributesTableWrapper() {
 
   useEffect(() => {
     fetchAttributes();
-  }, []);
+  }, [userId, accessToken, page, size]);
 
   const handleAddAttribute = async () => {
     if (!attributeName || !attributeType) {
@@ -143,7 +145,13 @@ export default function AttributesTableWrapper() {
         loading={loading}
         onEdit={handleEdit}
         onView={handleView}
+        page={page}
+        setPage={setPage}
+        size={size}
+        setSize={setSize}
+        totalPages={totalPages}
       />
+
 
       <AddAttributeForm
         attributeName={attributeName}

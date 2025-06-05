@@ -40,7 +40,7 @@ export default function ProductVariant({
                 className="hover:bg-gray-100 transition-colors duration-200"
               >
                 <TableCell>{variant.slug}</TableCell>
-                <TableCell>${variant.price.toLocaleString()}</TableCell>
+                <TableCell>{variant.price.toLocaleString()}đ</TableCell>
                 <TableCell>{variant.quantity}</TableCell>
                 <TableCell>{variant.sold}</TableCell>
                 <TableCell className="px-4 py-2 ">

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import { getAllAttributes } from "@/app/api/attribute";
+import { getAllAttribute, getAllAttributes } from "@/app/api/attribute";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -40,7 +40,7 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
     const fetchAttribute = async () => {
       if (isSelectOpen) {
         try {
-          const response = await getAllAttributes(userId, accessToken);
+          const response = await getAllAttribute(userId, accessToken);
           setAttributes(response);
         } catch (error) {
           console.error("Error fetching attributes:", error);

@@ -5,7 +5,8 @@ import {
  LayoutGrid, Users2, ChartNoAxesCombined, 
 Truck, ShoppingBag, UserRoundCog, TicketPercent,
   Shirt,
-  Package2, 
+  Package2,
+  MessageSquareHeart, 
 } from "lucide-react";
 
 interface SidebarProps {
@@ -22,7 +23,7 @@ const sidebarGroups = [
       { title: "Products", icon: Shirt, href: "/dashboard/products" },
       { title: "Orders", icon: ShoppingBag, href: "/dashboard/orders" },
       { title: "Coupons", icon: TicketPercent, href: "/dashboard/coupons" },
-
+      {title: "Review", icon:MessageSquareHeart, href: "/dashboard/review"}
     ],
   },
   {

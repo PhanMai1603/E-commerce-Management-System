@@ -143,6 +143,7 @@ const EditProductPage = () => {
         (updatedProduct.productKey && updatedProduct.productKey.trim() !== "") ||
         (Object.keys(updatedProduct).length > 1)
       ) {
+        // updatedProduct.updatedBy = userId;
         await updateProduct(updatedProduct, userId, accessToken);
         toast.success('Update product successful!');
       }

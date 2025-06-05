@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getAllAttributes } from "@/app/api/attribute";
+import { getAllAttribute } from "@/app/api/attribute";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -131,7 +131,7 @@ const AttributeForm: React.FC<AttributeFormProps> = ({ product, setUpdatedProduc
     const fetchAttribute = async () => {
       if (isSelectOpen) {
         try {
-          const response = await getAllAttributes(userId, accessToken);
+          const response = await getAllAttribute(userId, accessToken);
           setAttributes(response);
         } catch (error) {
           console.error("Error fetching attributes:", error);

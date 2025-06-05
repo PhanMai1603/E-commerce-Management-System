@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
 import { LockKeyhole, Pencil, Plus, Trash2 } from "lucide-react";
-import { getAllRole, getRoleDetail, deleteRole } from "@/app/api/role";
+import { getAllRole, getRoleDetail, deleteRole, getSearchRole } from "@/app/api/role";
 import { Role, RoleDetailResponse } from "@/interface/role";
 import get from "lodash/get";
 import {
@@ -30,6 +30,11 @@ export function RoleTable() {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState<string>("");
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(5);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const [query, setQuery] = useState("");
 
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
@@ -40,9 +45,15 @@ export function RoleTable() {
         toast.error("User authentication is required.");
         return;
       }
-      const roleData = await getAllRole(userId, accessToken, 1, 10);
-      console.log("Fetched roles:", roleData); // Debugging log
+
+      const roleData = query.trim()
+        ? await getSearchRole(query, userId, accessToken, page, size)
+        : await getAllRole(userId, accessToken, page, size);
+
       setRoles(roleData.roles);
+      setTotalPages(roleData.totalPages || 1);
+     setTotalItems(roleData.totalRoles || roleData.roles.length);
+
 
       if (!selectedRole) {
         const adminRole = roleData.roles.find((r) => r.name === "Admin");
@@ -53,7 +64,7 @@ export function RoleTable() {
     } catch (error) {
       toast.error(get(error, "response.data.error.message", "An unknown error occurred."));
     }
-  }, [userId, accessToken, selectedRole]);
+  }, [userId, accessToken, page, size, query, selectedRole]);
 
   const fetchRoleDetails = useCallback(async (roleId: string) => {
     try {
@@ -62,7 +73,6 @@ export function RoleTable() {
         return;
       }
       const details = await getRoleDetail(roleId, userId, accessToken);
-      console.log("Fetched role details:", details); // Debugging log
       setRoleDetails(details);
     } catch (error) {
       toast.error(get(error, "response.data.error.message", "An unknown error occurred."));
@@ -103,21 +113,22 @@ export function RoleTable() {
     <div>
       <h1 className="text-2xl font-bold mb-6">All Role</h1>
       <div className="grid grid-cols-3 gap-4">
-        {/* Sidebar danh sách roles */}
         <div className="col-span-1">
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center w-full">
-
-                <SearchBar query={""} setQuery={function (query: string): void {
-                  throw new Error("Function not implemented.");
-                }} />
-
-                {/* <CardTitle>All Roles</CardTitle> */}
+                <SearchBar
+                  setQuery={(query: string) => {
+                    setQuery(query);
+                    setPage(1);
+                  }}
+                  placeholder="Search roles..."
+                  width="80%"
+                />
                 <Button
                   onClick={() => {
                     setIsCreating(true);
-                    setSelectedRole(""); // Clear selected role
+                    setSelectedRole("");
                   }}
                   className="w-10 h-10 p-0 flex items-center justify-center rounded-md"
                 >
@@ -185,7 +196,6 @@ export function RoleTable() {
           </Card>
         </div>
 
-        {/* Card hiển thị Role Details hoặc Form */}
         <div className="col-span-2">
           {isCreating ? (
             <RoleCreationForm onRoleCreated={fetchRoles} onCancel={() => setIsCreating(false)} />
@@ -204,8 +214,7 @@ export function RoleTable() {
           )}
         </div>
 
-        {/* Delete Confirmation Dialog */}
-        <Dialog open={isDeleteDialogOpen} onOpenChange={(open: boolean | ((prevState: boolean) => boolean)) => setIsDeleteDialogOpen(open)}>
+        <Dialog open={isDeleteDialogOpen} onOpenChange={(open) => setIsDeleteDialogOpen(open)}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Are you sure you want to delete this role?</DialogTitle>

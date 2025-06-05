@@ -6,7 +6,25 @@ import get from 'lodash/get';
 
 const ATTRIBUTE_URL = '/attributes';
 
-export const getAllAttributes = async (userId: string, accessToken: string): Promise<Attribute.AllAttributeResponse> => {
+export const getAllAttributes = async (userId: string, accessToken: string, page: number, size: number ): Promise<Attribute.AllAttributeResponse> => {
+    try {
+        const response = await api.get(`${ATTRIBUTE_URL}/all?page=${page}&size=${size}`,{
+            headers: {
+                'x-client-id': userId,
+                'Authorization': accessToken
+            }
+        });
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, 'response.data.error.message', '');
+
+        if (errorMessage) {
+            toast.error(errorMessage);
+        }
+        throw new Error(errorMessage || 'An unknown error occurred.');
+    }
+}
+export const getAllAttribute = async (userId: string, accessToken: string): Promise<Attribute.AllAttributeResponse> => {
     try {
         const response = await api.get(`${ATTRIBUTE_URL}/all`,{
             headers: {
@@ -24,6 +42,25 @@ export const getAllAttributes = async (userId: string, accessToken: string): Pro
         throw new Error(errorMessage || 'An unknown error occurred.');
     }
 }
+
+// export const getSearchAttributes = async (userId: string, accessToken: string, page: number, size: number ): Promise<Attribute.AllAttributeResponse> => {
+//     try {
+//         const response = await api.get(`${ATTRIBUTE_URL}/all?page=${page}&size=${size}`,{
+//             headers: {
+//                 'x-client-id': userId,
+//                 'Authorization': accessToken
+//             }
+//         });
+//         return response.data.metadata;
+//     } catch (error) {
+//         const errorMessage = get(error, 'response.data.error.message', '');
+
+//         if (errorMessage) {
+//             toast.error(errorMessage);
+//         }
+//         throw new Error(errorMessage || 'An unknown error occurred.');
+//     }
+// }
 
 export const createAttribute = async (userId: string, accessToken: string, data: Attribute.AttributeData): Promise<Attribute.AttributeResponse> => {
     try {

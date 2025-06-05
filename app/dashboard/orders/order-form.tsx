@@ -14,11 +14,13 @@ import {
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
   getAllOrder,
+  getSearchOrder,
   updateOrderStatus,
 } from "@/app/api/order";
 import { Order } from "@/interface/order";
@@ -30,6 +32,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationLink,
+} from "@/components/ui/pagination";
+import {
   EllipsisVertical,
   Eye,
   PencilLine,
@@ -37,18 +47,28 @@ import {
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { OrderStatusModal } from "@/components/order/edit-order";
-import { OrderStatusBadge } from "@/components/order/order-status";
-import { PaymentStatusBadge } from "@/components/order/payment-status";
 
+import { PaymentStatusBadge } from "@/components/order/payment-status";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import SearchBar from "@/components/Search";
+import { OrderStatusBadge } from "@/components/order/order-status";
 
 export function OrderPage() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [page, setPage] = useState(1);
-  const [size] = useState(10);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
-
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(5);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
@@ -59,8 +79,16 @@ export function OrderPage() {
 
   const fetchOrders = async () => {
     try {
-      const response = await getAllOrder(userId, accessToken);
+      let response;
+      if (searchQuery.trim()) {
+        response = await getSearchOrder(searchQuery, userId, accessToken, page, size);
+      } else {
+        response = await getAllOrder(userId, accessToken, page, size);
+      }
+
       setOrders(response.items || []);
+      setTotalItems(response.total || 0);
+      setTotalPages(response.totalPages || 1);
     } catch (error) {
       toast.error("Failed to load orders");
     }
@@ -68,7 +96,7 @@ export function OrderPage() {
 
   useEffect(() => {
     fetchOrders();
-  }, [userId, accessToken, page, size]);
+  }, [userId, accessToken, page, size, searchQuery]);
 
   const handleView = (order: Order) => {
     router.push(`/dashboard/orders/${order.id}`);
@@ -92,8 +120,40 @@ export function OrderPage() {
       <h1 className="text-2xl font-bold mb-6">All Orders</h1>
 
       <Card>
-        <CardHeader className="flex justify-between items-center">
+        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-muted-foreground whitespace-nowrap">
+                Show:
+              </label>
+              <Select
+                value={size.toString()}
+                onValueChange={(val) => {
+                  setSize(Number(val));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm">
+                  <SelectValue placeholder="Select page size" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[5, 10, 25, 50, 100].map((option) => (
+                    <SelectItem key={option} value={option.toString()}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <SearchBar
+              setQuery={(query: string) => {
+                setSearchQuery(query);
+                setPage(1); // reset lại về trang đầu khi tìm kiếm
+              }}
+            />
 
+
+          </div>
         </CardHeader>
 
         <CardContent>
@@ -106,7 +166,7 @@ export function OrderPage() {
                 <TableHead>Order Date</TableHead>
                 <TableHead>Delivery Method</TableHead>
                 <TableHead>Payment Method</TableHead>
-                <TableCell>Paymet Status</TableCell>
+                <TableHead>Payment Status</TableHead>
                 <TableHead>Order Status</TableHead>
                 <TableHead>Next Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -119,7 +179,6 @@ export function OrderPage() {
                   <TableCell>
                     {order.items.reduce((total, item) => total + item.quantity, 0)}
                   </TableCell>
-
                   <TableCell>{order.totalPrice.toLocaleString()}đ</TableCell>
                   <TableCell>
                     {new Date(order.createdAt).toLocaleString("vi-VN", {
@@ -131,7 +190,6 @@ export function OrderPage() {
                       hour12: false,
                     })}
                   </TableCell>
-
                   <TableCell>{order.deliveryMethod}</TableCell>
                   <TableCell className="text-left">{order.paymentMethod}</TableCell>
                   <TableCell>
@@ -140,7 +198,6 @@ export function OrderPage() {
                   <TableCell>
                     <OrderStatusBadge status={order.status} />
                   </TableCell>
-
                   <TableCell>{order.nextStatus}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -161,7 +218,6 @@ export function OrderPage() {
                             setModalOpen(true);
                           }}
                         >
-
                           <PencilLine className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
@@ -174,7 +230,50 @@ export function OrderPage() {
           </Table>
         </CardContent>
 
-        {/* Alert Dialog Confirm Edit */}
+        <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage((prev) => Math.max(prev - 1, 1));
+                  }}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: totalPages }).map((_, i) => {
+                const pageNumber = i + 1;
+                return (
+                  <PaginationItem key={pageNumber}>
+                    <PaginationLink
+                      href="#"
+                      isActive={pageNumber === page}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPage(pageNumber);
+                      }}
+                    >
+                      {pageNumber}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage((prev) => Math.min(prev + 1, totalPages));
+                  }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </CardFooter>
+
         <OrderStatusModal
           open={modalOpen}
           onClose={() => {
@@ -186,7 +285,6 @@ export function OrderPage() {
             setModalOpen(false);
           }}
         />
-
       </Card>
     </div>
   );

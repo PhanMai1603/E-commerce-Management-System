@@ -5,9 +5,27 @@ import get from 'lodash/get';
 
 const USER_URL ='/users'
 
-export const getAllUser = async (userId: string, accessToken: string): Promise<User.UserDataResponse> => {
+export const getAllUser = async (userId: string, accessToken: string, page: number, size: number): Promise<User.UserDataResponse> => {
     try {
-        const response = await api.get(`${USER_URL}/all`,{
+        const response = await api.get(`${USER_URL}/all?page=${page}&size=${size}`,{
+            headers: {
+                'x-client-id': userId,
+                'Authorization': accessToken,
+              },
+        });
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, 'response.data.error.message', '');
+        if (errorMessage) {
+            toast.error(errorMessage);
+        }
+        throw new Error(errorMessage || 'An unknown error occurred.');
+    }
+};
+
+export const getSearchUser = async (userId: string, accessToken: string, page: number, size: number, search: string): Promise<User.UserDataResponse> => {
+    try {
+        const response = await api.get(`${USER_URL}/all?page=${page}&size=${size}&search=${search}`,{
             headers: {
                 'x-client-id': userId,
                 'Authorization': accessToken,

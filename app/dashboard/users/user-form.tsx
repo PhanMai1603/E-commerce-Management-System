@@ -10,9 +10,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationLink,
+} from "@/components/ui/pagination";
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { EllipsisVertical } from "lucide-react";
-import { getAllUser } from "@/app/api/user";
+import { getAllUser, getSearchUser } from "@/app/api/user";
 import { UserData } from "@/interface/user";
 import { toast } from "react-toastify";
 import {
@@ -22,27 +31,37 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import EditUserModal from "@/components/user/edit"; // Import modal
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import SearchBar from "@/components/Search";
 export function UserTable() {
   const [users, setUsers] = useState<UserData[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [showModal, setShowModal] = useState(false); // 🛠 Thêm state để điều khiển modal
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(5);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const [query, setQuery] = useState("");
+
 
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await getAllUser(userId, accessToken);
-        setUsers(response.users);
-      } catch (error) {
-        toast.error("Failed to fetch users");
-      }
-    };
+ useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const response = query.trim()
+        ? await getSearchUser(userId, accessToken, page, size,query)
+        : await getAllUser(userId, accessToken, page, size);
+      setUsers(response.users);
+    } catch (error) {
+      toast.error("Failed to fetch users");
+    }
+  };
 
-    fetchUsers();
-  }, [userId, accessToken]);
+  fetchUsers();
+}, [userId, accessToken, page, size, query]);
+
 
   // Hàm cập nhật trạng thái trong danh sách user
   const updateUserStatus = (userId: string, newStatus: string) => {
@@ -70,10 +89,40 @@ export function UserTable() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">All Users</h1>
-
       <Card>
         <CardHeader>
-          {/* <CardTitle>All Users</CardTitle> */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-muted-foreground whitespace-nowrap">
+                Show:
+              </label>
+              <Select
+                value={size.toString()}
+                onValueChange={(val) => {
+                  setSize(Number(val));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm">
+                  <SelectValue placeholder="Select page size" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[5, 10, 25, 50, 100].map((option) => (
+                    <SelectItem key={option} value={option.toString()}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+           <SearchBar
+  setQuery={(newQuery: string) => {
+    setQuery(newQuery);
+    setPage(1); // reset về trang 1 khi tìm kiếm
+  }}
+/>
+
+          </div>
         </CardHeader>
 
         <CardContent>
@@ -98,10 +147,10 @@ export function UserTable() {
                     <TableCell className="font-medium">
                       <span
                         className={`inline-block py-1 px-3 rounded-full text-sm font-semibold ${user.status?.toUpperCase() === "ACTIVE"
-                            ? "bg-[#22C55E29] text-[#118D57]"
-                            : user.status?.toUpperCase() === "BLOCKED"
-                              ? "bg-[#FF563029] text-[#B71D18]"
-                              : "bg-[#919EAB29] text-[#637381]"
+                          ? "bg-[#22C55E29] text-[#118D57]"
+                          : user.status?.toUpperCase() === "BLOCKED"
+                            ? "bg-[#FF563029] text-[#B71D18]"
+                            : "bg-[#919EAB29] text-[#637381]"
                           }`}
                       >
                         {user.status}
@@ -145,8 +194,50 @@ export function UserTable() {
           </Table>
         </CardContent>
 
-        <CardFooter className="border-t pt-3 flex justify-end">
-          <span className="text-sm text-gray-500">Total Users: {users.length}</span>
+        <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
+
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage((prev) => Math.max(prev - 1, 1));
+                  }}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: totalPages }).map((_, i) => {
+                const pageNumber = i + 1;
+                return (
+                  <PaginationItem key={pageNumber}>
+                    <PaginationLink
+                      href="#"
+                      isActive={pageNumber === page}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPage(pageNumber);
+                      }}
+                    >
+                      {pageNumber}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage((prev) => Math.min(prev + 1, totalPages));
+                  }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+
         </CardFooter>
 
         {/* 🛠 Chỉ render modal khi showModal = true */}

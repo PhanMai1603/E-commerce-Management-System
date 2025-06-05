@@ -61,7 +61,7 @@ export default function AddValueForm({
             </div>
             <div className="col-span-2 space-y-1">
               <Label>
-                {attribute.type === "COLOR" ? "Hex Code" : "Description URL"}
+                {attribute.type === "COLOR" ? "Hex Code" : "Description"}
               </Label>
               <Input
                 placeholder={attribute.type === "COLOR" ? "#FF5733" : "Enter URL"}

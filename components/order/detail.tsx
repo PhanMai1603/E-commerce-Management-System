@@ -51,23 +51,17 @@ export default function OrderDetailPage() {
         paymentMethod={order.paymentMethod}
         currentStatus={order.status.toUpperCase()}
       />
-   <Customer address={order.shippingAddress} />
-     
-
- 
+      <Summary pricing={order.pricing} />
       <Product items={order.items} />
-       <Summary totalPrice={order.totalPrice} />
+      <Customer address={order.shippingAddress} />
       <OrderTimelineCard
-        createdAt={order.createdAt}
-        updatedAt={order.updatedAt}
-        deliveredAt={order.deliveredAt}
+        createdAt={order.timestamps.createdAt}
+        updatedAt={order.timestamps.updatedAt}
+        paidAt={order.timestamps.paidAt}
+        deliveredAt={order.timestamps.deliveredAt}
+        requestedAt={order.timestamps.requestedAt}
+        approvedAt={order.timestamps.approvedAt}
       />
-
-
-   
-      
-     
-
     </div>
   );
 }

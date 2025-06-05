@@ -14,13 +14,23 @@ import {
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   getAllOrder,
   updateOrderStatus,
 } from "@/app/api/order";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationLink,
+} from "@/components/ui/pagination";
 import type { Order } from "@/interface/order";
 import { toast } from "react-toastify";
 import {
@@ -42,12 +52,13 @@ import { OrderStatusModal } from "../order/edit-order";
 
 export function Order() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [page, setPage] = useState(1);
-  const [size] = useState(10);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
-
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(5);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalItems, setTotalItems] = useState<number>(0);
 
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
@@ -58,7 +69,7 @@ export function Order() {
 
   const fetchOrders = async () => {
     try {
-      const response = await getAllOrder(userId, accessToken);
+      const response = await getAllOrder(userId, accessToken, page, size);
       setOrders(response.items || []);
     } catch (error) {
       toast.error("Failed to load orders");
@@ -90,7 +101,32 @@ export function Order() {
   return (
     <Card>
       <CardHeader className="flex justify-between items-start text-xl">
-        <CardTitle>All Orders</CardTitle>
+        <CardTitle>All Order</CardTitle>
+           <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-muted-foreground whitespace-nowrap">
+                Show:
+              </label>
+              <Select
+                value={size.toString()}
+                onValueChange={(val) => {
+                  setSize(Number(val));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm">
+                  <SelectValue placeholder="Select page size" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[5, 10, 25, 50, 100].map((option) => (
+                    <SelectItem key={option} value={option.toString()}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
       </CardHeader>
 
       <CardContent>
@@ -170,6 +206,51 @@ export function Order() {
             </TableBody>
         </Table>
       </CardContent>
+         <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
+
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setPage((prev) => Math.max(prev - 1, 1));
+                    }}
+                  />
+                </PaginationItem>
+
+                {Array.from({ length: totalPages }).map((_, i) => {
+                  const pageNumber = i + 1;
+                  return (
+                    <PaginationItem key={pageNumber}>
+                      <PaginationLink
+                        href="#"
+                        isActive={pageNumber === page}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setPage(pageNumber);
+                        }}
+                      >
+                        {pageNumber}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setPage((prev) => Math.min(prev + 1, totalPages));
+                    }}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+         
+        </CardFooter>
 
       {/* Alert Dialog Confirm Edit */}
       <OrderStatusModal

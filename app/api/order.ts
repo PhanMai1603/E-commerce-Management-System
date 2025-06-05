@@ -6,9 +6,9 @@ import get from 'lodash/get';
 
 const ORDER_URL = '/order';
 
-export const getAllOrder = async (userId: string,accessToken: string): Promise<Order.OrderResponse> => {
+export const getAllOrder = async (userId: string, accessToken: string, page: number, size: number ): Promise<Order.OrderResponse> => {
   try {
-    const response = await api.get(`${ORDER_URL}/`, {
+    const response = await api.get(`${ORDER_URL}/?page=${page}&size=${size}`, {
       headers: {
         "x-client-id": userId,
         Authorization: accessToken,
@@ -24,6 +24,26 @@ export const getAllOrder = async (userId: string,accessToken: string): Promise<O
     throw new Error(errorMessage || "An unknown error occurred.");
   }
 };
+
+export const getSearchOrder = async (search: string ,userId: string, accessToken: string, page: number, size: number ): Promise<Order.OrderResponse> => {
+  try {
+    const response = await api.get(`${ORDER_URL}/?search=${search}&page=${page}&size=${size}`, {
+      headers: {
+        "x-client-id": userId,
+        Authorization: accessToken,
+      },
+    
+    });
+    return response.data.metadata;
+  } catch (error) {
+    const errorMessage = get(error, "response.data.error.message", "");
+    if (errorMessage) {
+      toast.error(errorMessage);
+    }
+    throw new Error(errorMessage || "An unknown error occurred.");
+  }
+};
+
 
 export const getOrderDetail = async (id: string, userId: string, accessToken: string):Promise<Order.OrderMetaResponse> => {
   try {

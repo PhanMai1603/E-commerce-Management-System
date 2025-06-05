@@ -55,6 +55,7 @@ export interface OrderItem {
     productDiscount: number,
     couponDiscount: number;
     returnDays: number;
+    total:number;
   }
   
   export interface OrderMetaResponse {
@@ -63,15 +64,35 @@ export interface OrderItem {
   export interface OrderDetail{
   id: string;
   userId: string;
-  totalPrice: number;
+  user:{
+    name: string;
+    email:string;
+  }
+  couponCode: string;
   status: string;
+  nextStatus:string
   paymentMethod: string;
-  deliveryMethod: string;
-  items:OrderItem[];  
+  paymentStatus:string;
+  pricing: {
+    itemsPrice:number;
+    productDiscount: number;
+    couponDiscount: number;
+    shippingPrice: number;
+    shippingDiscount: number;
+    totalSavings: number;
+    totalPrice: number;
+  }
+  timestamps:{
+    createdAt:string;
+    updatedAt:string
+    paidAt:string
+    deliveredAt:string
+    requestedAt:string
+    approvedAt:string
+  }
+
+  returnReason:string |null
+  deliveryMethod:DeliveryMethod;
   shippingAddress:ShippingAddress;
-  returnReason: string;
-  createdAt: string;
-  updatedAt: string;
-  deliveredAt:string;
-  nextStatus: string;
+  items:OrderItem[];  
   }

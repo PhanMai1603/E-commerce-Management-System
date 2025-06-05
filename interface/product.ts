@@ -32,10 +32,12 @@ export interface Product {
 }
 
 export interface ProductResponse {
+  total: number;
   totalPages: number;
-  totalProducts: number;
-  currentPage: number;
-  products: Product[];
+  page: number;
+  size: number;
+  hasMore: boolean
+  items: Product[];
 }
 
 

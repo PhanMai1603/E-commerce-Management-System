@@ -8,15 +8,28 @@ const ROLE_URL ='/role'
 
 export const getAllRole = async (userId: string, accessToken: string, page: number, size: number): Promise<Role.RoleResponse> => {
     try {
-        const response = await api.get(`${ROLE_URL}`,{
+        const response = await api.get(`${ROLE_URL}/?page=${page}&size=${size}`,{
             headers: {
                 'x-client-id': userId,
                 'Authorization': accessToken,
               },
-              params:{
-                page,
-                size,
-              }
+        });
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, 'response.data.error.message', '');
+        if (errorMessage) {
+            toast.error(errorMessage);
+        }
+        throw new Error(errorMessage || 'An unknown error occurred.');
+    }
+};
+export const getSearchRole = async (search:string, userId: string, accessToken: string, page: number, size: number): Promise<Role.RoleResponse> => {
+    try {
+        const response = await api.get(`${ROLE_URL}/?search=${search}&page=${page}&size=${size}`,{
+            headers: {
+                'x-client-id': userId,
+                'Authorization': accessToken,
+              },
         });
         return response.data.metadata;
     } catch (error) {

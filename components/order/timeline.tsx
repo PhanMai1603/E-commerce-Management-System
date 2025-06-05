@@ -6,7 +6,10 @@ import { Package, Clock, CheckCircle2 } from 'lucide-react';
 interface OrderTimelineProps {
   createdAt: string;
   updatedAt: string;
-  deliveredAt?: string | null;
+  paidAt:string
+  deliveredAt:string
+  requestedAt:string
+  approvedAt:string
 }
 
 export default function OrderTimelineCard({ createdAt, updatedAt, deliveredAt }: OrderTimelineProps) {
