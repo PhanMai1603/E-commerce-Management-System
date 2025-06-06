@@ -119,13 +119,20 @@ const RoleCreationForm = ({ onRoleCreated, onCancel }: { onRoleCreated: () => vo
                 </CardContent>
             </Card>
 
-            <Button
-                onClick={handleSubmit}
-                // disabled={loading}
-                className='col-span-6 flex place-self-end'
-            >
-                CREATE ROLE
-            </Button>
+            <div className="flex justify-end gap-3 mt-2">
+                <Button
+                    variant="outline"
+                    onClick={onCancel}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    onClick={handleSubmit}
+                >
+                    Create Role
+                </Button>
+            </div>
+
         </div>
     );
 };

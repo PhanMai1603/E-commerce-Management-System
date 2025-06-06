@@ -96,3 +96,31 @@ export interface OrderItem {
   shippingAddress:ShippingAddress;
   items:OrderItem[];  
   }
+
+  export enum OrderStatus {
+    PENDING = 'PENDING', // Đơn hàng mới tạo (COD hoặc chưa thanh toán)
+    AWAITING_PAYMENT = 'AWAITING_PAYMENT', // Chờ thanh toán (VNPay/MoMo)
+    PROCESSING = 'PROCESSING', // Đang xử lý
+    AWAITING_SHIPMENT = 'AWAITING_SHIPMENT', // Chờ vận chuyển
+    SHIPPED = 'SHIPPED', // Đã vận chuyển
+    DELIVERED = 'DELIVERED', // Đã giao
+    CANCELLED = 'CANCELLED', // Đã hủy
+    NOT_DELIVERED = 'NOT_DELIVERED', // Không giao được
+    RETURN = 'RETURN', // Đã trả hàng
+}
+
+export enum PaymentMethod {
+    COD = 'COD',
+    VNPAY = 'VNPAY',
+    MOMO = 'MOMO',
+    MANUAL = 'MANUAL',
+}
+
+export enum PaymentStatus {
+    PENDING = 'PENDING',
+    CANCELLED = 'CANCELLED',
+    COMPLETED = 'COMPLETED',
+    FAILED = 'FAILED',
+    PENDING_REFUND = 'PENDING_REFUND',
+    REFUNDED = 'REFUNDED',
+}

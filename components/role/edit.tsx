@@ -151,8 +151,9 @@ export default function RoleEditForm({ role, onSave, onCancel }: RoleEditFormPro
       </Card>
 
       <div className="flex gap-2 justify-end">
-        <Button onClick={handleSubmit}>SAVE</Button>
+       
         <Button onClick={onCancel} variant="secondary">CANCEL</Button>
+         <Button onClick={handleSubmit}>SAVE</Button>
       </div>
     </div>
   );

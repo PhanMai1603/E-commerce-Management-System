@@ -7,8 +7,6 @@ import {
   Clock,
   Truck,
   CheckCircle,
-  Undo2,
-  DollarSign,
 } from "lucide-react";
 
 interface StatusStep {
@@ -24,22 +22,40 @@ interface Props {
   currentStatus: string;
 }
 
-const RETURN_FLOW = ["RETURN_REQUESTED", "RETURNED", "PENDING_REFUND", "REFUNDED"];
+const RETURN_FLOW = [
+  "NOT_DELIVERED",
+  "RETURN_REQUESTED",
+  "RETURNED",
+];
 
 const CODStatus: StatusStep[] = [
   { index: 0, name: "PENDING", label: "Order Placed", icon: ClipboardList, description: "Order has been placed" },
+  // { index: 1, name: "AWAITING_PAYMENT", label: "Awaiting Payment", icon: Clock, description: "Waiting for payment confirmation" },
   { index: 1, name: "PROCESSING", label: "Processing", icon: Package, description: "Preparing your order" },
-  { index: 2, name: "AWAITING_SHIPMENT", label: "Ready to Ship", icon: Clock, description: "Order ready for shipment" },
+  { index: 2, name: "AWAITING_SHIPMENT", label: "Ready to Ship", icon: Clock, description: "Ready for shipment" },
   { index: 3, name: "SHIPPED", label: "Shipped", icon: Truck, description: "Order is on the way" },
   { index: 4, name: "DELIVERED", label: "Delivered", icon: CheckCircle, description: "Order delivered successfully" },
-  { index: 5, name: "RETURN_REQUESTED", label: "Return Requested", icon: Undo2, description: "Customer requested a return" },
-  { index: 6, name: "RETURNED", label: "Returned", icon: Undo2, description: "Order was returned" },
-  { index: 7, name: "PENDING_REFUND", label: "Pending Refund", icon: Clock, description: "Waiting to process refund" },
-  { index: 8, name: "REFUNDED", label: "Refunded", icon: DollarSign, description: "Customer has been refunded" },
+
+  // { index: 6, name: "NOT_DELIVERED", label: "Delivery Failed", icon: Ban, description: "Could not deliver the order" },
+  // { index: 7, name: "RETURN_REQUESTED", label: "Return Requested", icon: Undo2, description: "Customer requested return" },
+  // { index: 8, name: "RETURNED", label: "Returned", icon: Undo2, description: "Item has been returned" },
 ];
 
-const VNPayStatus = [...CODStatus];
-const MOMOStatus = VNPayStatus;
+const VNPayStatus: StatusStep[] = [
+  { index: 0, name: "AWAITING_PAYMENT", label: "Awaiting Payment", icon: Clock, description: "Waiting for payment confirmation" },
+  { index: 1, name: "PAID", label: "Processing", icon: Package, description: "Preparing your order" },
+  { index: 2, name: "PROCESSING", label: "Processing", icon: Package, description: "Preparing your order" },
+  { index: 3, name: "AWAITING_SHIPMENT", label: "Ready to Ship", icon: Clock, description: "Ready for shipment" },
+  { index: 4, name: "SHIPPED", label: "Shipped", icon: Truck, description: "Order is on the way" },
+  { index: 5, name: "DELIVERED", label: "Delivered", icon: CheckCircle, description: "Order delivered successfully" },
+
+  // { index: 6, name: "NOT_DELIVERED", label: "Delivery Failed", icon: Ban, description: "Could not deliver the order" },
+  // { index: 7, name: "RETURN_REQUESTED", label: "Return Requested", icon: Undo2, description: "Customer requested return" },
+  // { index: 8, name: "RETURNED", label: "Returned", icon: Undo2, description: "Item has been returned" },
+];
+
+// const VNPayStatus = [...CODStatus];
+const MOMOStatus = [...VNPayStatus];
 
 export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
   const isCancelled = currentStatus === "CANCELLED";
@@ -51,14 +67,16 @@ export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
       ? MOMOStatus
       : VNPayStatus;
 
-  const visibleSteps = isCancelled || !RETURN_FLOW.includes(currentStatus)
-    ? allSteps.slice(0, 5)
-    : allSteps;
-
-  // Nếu là cancel thì currentIndex là -1 để tránh completed hoặc current
+  // Xác định bước hiện tại (nếu không CANCELLED)
   const currentIndex = isCancelled
     ? -1
-    : visibleSteps.findIndex((s) => s.name === currentStatus);
+    : allSteps.findIndex((s) => s.name === currentStatus);
+
+  const visibleSteps = isCancelled
+    ? allSteps.slice(0, 6) // chỉ hiển thị đến DELIVERED
+    : RETURN_FLOW.includes(currentStatus)
+    ? allSteps
+    : allSteps.slice(0, 6); // từ PENDING đến DELIVERED
 
   const getStepStatus = (stepIndex: number) => {
     if (isCancelled) return "pending";
@@ -99,7 +117,6 @@ export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
   return (
     <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 col-span-3">
       <div className="p-6">
-        {/* Header */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Order Status</h3>
           <div className="flex items-center gap-2 flex-wrap">
@@ -115,50 +132,14 @@ export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
               ? "bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium border border-red-200"
               : getStepStyles(getStepStatus(currentIndex)).badge
             }>
-              {isCancelled ? "Cancelled" : visibleSteps[currentIndex]?.label || "Unknown"}
+              {isCancelled ? "Cancelled" : allSteps[currentIndex]?.label || "Unknown"}
             </span>
           </div>
         </div>
 
         {/* Timeline */}
-        <>
-          {/* Desktop Timeline */}
-          <div className="hidden md:block">
-            <div className="flex items-start justify-between relative">
-              {visibleSteps.map((step, idx) => {
-                const status = getStepStatus(idx);
-                const styles = getStepStyles(status);
-                const isLast = idx === visibleSteps.length - 1;
-                const IconComponent = step.icon;
-
-                return (
-                  <div key={step.name} className="flex flex-col items-center relative flex-1">
-                    {!isLast && (
-                      <div
-                        className={`absolute top-6 left-1/2 w-full h-0.5 ${styles.line} z-0 translate-x-1/2`}
-                      />
-                    )}
-
-                    <div
-                      className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${styles.circle}`}
-                    >
-                      <IconComponent size={20} />
-                    </div>
-
-                    <div className="mt-4 text-center max-w-[120px]">
-                      <p className={`text-sm font-medium transition-colors duration-300 ${styles.text}`}>
-                        {step.label}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1 leading-tight">{step.description}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Mobile Timeline */}
-          <div className="md:hidden space-y-4">
+        <div className="hidden md:block">
+          <div className="flex items-start justify-between relative">
             {visibleSteps.map((step, idx) => {
               const status = getStepStatus(idx);
               const styles = getStepStyles(status);
@@ -166,49 +147,42 @@ export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
               const IconComponent = step.icon;
 
               return (
-                <div key={step.name} className="flex items-start gap-4 relative">
+                <div key={step.name} className="flex flex-col items-center relative flex-1">
                   {!isLast && (
-                    <div className={`absolute left-6 top-12 w-0.5 h-8 ${styles.line}`} />
+                    <div className={`absolute top-6 left-1/2 w-full h-0.5 ${styles.line} z-0 translate-x-1/2`} />
                   )}
-
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${styles.circle} flex-shrink-0`}
-                  >
+                  <div className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center ${styles.circle}`}>
                     <IconComponent size={20} />
                   </div>
-
-                  <div className="flex-1 min-w-0 pt-2">
-                    <p className={`text-sm font-medium transition-colors duration-300 ${styles.text}`}>
-                      {step.label}
-                    </p>
+                  <div className="mt-4 text-center max-w-[120px]">
+                    <p className={`text-sm font-medium ${styles.text}`}>{step.label}</p>
                     <p className="text-xs text-gray-500 mt-1">{step.description}</p>
                   </div>
                 </div>
               );
             })}
           </div>
+        </div>
 
-          {/* Progress Bar */}
-          <div className="mt-6 bg-gray-200 rounded-full h-2 overflow-hidden">
-            <div
-              className="bg-gradient-to-r from-blue-500 to-green-500 h-full transition-all duration-700 ease-out"
-              style={{
-                width:
-                  currentIndex >= 0
-                    ? `${((currentIndex + 1) / visibleSteps.length) * 100}%`
-                    : "0%",
-              }}
-            />
-          </div>
+        {/* Progress Bar */}
+        <div className="mt-6 bg-gray-200 rounded-full h-2 overflow-hidden">
+          <div
+            className="bg-gradient-to-r from-blue-500 to-green-500 h-full transition-all duration-700 ease-out"
+            style={{
+              width:
+                currentIndex >= 0
+                  ? `${((currentIndex + 1) / visibleSteps.length) * 100}%`
+                  : "0%",
+            }}
+          />
+        </div>
 
-          {/* Progress Text */}
-          <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
-            <span>Progress</span>
-            <span>
-              {currentIndex >= 0 ? currentIndex + 1 : 0}/{visibleSteps.length} steps completed
-            </span>
-          </div>
-        </>
+        <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
+          <span>Progress</span>
+          <span>
+            {currentIndex >= 0 ? currentIndex + 1 : 0}/{visibleSteps.length} steps completed
+          </span>
+        </div>
       </div>
     </div>
   );

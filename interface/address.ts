@@ -14,3 +14,12 @@ export interface AddressResponse {
     },
     type: string,
 }
+
+export interface Address {
+    name: string,
+    phone: string,
+    street: string,
+    ward: string,
+    district: string,
+    city: string,
+}

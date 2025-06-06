@@ -1,291 +1,193 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-"use client";
+/* eslint-disable @next/next/no-img-element */
+"use client"
 
-import { useEffect, useState } from "react";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  getAllOrder,
-  getSearchOrder,
-  updateOrderStatus,
-} from "@/app/api/order";
-import { Order } from "@/interface/order";
-import { toast } from "react-toastify";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationLink,
-} from "@/components/ui/pagination";
-import {
-  EllipsisVertical,
-  Eye,
-  PencilLine,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { OrderStatusModal } from "@/components/order/edit-order";
+import { useEffect, useState } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "react-toastify"
+import { getAllOrder, updateOrderStatus } from "@/app/api/order"
+import { Order, OrderStatus, PaymentMethod, PaymentStatus } from "@/interface/order"
+import Link from "next/link"
 
-import { PaymentStatusBadge } from "@/components/order/payment-status";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import SearchBar from "@/components/Search";
-import { OrderStatusBadge } from "@/components/order/order-status";
 
-export function OrderPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const router = useRouter();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [page, setPage] = useState<number>(1);
-  const [size, setSize] = useState<number>(5);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [totalItems, setTotalItems] = useState<number>(0);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+const ORDER_STATUS_LABELS: Record<string, string> = {
+  ALL: "All",
+  PENDING: "Pending",
+  AWAITING_PAYMENT: "Awaiting Payment",
+  PROCESSING: "Processing",
+  AWAITING_SHIPMENT: "Awaiting Shipment",
+  SHIPPED: "Shipped",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+  NOT_DELIVERED: "Not Delivered",
+  RETURN: "Returned",
+}
+const statusBadge: Record<OrderStatus, string> = {
+  PENDING: "bg-gray-200 text-gray-800",
+  AWAITING_PAYMENT: "bg-yellow-100 text-yellow-800",
+  PROCESSING: "bg-blue-100 text-blue-800",
+  AWAITING_SHIPMENT: "bg-indigo-100 text-indigo-800",
+  SHIPPED: "bg-sky-100 text-sky-800",
+  DELIVERED: "bg-green-100 text-green-800",
+  CANCELLED: "bg-red-100 text-red-800",
+  NOT_DELIVERED: "bg-emerald-100 text-emerald-800",
+  RETURN: "bg-orange-200 text-orange-900",
+}
 
-  const userId =
-    typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
-  const accessToken =
-    typeof window !== "undefined"
-      ? localStorage.getItem("accessToken") || ""
-      : "";
+const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  COD: "Cash on Delivery",
+  VNPAY: "VNPay",
+  MOMO: "Momo",
+  MANUAL: "Bank Transfer",
+}
+
+const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
+  PENDING: "Pending",
+  CANCELLED: "Cancelled",
+  COMPLETED: "Completed",
+  FAILED: "Failed",
+  PENDING_REFUND: "Pending Refund",
+  REFUNDED: "Refunded",
+}
+
+const PAYMENT_STATUS_BADGE: Record<PaymentStatus, string> = {
+  PENDING: "bg-yellow-100 text-yellow-800",
+  CANCELLED: "bg-red-100 text-red-800",
+  COMPLETED: "bg-green-100 text-green-800",
+  FAILED: "bg-red-200 text-red-900",
+  PENDING_REFUND: "bg-blue-100 text-blue-800",
+  REFUNDED: "bg-gray-200 text-gray-800",
+}
+
+export default function OrderPage() {
+  const [allOrders, setAllOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
 
   const fetchOrders = async () => {
     try {
-      let response;
-      if (searchQuery.trim()) {
-        response = await getSearchOrder(searchQuery, userId, accessToken, page, size);
-      } else {
-        response = await getAllOrder(userId, accessToken, page, size);
-      }
-
-      setOrders(response.items || []);
-      setTotalItems(response.total || 0);
-      setTotalPages(response.totalPages || 1);
-    } catch (error) {
-      toast.error("Failed to load orders");
+      setLoading(true)
+      const userId = localStorage.getItem("userId") || ""
+      const accessToken = localStorage.getItem("accessToken") || ""
+      const res = await getAllOrder(userId, accessToken, 1, 100)
+      setAllOrders(res.items)
+    } catch (err) {
+      toast.error("Failed to load order list.")
+    } finally {
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchOrders();
-  }, [userId, accessToken, page, size, searchQuery]);
-
-  const handleView = (order: Order) => {
-    router.push(`/dashboard/orders/${order.id}`);
-  };
+    fetchOrders()
+  }, [])
 
   const confirmEdit = async () => {
-    if (!selectedOrderId) return;
+    if (!selectedOrderId) return
     try {
-      await updateOrderStatus(selectedOrderId, userId, accessToken);
-      toast.success("Order status updated successfully!");
-      fetchOrders();
+      const userId = localStorage.getItem("userId") || ""
+      const accessToken = localStorage.getItem("accessToken") || ""
+      await updateOrderStatus(selectedOrderId, userId, accessToken)
+      toast.success("Order status updated successfully!")
+      fetchOrders()
     } catch (error) {
-      toast.error("Failed to update order status");
+      toast.error("Failed to update order status.")
     } finally {
-      setSelectedOrderId(null);
+      setSelectedOrderId(null)
     }
-  };
+  }
+
+  const statusTabs = ["ALL", ...Object.values(OrderStatus)]
+
+  const renderOrderCard = (order: Order) => (
+    <div
+      key={order.id}
+      className="rounded-lg border p-4 mb-4 bg-white dark:bg-muted"
+    >
+      <div className="flex flex-col md:flex-row justify-between gap-4">
+        <div className="space-y-1 text-sm">
+          <p><strong>ID:</strong> {order.id}</p>
+          <p><strong>Ordered Date:</strong> {new Date(order.createdAt).toLocaleString()}</p>
+          <p><strong>Delivery:</strong> {order.deliveryMethod}</p>
+        </div>
+
+        <div className="flex flex-col gap-1 text-sm text-right">
+          <span className={`px-3 py-1 rounded-full font-medium ${statusBadge[order.status as OrderStatus]}`}>{ORDER_STATUS_LABELS[order.status]}</span>
+       <span className="font-semibold text-lg">Price:{order.totalPrice.toLocaleString()} ₫</span>
+        </div>
+      </div>
+
+      <div className="divide-y mt-4">
+        {order.items.map((item, idx) => (
+          <div key={idx} className="flex items-center gap-4 py-2">
+            <img src={item.image} alt={item.productName} className="w-12 h-12 object-cover rounded border" />
+            <div className="flex-1 text-sm">
+              <p className="font-medium">{item.productName}</p>
+              <p className="text-muted-foreground">Quantity: {item.quantity}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-between items-end gap-2 pt-4">
+        <div className="space-y-1 text-sm">
+          <p><strong>Payment:</strong> {PAYMENT_METHOD_LABELS[order.paymentMethod as PaymentMethod]}</p>
+          <p>
+            <span className={`inline-block px-2 py-1 rounded ${PAYMENT_STATUS_BADGE[order.paymentStatus as PaymentStatus]}`}>
+              {PAYMENT_STATUS_LABELS[order.paymentStatus as PaymentStatus]}
+            </span>
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Link href={`/dashboard/orders/${order.id}`}>
+            <button className="px-3 py-1 text-sm rounded bg-blue-100 text-blue-800 hover:bg-blue-200 transition">Details</button>
+          </Link>
+          <button onClick={() => setSelectedOrderId(order.id)} className="px-3 py-1 text-sm rounded bg-gray-100 text-gray-800 hover:bg-gray-200 transition">Update</button>
+        </div>
+      </div>
+
+      {selectedOrderId === order.id && (
+        <div className="mt-3 bg-gray-50 border rounded p-3 text-sm">
+          <p>Do you want to update the order status?</p>
+          <div className="flex gap-2 mt-2">
+            <button onClick={confirmEdit} className="px-3 py-1 rounded bg-green-100 text-green-800 hover:bg-green-200">Confirm</button>
+            <button onClick={() => setSelectedOrderId(null)} className="px-3 py-1 rounded bg-red-100 text-red-800 hover:bg-red-200">Cancel</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+
+  const renderOrders = (orders: Order[]) =>
+    orders.length === 0 ? <p className="py-4">No orders found.</p> : orders.map(renderOrderCard)
+
+  const filterByStatus = (status: string) =>
+    status === "ALL" ? allOrders : allOrders.filter((order) => order.status === status)
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">All Orders</h1>
+    <div className="p-4">
+      <h1 className="text-xl font-semibold mb-4">Orders</h1>
+      <Tabs defaultValue="ALL" className="w-full">
+<TabsList className="w-full h-14 overflow-x-auto whitespace-nowrap rounded-lg bg-gray-100 dark:bg-gray-800 p-2">
 
-      <Card>
-        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-muted-foreground whitespace-nowrap">
-                Show:
-              </label>
-              <Select
-                value={size.toString()}
-                onValueChange={(val) => {
-                  setSize(Number(val));
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm">
-                  <SelectValue placeholder="Select page size" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[5, 10, 25, 50, 100].map((option) => (
-                    <SelectItem key={option} value={option.toString()}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <SearchBar
-              setQuery={(query: string) => {
-                setSearchQuery(query);
-                setPage(1); // reset lại về trang đầu khi tìm kiếm
-              }}
-            />
+          {statusTabs.map((status) => (
+            <TabsTrigger key={status} value={status}>
+              {ORDER_STATUS_LABELS[status] || status}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Order Date</TableHead>
-                <TableHead>Delivery Method</TableHead>
-                <TableHead>Payment Method</TableHead>
-                <TableHead>Payment Status</TableHead>
-                <TableHead>Order Status</TableHead>
-                <TableHead>Next Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell>{order.shippingAddress.fullname}</TableCell>
-                  <TableCell>
-                    {order.items.reduce((total, item) => total + item.quantity, 0)}
-                  </TableCell>
-                  <TableCell>{order.totalPrice.toLocaleString()}đ</TableCell>
-                  <TableCell>
-                    {new Date(order.createdAt).toLocaleString("vi-VN", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                    })}
-                  </TableCell>
-                  <TableCell>{order.deliveryMethod}</TableCell>
-                  <TableCell className="text-left">{order.paymentMethod}</TableCell>
-                  <TableCell>
-                    <PaymentStatusBadge status={order.paymentStatus} />
-                  </TableCell>
-                  <TableCell>
-                    <OrderStatusBadge status={order.status} />
-                  </TableCell>
-                  <TableCell>{order.nextStatus}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <EllipsisVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleView(order)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelectedOrderId(order.id);
-                            setModalOpen(true);
-                          }}
-                        >
-                          <PencilLine className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-
-        <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setPage((prev) => Math.max(prev - 1, 1));
-                  }}
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }).map((_, i) => {
-                const pageNumber = i + 1;
-                return (
-                  <PaginationItem key={pageNumber}>
-                    <PaginationLink
-                      href="#"
-                      isActive={pageNumber === page}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setPage(pageNumber);
-                      }}
-                    >
-                      {pageNumber}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              })}
-
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setPage((prev) => Math.min(prev + 1, totalPages));
-                  }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </CardFooter>
-
-        <OrderStatusModal
-          open={modalOpen}
-          onClose={() => {
-            setModalOpen(false);
-            setSelectedOrderId(null);
-          }}
-          onConfirm={() => {
-            confirmEdit();
-            setModalOpen(false);
-          }}
-        />
-      </Card>
+        {statusTabs.map((status) => (
+          <TabsContent key={status} value={status}>
+            {loading ? (
+              <p className="py-4">Loading orders...</p>
+            ) : (
+              renderOrders(filterByStatus(status))
+            )}
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
-  );
+  )
 }

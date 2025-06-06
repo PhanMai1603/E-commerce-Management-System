@@ -13,10 +13,11 @@ const orderStatusClasses: Record<string, string> = {
   shipped: "bg-cyan-100 text-cyan-700",
   delivered: "bg-green-100 text-green-700",
   cancelled: "bg-red-100 text-red-700",
+  not_delivered: "bg-zinc-100 text-zinc-700",
   return_requested: "bg-amber-100 text-amber-700",
   returned: "bg-gray-100 text-gray-700",
-  pending_refund: "bg-purple-100 text-purple-700",
-  refunded: "bg-emerald-100 text-emerald-700",
+  // pending_refund: "bg-purple-100 text-purple-700",
+  // refunded: "bg-emerald-100 text-emerald-700",
 };
 
 export const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({ status }) => {

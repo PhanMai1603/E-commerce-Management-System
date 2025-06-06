@@ -336,7 +336,18 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
                         key={value.valueId}
                         className='flex justify-between items-center space-x-4'
                       >
-                        <Label htmlFor={value.valueId}>{value.value}</Label>
+
+                      <div className="flex gap-x-2">
+                      <span
+                      className="inline-block w-4 h-4 rounded-full border"
+                      style={{
+                        backgroundColor:value.descriptionUrl,
+                      }}
+                      />
+                      <Label htmlFor={value.valueId}>{value.value} </Label>
+  
+                      </div>
+
                         <Checkbox
                           id={value.valueId}
                           checked={selectedValues[index]?.some((c) => c.valueId === value.valueId)}

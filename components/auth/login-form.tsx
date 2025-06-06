@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -148,15 +149,21 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                 Or continue with
               </span>
             </div>
-            <button
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full flex items-center justify-center gap-3 border-gray-300 hover:border-gray-400 hover:bg-gray-50"
               onClick={() => {
                 window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google?deviceToken=${deviceToken}&deviceName=${browserName}&isPanel=true`;
               }}
-              type="button"
             >
-              Sign in with Google
-            </button>
-
+              <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                alt="Google icon"
+                className="w-5 h-5"
+              />
+              <span className="text-sm font-medium text-gray-700">Sign in with Google</span>
+            </Button>
           </div>
         </form>
       )}

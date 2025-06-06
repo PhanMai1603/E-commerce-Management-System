@@ -4,12 +4,15 @@ import ProductDescription from "@/components/detail-product/description";
 import ProductImage from "@/components/detail-product/image";
 import ProductInformation from "@/components/detail-product/information";
 import ProductVariant from "@/components/detail-product/variant";
+import { Button } from "@/components/ui/button";
 import { ProductDetailResponse } from "@/interface/product";
-import { useParams } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Page() {
   const { id } = useParams();
+  const router = useRouter();
   const [product, setProduct] = useState<ProductDetailResponse>({
     product: {
       id: "",
@@ -85,26 +88,37 @@ export default function Page() {
   }, [id, userId, accessToken]);
 
   return (
-    <div className="grid grid-cols-10 gap-4 mt-4">
-      <ProductImage
-        mainImage={product.product.mainImage}
-        subImages={product.product.subImages}
-        selectedImage={selectedImage}
-        setSelectedImage={setSelectedImage}
-      />
+    <div className="mt-4">
+      <Button
+        onClick={() => router.push("/dashboard/products")}
+        variant="outline"
+        size="icon"
+        className="mb-4"
+      >
+        <ArrowLeft className="w-4 h-4" />
+      </Button>
 
-      <ProductInformation
-        product={product.product}
-        selectedImage={selectedImage}
-        setSelectedImage={setSelectedImage}
-      />
+      <div className="grid grid-cols-10 gap-4">
+        <ProductImage
+          mainImage={product.product.mainImage}
+          subImages={product.product.subImages}
+          selectedImage={selectedImage}
+          setSelectedImage={setSelectedImage}
+        />
 
-      <ProductDescription product={product.product} />
+        <ProductInformation
+          product={product.product}
+          selectedImage={selectedImage}
+          setSelectedImage={setSelectedImage}
+        />
 
-      <ProductVariant
-        skuList={product.skuList.skuList} 
-        setProduct={setProduct}
-      />
+        <ProductDescription product={product.product} />
+
+        <ProductVariant
+          skuList={product.skuList.skuList}
+          setProduct={setProduct}
+        />
+      </div>
     </div>
   );
 }
