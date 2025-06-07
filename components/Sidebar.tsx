@@ -6,7 +6,9 @@ import {
 Truck, ShoppingBag, UserRoundCog, TicketPercent,
   Shirt,
   Package2,
-  MessageSquareHeart, 
+  MessageSquareHeart,
+  RefreshCcw,
+  CreditCard, 
 } from "lucide-react";
 
 interface SidebarProps {
@@ -23,7 +25,7 @@ const sidebarGroups = [
       { title: "Products", icon: Shirt, href: "/dashboard/products" },
       { title: "Orders", icon: ShoppingBag, href: "/dashboard/orders" },
       { title: "Coupons", icon: TicketPercent, href: "/dashboard/coupons" },
-      {title: "Review", icon:MessageSquareHeart, href: "/dashboard/review"}
+      {title: "Review", icon:MessageSquareHeart, href: "/dashboard/review"},
     ],
   },
   {
@@ -37,7 +39,9 @@ const sidebarGroups = [
   {
     title: "Other",
     links: [
-      { title: "Delivery", icon: Truck, href: "/dashboard/delivery" },
+      {title: "Delivery", icon: Truck, href: "/dashboard/delivery" },
+      {title: "Return", icon:RefreshCcw, href: "/dashboard/refund"},
+      {title: "Transactions", icon:CreditCard, href: "/dashboard/transactions"}
     ],
   },
 ];

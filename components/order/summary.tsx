@@ -24,41 +24,53 @@ export default function Summary({ pricing }: SummaryProps) {
     totalPrice,
   } = pricing;
 
+  const formatCurrency = (value: number) =>
+    `${value.toLocaleString('vi-VN')} ₫`;
+
   return (
     <div className="col-span-1">
-      <Card>
-        <CardHeader>
-          <h3 className="text-xl font-semibold">Order Summary</h3>
+      <Card className="shadow-lg border border-gray-200 bg-gradient-to-br from-white to-gray-50">
+        <CardHeader className="border-b pb-4">
+          <h3 className="text-xl font-bold text-gray-900">Order Summary</h3>
         </CardHeader>
 
-        <CardContent className="space-y-2 text-lg">
+        <CardContent className="space-y-3 text-sm text-gray-700">
+          {/* Items */}
           <div className="flex justify-between">
-            <span>Items Price:</span>
-            <span>{itemsPrice.toLocaleString()} VND</span>
+            <span>Subtotal:</span>
+            <span className="font-medium">{formatCurrency(itemsPrice)}</span>
           </div>
-          <div className="flex justify-between">
+
+          {/* Discounts */}
+          <div className="flex justify-between text-red-600">
             <span>Product Discount:</span>
-            <span>-{productDiscount.toLocaleString()} VND</span>
+            <span>-{formatCurrency(productDiscount)}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between text-red-600">
             <span>Coupon Discount:</span>
-            <span>-{couponDiscount.toLocaleString()} VND</span>
+            <span>-{formatCurrency(couponDiscount)}</span>
           </div>
+
+          {/* Shipping */}
           <div className="flex justify-between">
             <span>Shipping Fee:</span>
-            <span>{shippingPrice.toLocaleString()} VND</span>
+            <span className="font-medium">{formatCurrency(shippingPrice)}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between text-red-600">
             <span>Shipping Discount:</span>
-            <span>-{shippingDiscount.toLocaleString()} VND</span>
+            <span>-{formatCurrency(shippingDiscount)}</span>
           </div>
-          <div className="flex justify-between text-green-600">
+
+          {/* Total Savings */}
+          <div className="flex justify-between text-green-600 font-medium border-t pt-3">
             <span>Total Savings:</span>
-            <span>-{totalSavings.toLocaleString()} VND</span>
+            <span>-{formatCurrency(totalSavings)}</span>
           </div>
-          <div className="border-t pt-2 flex justify-between font-semibold">
+
+          {/* Grand total */}
+          <div className="flex justify-between items-center border-t pt-4 mt-2 text-lg font-bold text-gray-900">
             <span>Total to Pay:</span>
-            <span>{totalPrice.toLocaleString()} VND</span>
+            <span className="text-green-700">{formatCurrency(totalPrice)}</span>
           </div>
         </CardContent>
       </Card>

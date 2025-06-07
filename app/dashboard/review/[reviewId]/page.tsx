@@ -77,7 +77,7 @@ export default function ReviewDetailPage() {
     setSubmitting(true);
     try {
       await replyReview(reviewId, userId, accessToken, replyContent.trim());
-       toast.success("Reply sent successfully!");
+      toast.success("Reply sent successfully!");
       setReplyContent("");
       fetchReview();
     } catch (error) {
@@ -106,10 +106,11 @@ export default function ReviewDetailPage() {
               <div>
                 <div className="font-semibold text-lg">{review.user.name}</div>
                 <div className="flex items-center gap-1 text-yellow-500">
-                  {[...Array(review.star)].map((_, i) => (
+                  {[...Array(Math.max(0, Math.floor(Number(review.star) || 0)))].map((_, i) => (
                     <Star key={i} size={18} fill="currentColor" />
                   ))}
                 </div>
+
                 <div className="text-sm text-muted-foreground">
                   {formatDateTime(review.createdAt)}
                 </div>

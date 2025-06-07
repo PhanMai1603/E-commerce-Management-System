@@ -170,7 +170,7 @@ export default function UnrepliedReviewsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-yellow-500">
-                        {[...Array(review.star)].map((_, i) => (
+                        {[...Array(Math.max(0, Math.floor(Number(review.star) || 0)))].map((_, i) => (
                           <Star key={i} size={14} fill="currentColor" />
                         ))}
                       </div>

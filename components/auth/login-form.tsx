@@ -87,6 +87,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
       const userId = response.user.id;
 
       const isAdmin = await checkAdmin(userId, accessToken);
+      
       if (isAdmin) {
         router.push("/dashboard");
       } else {

@@ -113,7 +113,7 @@ export default function OrderPage() {
 
         <div className="flex flex-col gap-1 text-sm text-right">
           <span className={`px-3 py-1 rounded-full font-medium ${statusBadge[order.status as OrderStatus]}`}>{ORDER_STATUS_LABELS[order.status]}</span>
-       <span className="font-semibold text-lg">Price:{order.totalPrice.toLocaleString()} ₫</span>
+          <span className="font-semibold text-lg">Price:{order.totalPrice.toLocaleString()} ₫</span>
         </div>
       </div>
 
@@ -169,7 +169,7 @@ export default function OrderPage() {
     <div className="p-4">
       <h1 className="text-xl font-semibold mb-4">Orders</h1>
       <Tabs defaultValue="ALL" className="w-full">
-<TabsList className="w-full h-14 overflow-x-auto whitespace-nowrap rounded-lg bg-gray-100 dark:bg-gray-800 p-2">
+        <TabsList className="w-full h-14 overflow-x-auto whitespace-nowrap rounded-lg bg-gray-100 dark:bg-gray-800 p-2">
 
           {statusTabs.map((status) => (
             <TabsTrigger key={status} value={status}>

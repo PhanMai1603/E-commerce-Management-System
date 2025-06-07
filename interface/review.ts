@@ -19,7 +19,6 @@ export interface Review {
     productId: string;
     variantId: string;
     createdAt: string;
-    isReplied: boolean;
 }
 
 // interface/review.ts

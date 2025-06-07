@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface RefundResponse{
     refundLogId: string,
     status: string,
     approvedAt: string,
 }
+
 export interface RejectReason{
     rejectReason: string,
 }
@@ -41,10 +43,7 @@ export interface RefundRequest{
         image:string,
         quantity: number,
     }
-    admin:{
-        name:string,
-        email:string,
-    }
+    admin: string,
     approvedAt:string,
     rejectedAt:string,
     completedAt:string,
@@ -54,23 +53,69 @@ export interface RefundRequest{
 
 export interface RefundDataDetail {
     id: string,
-    orderId: string,
-    amount: number,
-    status: string,
-    paymentTransactionId: string,
-    item: {
-        productName: string,
-        variantName: string,
+    order: {
+        id: string;
+        status: string;
     }
+    paymentTransactionId: string,
+    amount: number,
+    paymentMethod: string,
+    status: string,
     reason: string,
     description: string,
+    item:{
+        productId: string,
+        productName: string,
+        variantId: string,
+        variantName: string,
+        image: string,
+        quantity: string,
+    }
+    admin: {
+        id: string,
+        name: string, 
+        email: string,
+    }
+    manualRequired: boolean,
     requestedAt: string,
     approvedAt: string,
+    rejectedAt: string,
     completedAt: string,
-    admin: string,
 }
 
 export interface ConfirmRequest{
     refundLogIds: string[],
     isCash:boolean,
 }
+
+export interface ConfirmRequestResponse{
+    orderId: string,
+    totalRefundAmount:number,
+    refundResult:{
+        status: string,
+        message: string,
+        refundTransaction:{
+            id:string,
+            orderId: string,
+            transactionId: string,
+            type: string,
+            method: string,
+            amount: number,
+            status: string,
+            bankDetails:{
+                bankName: string,
+                accountNumber: string,
+                accountHolder: string,
+                transferImage: string,
+            }
+            adminId: string,
+            admin: Record<string, any>;
+            completedAt: string,
+            createdAt: string,
+            updatedAt: string,
+        }
+    }
+    status: string,
+    refundLogIds:string[],
+}
+

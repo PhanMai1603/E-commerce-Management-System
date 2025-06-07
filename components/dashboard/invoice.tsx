@@ -102,170 +102,168 @@ export function Order() {
     <Card>
       <CardHeader className="flex justify-between items-start text-xl">
         <CardTitle>All Order</CardTitle>
-           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-muted-foreground whitespace-nowrap">
-                Show:
-              </label>
-              <Select
-                value={size.toString()}
-                onValueChange={(val) => {
-                  setSize(Number(val));
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm">
-                  <SelectValue placeholder="Select page size" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[5, 10, 25, 50, 100].map((option) => (
-                    <SelectItem key={option} value={option.toString()}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-muted-foreground whitespace-nowrap">
+              Show:
+            </label>
+            <Select
+              value={size.toString()}
+              onValueChange={(val) => {
+                setSize(Number(val));
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm">
+                <SelectValue placeholder="Select page size" />
+              </SelectTrigger>
+              <SelectContent>
+                {[5, 10, 25, 50, 100].map((option) => (
+                  <SelectItem key={option} value={option.toString()}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+        </div>
       </CardHeader>
 
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Order Date</TableHead>
-                <TableHead>Delivery Method</TableHead>
-                <TableHead>Payment Method</TableHead>
-                <TableCell>Paymet Status</TableCell>
-                <TableHead>Order Status</TableHead>
-                <TableHead>Next Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
+              <TableHead>Customer</TableHead>
+              <TableHead>Items</TableHead>
+              <TableHead>Total</TableHead>
+              <TableHead>Order Date</TableHead>
+              <TableHead>Delivery Method</TableHead>
+              <TableHead>Payment Method</TableHead>
+              <TableCell>Paymet Status</TableCell>
+              <TableHead>Order Status</TableHead>
+              <TableHead>Next Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
           </TableHeader>
-            <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell>{order.shippingAddress.fullname}</TableCell>
-                  <TableCell>
-                    {order.items.reduce((total, item) => total + item.quantity, 0)}
-                  </TableCell>
+          <TableBody>
+            {orders.map((order) => (
+              <TableRow key={order.id}>
+                <TableCell>{order.shippingAddress.fullname}</TableCell>
+                <TableCell>
+                  {order.items.reduce((total, item) => total + item.quantity, 0)}
+                </TableCell>
 
-                  <TableCell>{order.totalPrice.toLocaleString()}đ</TableCell>
-                  <TableCell>
-                    {new Date(order.createdAt).toLocaleString("vi-VN", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                    })}
-                  </TableCell>
+                <TableCell>{order.totalPrice.toLocaleString()}đ</TableCell>
+                <TableCell>
+                  {new Date(order.createdAt).toLocaleString("vi-VN", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })}
+                </TableCell>
 
-                  <TableCell>{order.deliveryMethod}</TableCell>
-                  <TableCell className="text-left">{order.paymentMethod}</TableCell>
-                  <TableCell>
-                    <PaymentStatusBadge status={order.paymentStatus} />
-                  </TableCell>
-                  <TableCell>
-                    <OrderStatusBadge status={order.status} />
-                  </TableCell>
+                <TableCell>{order.deliveryMethod}</TableCell>
+                <TableCell className="text-left">{order.paymentMethod}</TableCell>
+                <TableCell>
+                  <PaymentStatusBadge status={order.paymentStatus} />
+                </TableCell>
+                <TableCell>
+                  <OrderStatusBadge status={order.status} />
+                </TableCell>
 
-                  <TableCell>{order.nextStatus}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <EllipsisVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleView(order)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelectedOrderId(order.id);
-                            setModalOpen(true);
-                          }}
-                        >
-
-                          <PencilLine className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-        </Table>
-      </CardContent>
-         <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
-
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setPage((prev) => Math.max(prev - 1, 1));
-                    }}
-                  />
-                </PaginationItem>
-
-                {Array.from({ length: totalPages }).map((_, i) => {
-                  const pageNumber = i + 1;
-                  return (
-                    <PaginationItem key={pageNumber}>
-                      <PaginationLink
-                        href="#"
-                        isActive={pageNumber === page}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setPage(pageNumber);
+                <TableCell>{order.nextStatus}</TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <EllipsisVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleView(order)}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        View
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelectedOrderId(order.id);
+                          setModalOpen(true);
                         }}
                       >
-                        {pageNumber}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                })}
 
-                <PaginationItem>
-                  <PaginationNext
+                        <PencilLine className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+      <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
+
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPage((prev) => Math.max(prev - 1, 1));
+                }}
+              />
+            </PaginationItem>
+
+            {Array.from({ length: totalPages }).map((_, i) => {
+              const pageNumber = i + 1;
+              return (
+                <PaginationItem key={pageNumber}>
+                  <PaginationLink
                     href="#"
+                    isActive={pageNumber === page}
                     onClick={(e) => {
                       e.preventDefault();
-                      setPage((prev) => Math.min(prev + 1, totalPages));
+                      setPage(pageNumber);
                     }}
-                  />
+                  >
+                    {pageNumber}
+                  </PaginationLink>
                 </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-         
-        </CardFooter>
+              );
+            })}
+
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPage((prev) => Math.min(prev + 1, totalPages));
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+
+      </CardFooter>
 
       {/* Alert Dialog Confirm Edit */}
       <OrderStatusModal
-              open={modalOpen}
-              onClose={() => {
-                setModalOpen(false);
-                setSelectedOrderId(null);
-              }}
-              onConfirm={() => {
-                confirmEdit();
-                setModalOpen(false);
-              }}
-            />
-    
-
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedOrderId(null);
+        }}
+        onConfirm={() => {
+          confirmEdit();
+          setModalOpen(false);
+        }}
+      />
     </Card>
   );
 }
