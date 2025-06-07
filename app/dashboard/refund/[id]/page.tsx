@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
 "use client"
 
@@ -41,7 +42,7 @@ export default function RefundDetailPage() {
       try {
         const data = await getRefundDetail(id as string, userId, accessToken)
         setRefund(data)
-      } catch {
+      } catch (err) {
         toast.error("Failed to fetch refund detail")
       } finally {
         setLoading(false)
@@ -138,11 +139,10 @@ export default function RefundDetailPage() {
                     <div>
                       <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Manual Processing</label>
                       <p className="text-sm">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          refund.manualRequired 
-                            ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300' 
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${refund.manualRequired
+                            ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300'
                             : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                        }`}>
+                          }`}>
                           {refund.manualRequired ? "Required" : "Not Required"}
                         </span>
                       </p>
@@ -279,7 +279,7 @@ export default function RefundDetailPage() {
                       </p>
                     </div>
                   </div>
-                  
+
                   {refund.approvedAt && (
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
@@ -291,7 +291,7 @@ export default function RefundDetailPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   {refund.rejectedAt && (
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
@@ -303,7 +303,7 @@ export default function RefundDetailPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   {refund.completedAt && (
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
