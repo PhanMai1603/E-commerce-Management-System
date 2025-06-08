@@ -60,3 +60,22 @@ export const manualRefund = async (data:Payment.Bank ,paymentTransactionId: stri
     throw new Error(errorMessage);
   }
 };
+
+
+export const codManualRefund = async (data:Payment.Bank ,orderId: string, userId: string, accessToken: string): Promise<Payment.CODManual> => {
+  try {
+    const response = await api.post(`${Payment_URL}/cod/${orderId}/manual`, data,
+      {
+        headers: {
+          "x-client-id": userId,
+          Authorization: accessToken,
+        },
+      }
+    );
+    return response.data.metadata;
+  } catch (error) {
+    const errorMessage = get(error, "response.data.error.message", "");
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+};

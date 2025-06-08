@@ -72,3 +72,19 @@ export interface Transaction{
     }
     completedAt: string
 }
+
+export interface CODManual{
+    id: string;
+    orderId: string,
+    transactionId: string,
+    type: string,
+    method: string,
+    amount: string,
+    status: string,
+    bankDetails: string,
+    adminId: string,
+    admin: string,
+    completedAt: string,
+    createdAt: string,
+    updatedAt: string,
+}

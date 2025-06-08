@@ -99,7 +99,7 @@ export default function TransactionsForm() {
                     </TableCell>
 
                     <TableCell className="font-semibold">
-                      {tx.amount.toFixed(2)}đ
+                      {tx.amount}đ
                     </TableCell>
 
                     <TableCell

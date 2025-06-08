@@ -71,15 +71,18 @@ export function Order() {
     try {
       const response = await getAllOrder(userId, accessToken, page, size);
       setOrders(response.items || []);
+      setTotalItems(response.total);
+      setTotalPages(response.totalPages);
+
     } catch (error) {
       toast.error("Failed to load orders");
     }
   };
 
+
   useEffect(() => {
     fetchOrders();
   }, [userId, accessToken, page, size]);
-
 
   const handleView = (order: Order) => {
     router.push(`/dashboard/orders/${order.id}`);
@@ -194,7 +197,6 @@ export function Order() {
                           setModalOpen(true);
                         }}
                       >
-
                         <PencilLine className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
@@ -207,7 +209,6 @@ export function Order() {
         </Table>
       </CardContent>
       <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
-
         <Pagination>
           <PaginationContent>
             <PaginationItem>
@@ -249,10 +250,8 @@ export function Order() {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
-
       </CardFooter>
 
-      {/* Alert Dialog Confirm Edit */}
       <OrderStatusModal
         open={modalOpen}
         onClose={() => {

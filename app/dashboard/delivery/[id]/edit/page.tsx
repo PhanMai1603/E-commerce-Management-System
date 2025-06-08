@@ -125,8 +125,9 @@ export default function Page() {
     if (!checkUserAuth()) return;
     try {
       const updatedDelivery = await updateDelivery(Array.isArray(id) ? id[0] : id || "", delivery, userId, accessToken);
-      setDelivery(updatedDelivery); // Update state with the latest delivery details
+      setDelivery(updatedDelivery); // Update state with the latest delivery details    
       toast.success("Update delivery successfully.");
+       router.push("/dashboard/delivery");
     } catch (error) {
       toast.error("Failed to update delivery.");
     }

@@ -103,14 +103,13 @@ export default function ConfirmRefundPage() {
         {!result && (
           <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Select refund method</h2>
-            
+
             <div className="space-y-4">
-              <div 
-                className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                  !isCash 
-                    ? 'border-blue-500 bg-blue-50' 
+              <div
+                className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${!isCash
+                    ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
+                  }`}
                 onClick={() => setIsCash(false)}
               >
                 <div className="flex items-start space-x-3">
@@ -134,12 +133,11 @@ export default function ConfirmRefundPage() {
                 </div>
               </div>
 
-              <div 
-                className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                  isCash 
-                    ? 'border-green-500 bg-green-50' 
+              <div
+                className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${isCash
+                    ? 'border-green-500 bg-green-50'
                     : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
+                  }`}
                 onClick={() => setIsCash(true)}
               >
                 <div className="flex items-start space-x-3">
@@ -156,9 +154,9 @@ export default function ConfirmRefundPage() {
                       <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
-                      <span className="text-lg font-medium text-gray-900">Hoàn tiền tiền mặt</span>
+                      <span className="text-lg font-medium text-gray-900">Cash Refund</span>
                     </div>
-                    <p className="text-sm text-gray-500 mt-1">Hoàn tiền trực tiếp bằng tiền mặt tại cửa hàng</p>
+                    <p className="text-sm text-gray-500 mt-1">Cash Back In Store</p>
                   </div>
                 </div>
               </div>
@@ -210,7 +208,7 @@ export default function ConfirmRefundPage() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <h2 className="text-2xl font-bold text-green-800">Hoàn tiền thành công!</h2>
+                  <h2 className="text-2xl font-bold text-green-800">  </h2>
                   <p className="text-green-600 mt-1">Yêu cầu hoàn tiền của bạn đã được xử lý thành công</p>
                 </div>
               </div>
@@ -241,7 +239,7 @@ export default function ConfirmRefundPage() {
             {paymentDetail && (
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Thông tin giao dịch ngân hàng</h3>
-                
+
                 <div className="bg-blue-50 rounded-lg p-4 mb-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
@@ -269,7 +267,7 @@ export default function ConfirmRefundPage() {
 
                 {/* Bank Form */}
                 <div className="border-t pt-6">
-                  <h4 className="text-lg font-medium text-gray-900 mb-4">Thông tin ngân hàng để hoàn tiền</h4>
+                  <h4 className="text-lg font-medium text-gray-900 mb-4">Refunded bank information</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Tên ngân hàng</label>
@@ -370,15 +368,22 @@ export default function ConfirmRefundPage() {
             {/* Back Button */}
             <div className="flex justify-center pt-6 border-t">
               <button
-                className="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 onClick={() => router.push("/dashboard/refund")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl border border-gray-300 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                Quay lại danh sách hoàn tiền
+                <span>Quay lại danh sách hoàn tiền</span>
               </button>
             </div>
+
           </div>
         )}
       </div>

@@ -9,11 +9,11 @@ const orderStatusClasses: Record<string, string> = {
   pending: "bg-yellow-50 text-yellow-800",
   awaiting_payment: "bg-sky-50 text-sky-800",
   processing: "bg-amber-50 text-amber-800",
-  awaiting_shipment: "bg-purple-50 text-purple-800",
-  shipped: "bg-blue-50 text-blue-800",
+  ready_to_ship: "bg-purple-50 text-purple-800",
+  in_transit: "bg-blue-50 text-blue-800",
   delivered: "bg-emerald-50 text-emerald-800",
   cancelled: "bg-rose-50 text-rose-800",
-  not_delivered: "bg-stone-100 text-stone-700",
+  delivered_failed: "bg-stone-100 text-stone-700",
   return: "bg-gray-50 text-gray-800",
 };
 

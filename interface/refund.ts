@@ -88,34 +88,33 @@ export interface ConfirmRequest{
     isCash:boolean,
 }
 
-export interface ConfirmRequestResponse{
-    orderId: string,
-    totalRefundAmount:number,
-    refundResult:{
-        status: string,
-        message: string,
-        refundTransaction:{
-            id:string,
-            orderId: string,
-            transactionId: string,
-            type: string,
-            method: string,
-            amount: number,
-            status: string,
-            bankDetails:{
-                bankName: string,
-                accountNumber: string,
-                accountHolder: string,
-                transferImage: string,
-            }
-            adminId: string,
-            admin: Record<string, any>;
-            completedAt: string,
-            createdAt: string,
-            updatedAt: string,
-        }
-    }
-    status: string,
-    refundLogIds:string[],
+export interface ConfirmRequestResponse {
+  orderId: string;
+  totalRefundAmount: number;
+  refundResult: {
+    status: string;
+    message: string;
+    refundTransaction: {
+      id: string;
+      orderId: string;
+      transactionId: string;
+      type: string;
+      method: string; // "BANK" | "COD"
+      amount: number;
+      status: string;
+      bankDetails: {
+        bankName: string;
+        accountNumber: string;
+        accountHolder: string;
+        transferImage: string;
+      } | null; // <-- allow null
+      adminId: string;
+      admin: Record<string, any>;
+      completedAt: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+  };
+  status: string;
+  refundLogIds: string[];
 }
-
