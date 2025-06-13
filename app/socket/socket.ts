@@ -11,7 +11,7 @@ export const connectSocket = (
     socket.disconnect();
   }
 
-  socket = io("http://localhost:3000", {
+  socket = io("https://shareandcareshop.onrender.com", {
     auth: {
       token,
       deviceToken,
