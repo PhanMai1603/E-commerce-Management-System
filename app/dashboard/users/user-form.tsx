@@ -53,7 +53,7 @@ export function UserTable() {
       const response = query.trim()
         ? await getSearchUser(userId, accessToken, page, size,query)
         : await getAllUser(userId, accessToken, page, size);
-      setUsers(response.users);
+      setUsers(response.items);
     } catch (error) {
       toast.error("Failed to fetch users");
     }

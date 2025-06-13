@@ -15,8 +15,8 @@ const statusTabs = [
     { label: "APPROVED", value: "APPROVED" },
     { label: "REJECTED", value: "REJECTED" },
     { label: "COMPLETED", value: "COMPLETED" },
-    { label: "FAILED", value: "FAILED" },
-    { label: "NOT_RETURNED", value: "NOT_RETURNED" },
+    // { label: "FAILED", value: "FAILED" },
+    // { label: "NOT_RETURNED", value: "NOT_RETURNED" },
 ]
 
 const STATUS_BADGE: Record<string, string> = {
@@ -24,8 +24,8 @@ const STATUS_BADGE: Record<string, string> = {
     APPROVED: "bg-blue-100 text-blue-800",
     REJECTED: "bg-red-100 text-red-800",
     COMPLETED: "bg-green-100 text-green-800",
-    FAILED: "bg-gray-200 text-gray-800",
-    NOT_RETURNED: "bg-purple-100 text-purple-800",
+    // FAILED: "bg-gray-200 text-gray-800",
+    // NOT_RETURNED: "bg-purple-100 text-purple-800",
 }
 
 const RefundPage = () => {

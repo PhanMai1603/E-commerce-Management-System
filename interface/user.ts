@@ -12,7 +12,12 @@ export interface UserRole {
 }
 
 export interface UserDataResponse {
-    users: UserData[];
+    total: number,
+    totalPages: number,
+    page: number,
+    size: number,
+    hasMore: false,
+    items: UserData[];
 }
 
 
