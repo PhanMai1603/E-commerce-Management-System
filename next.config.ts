@@ -7,6 +7,7 @@
 // };
 
 // export default nextConfig;
+// next.config.js
 import type { NextConfig } from "next";
 
 module.exports = {

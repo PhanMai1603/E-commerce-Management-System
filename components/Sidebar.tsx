@@ -1,14 +1,15 @@
 import clsx from "clsx";
 import Link from "next/link";
 import Image from "next/image";
-import { 
- LayoutGrid, Users2, ChartNoAxesCombined, 
-Truck, ShoppingBag, UserRoundCog, TicketPercent,
+import {
+  LayoutGrid, Users2, ChartNoAxesCombined,
+  Truck, ShoppingBag, UserRoundCog, TicketPercent,
   Shirt,
   Package2,
   MessageSquareHeart,
   RefreshCcw,
-  CreditCard, 
+  CreditCard,
+  MessageCircle,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -25,7 +26,7 @@ const sidebarGroups = [
       { title: "Products", icon: Shirt, href: "/dashboard/products" },
       { title: "Orders", icon: ShoppingBag, href: "/dashboard/orders" },
       { title: "Coupons", icon: TicketPercent, href: "/dashboard/coupons" },
-      {title: "Review", icon:MessageSquareHeart, href: "/dashboard/review"},
+      { title: "Review", icon: MessageSquareHeart, href: "/dashboard/review" },
     ],
   },
   {
@@ -33,15 +34,16 @@ const sidebarGroups = [
     links: [
       { title: "Users", icon: Users2, href: "/dashboard/users" },
       { title: "Roles", icon: UserRoundCog, href: "/dashboard/role" },
-     
+
     ],
   },
   {
     title: "Other",
     links: [
-      {title: "Delivery", icon: Truck, href: "/dashboard/delivery" },
-      {title: "Return", icon:RefreshCcw, href: "/dashboard/refund"},
-      {title: "Transactions", icon:CreditCard, href: "/dashboard/transactions"}
+      { title: "Delivery", icon: Truck, href: "/dashboard/delivery" },
+      { title: "Return", icon: RefreshCcw, href: "/dashboard/refund" },
+      { title: "Transactions", icon: CreditCard, href: "/dashboard/transactions" },
+      { title: "Chat", icon: MessageCircle, href: "/dashboard/chat" }
     ],
   },
 ];
@@ -50,7 +52,7 @@ export default function Sidebar({ showSidebar }: SidebarProps) {
   return (
     <div
       className={clsx(
-        "fixed flex flex-col w-[260px] h-screen top-0 z-50 border-r bg-card shadow-md transition-all",
+        "fixed flex flex-col w-[260px] h-screen top-0 z-50 border-r bg-card shadow-md transition-all ",
         {
           "-left-[260px] lg:left-0": !showSidebar,
           "left-0 shadow-black shadow-lg lg:shadow-none": showSidebar,
@@ -71,18 +73,18 @@ export default function Sidebar({ showSidebar }: SidebarProps) {
       </div>
 
       {/* Điều hướng Sidebar theo nhóm */}
-      <nav className="p-4 space-y-4">
+      <nav className="p-4 space-y-3">
         {sidebarGroups.map((group, index) => (
           <div key={index}>
-            <h2 className="px-4 py-2 text-sm font-medium text-gray-500 ">
+            <h2 className="px-4 py-1.5 text-sm font-medium text-gray-500">
               {group.title}
             </h2>
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {group.links.map((item, idx) => (
                 <Link
                   key={idx}
                   href={item.href}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all"
+                  className="flex items-center gap-2.5 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all text-sm"
                 >
                   <item.icon size={20} />
                   <span>{item.title}</span>
@@ -92,6 +94,7 @@ export default function Sidebar({ showSidebar }: SidebarProps) {
           </div>
         ))}
       </nav>
+
 
     </div>
   );

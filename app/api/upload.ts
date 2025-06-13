@@ -79,7 +79,29 @@ export const uploadReviewImage = async (data: File, userId: string, accessToken:
             formData.append("review", data);
         }
 
-        const response = await api.patch(`${UPLOAD_URL}/reviews`, formData, {
+        const response = await api.post(`${UPLOAD_URL}/reviews`, formData, {
+            headers: {
+                "x-client-id": userId,
+                Authorization: accessToken,
+            },
+        });
+
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, "response.data.error.message", "Unknown error occurred.");
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+    }
+};
+
+export const uploadChat = async (data: File, userId: string, accessToken: string): Promise<string> => {
+    try {
+        const formData = new FormData();
+        if (data) {
+            formData.append("chat", data);
+        }
+
+        const response = await api.post(`${UPLOAD_URL}/chat`, formData, {
             headers: {
                 "x-client-id": userId,
                 Authorization: accessToken,

@@ -7,6 +7,7 @@ import { confirmRequest } from "@/app/api/refund";
 import { getPayment, manualRefund } from "@/app/api/payment";
 import type { ConfirmRequest, ConfirmRequestResponse } from "@/interface/refund";
 import type { PaymentResponse, Bank } from "@/interface/payment";
+import { uploadTransfer } from "@/app/api/upload";
 
 export default function ConfirmRefundPage() {
   const { id: refundLogId } = useParams() as { id: string };
@@ -107,8 +108,8 @@ export default function ConfirmRefundPage() {
             <div className="space-y-4">
               <div
                 className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${!isCash
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 bg-white hover:border-gray-300'
                   }`}
                 onClick={() => setIsCash(false)}
               >
@@ -135,8 +136,8 @@ export default function ConfirmRefundPage() {
 
               <div
                 className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${isCash
-                    ? 'border-green-500 bg-green-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-gray-200 bg-white hover:border-gray-300'
                   }`}
                 onClick={() => setIsCash(true)}
               >
@@ -300,14 +301,35 @@ export default function ConfirmRefundPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Link ảnh chuyển khoản</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Ảnh chuyển khoản</label>
                       <input
-                        type="text"
-                        placeholder="https://example.com/image.jpg"
-                        value={bankInfo.transferImage}
-                        onChange={(e) => setBankInfo({ ...bankInfo, transferImage: e.target.value })}
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          try {
+                            setIsLoading(true); // hiển thị loading nếu muốn
+                            const imageUrl = await uploadTransfer(file, userId, accessToken);
+                            setBankInfo((prev) => ({ ...prev, transferImage: imageUrl }));
+                          } catch (err: any) {
+                            setError(err.message || "Upload ảnh thất bại.");
+                          } finally {
+                            setIsLoading(false);
+                          }
+                        }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
+                      {bankInfo.transferImage && (
+                        <div className="mt-2">
+                          <img
+                            src={bankInfo.transferImage}
+                            alt="Ảnh chuyển khoản"
+                            className="w-40 h-auto rounded border"
+                          />
+                        </div>
+                      )}
+
                     </div>
                   </div>
 
