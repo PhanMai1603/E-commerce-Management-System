@@ -8,16 +8,12 @@ const ChatForm = () => {
     typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken =
     typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
-   const role =
-  typeof window !== "undefined" ? localStorage.getItem("role") || "user" : "";
+  const role =
+    typeof window !== "undefined" ? localStorage.getItem("role") || "user" : "";
 
   return (
     <div className="container mx-auto p-4">
- 
-
-<ChatUI userId={userId} accessToken={accessToken} role={role} />
-
-
+      <ChatUI userId={userId} accessToken={accessToken} role={role} />
     </div>
   );
 };

@@ -47,13 +47,16 @@ export function UserTable() {
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
 
- useEffect(() => {
+useEffect(() => {
   const fetchUsers = async () => {
     try {
       const response = query.trim()
-        ? await getSearchUser(userId, accessToken, page, size,query)
+        ? await getSearchUser(userId, accessToken, page, size, query)
         : await getAllUser(userId, accessToken, page, size);
+
       setUsers(response.items);
+      setTotalPages(response.totalPages); // ⚠️ Quan trọng
+      setTotalItems(response.total);      // ⚠️ Nếu bạn cần hiển thị tổng số người dùng
     } catch (error) {
       toast.error("Failed to fetch users");
     }
@@ -61,7 +64,6 @@ export function UserTable() {
 
   fetchUsers();
 }, [userId, accessToken, page, size, query]);
-
 
   // Hàm cập nhật trạng thái trong danh sách user
   const updateUserStatus = (userId: string, newStatus: string) => {
