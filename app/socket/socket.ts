@@ -11,14 +11,14 @@ export const connectSocket = (
     socket.disconnect();
   }
 
-  socket = io("https://shareandcareshop.onrender.com", {
-    auth: {
-      token,
-      deviceToken,
-      role: "admin", // 👈 ép cứng thành admin tại đây
-    },
-    autoConnect: false,
-  });
+ socket = io("https://shareandcareshop.onrender.com", {
+  auth: {
+    token,
+    deviceToken,
+    role: "admin",
+  }
+  // autoConnect: true là mặc định rồi
+});
 
   socket.connect();
 
