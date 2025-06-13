@@ -49,23 +49,23 @@ const ChatUI: React.FC<Props> = ({ userId, accessToken, role }) => {
         ...data.message,
         conversationId: data.conversationId, // Thêm dòng này nếu BE gửi kèm conversationId
       };
-if (msg.conversationId === selectedConversation) {
-  // Nếu đang xem cuộc trò chuyện đó thì hiển thị luôn
-  setMessages((prev) => [...prev, msg]);
-  setTimeout(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, 50);
-} else {
-  // Nếu là cuộc trò chuyện khác thì hiển thị badge đỏ
-  setNotificationConversations((prev) => new Set(prev).add(data.conversationId));
-}
+      if (msg.conversationId === selectedConversation) {
+        // Nếu đang xem cuộc trò chuyện đó thì hiển thị luôn
+        setMessages((prev) => [...prev, msg]);
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 50);
+      } else {
+        // Nếu là cuộc trò chuyện khác thì hiển thị badge đỏ
+        setNotificationConversations((prev) => new Set(prev).add(data.conversationId));
+      }
 
       getAllConversations(userId, accessToken)
         .then((res) => setConversations(res.items))
         .catch((err) => console.error("Error updating conversations", err));
     });
 
-socket?.on("refresh_conversations", (data) => {
+    socket?.on("refresh_conversations", (data) => {
       console.log("📩 refresh_conversations received:", data);
 
       getAllConversations(userId, accessToken)
@@ -108,11 +108,11 @@ socket?.on("refresh_conversations", (data) => {
 
   const handleSelectConversation = async (id: string) => {
     setSelectedConversation(id);
-   setNotificationConversations((prev) => {
-  const updated = new Set(prev);
-  updated.delete(id);
-  return updated;
-});
+    setNotificationConversations((prev) => {
+      const updated = new Set(prev);
+      updated.delete(id);
+      return updated;
+    });
 
     const res = await getMessage(id, userId, accessToken);
     setMessages(res.items.map(item => ({ ...item, conversationId: id })).reverse());
@@ -196,7 +196,7 @@ socket?.on("refresh_conversations", (data) => {
       <div className="flex items-center justify-center h-[80vh]">
         <div className="flex flex-col items-center space-y-4">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-600">Đang tải chat...</p>
+          <p className="text-gray-600">Loading chat...</p>
         </div>
       </div>
     );
@@ -208,10 +208,8 @@ socket?.on("refresh_conversations", (data) => {
       <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
         {/* Header */}
         <div className="p-4 bg-white border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-800">Tin nhắn</h2>
+          <h2 className="text-lg font-semibold text-gray-800">Chat</h2>
         </div>
-
-        {/* Conversations List */}
         {/* Conversations List */}
         <div className="flex-1 overflow-y-auto">
           {conversations.length === 0 ? (
@@ -248,9 +246,9 @@ socket?.on("refresh_conversations", (data) => {
                       </div>
                     )}
                   </div>
-                 {hasNotification && !isSelected && (
-  <span className="ml-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
-)}
+                  {hasNotification && !isSelected && (
+                    <span className="ml-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+                  )}
 
                 </div>
               );
@@ -298,10 +296,13 @@ socket?.on("refresh_conversations", (data) => {
               ) : (
                 <div className="space-y-4">
                   {messages.map((msg, i) => {
+                    // 👉 Bạn sửa TẠI ĐÂY
                     const isSelf = msg.userId?.id === userId;
                     const avatar = isValidUrl(msg.userId?.avatar || undefined)
                       ? msg.userId!.avatar
                       : "/avatar.jpg";
+
+                    if (!msg.content && !msg.image) return null; // ✅ THÊM DÒNG NÀY
 
                     return (
                       <div key={i} className={`flex ${isSelf ? "justify-end" : "justify-start"}`}>
@@ -314,8 +315,8 @@ socket?.on("refresh_conversations", (data) => {
                           />
                           <div className={`mx-2 ${isSelf ? "text-right" : "text-left"}`}>
                             <div className={`inline-block p-3 rounded-2xl max-w-full ${isSelf
-                                ? "bg-blue-500 text-white rounded-br-sm"
-                                : "bg-white text-gray-900 border border-gray-200 rounded-bl-sm shadow-sm"
+                              ? "bg-blue-500 text-white rounded-br-sm"
+                              : "bg-white text-gray-900 border border-gray-200 rounded-bl-sm shadow-sm"
                               }`}>
                               {msg.image && (
                                 <img

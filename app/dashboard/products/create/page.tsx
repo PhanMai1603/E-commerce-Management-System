@@ -56,10 +56,10 @@ export default function Page() {
       return;
     }
 
-    if (product.video === '') {
-      setErrorMessage("*Video URL is required.");
-      return;
-    }
+    // if (product.video === '') {
+    //   setErrorMessage("*Video URL is required.");
+    //   return;
+    // }
 
     if (product.name === '') {
       setErrorMessage("*Product name is required.");
