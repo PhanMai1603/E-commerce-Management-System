@@ -20,14 +20,14 @@ const DescriptionForm: React.FC<DescriptionFormProps> = ({ description, setProdu
   return (
     <Card className='col-span-3 flex flex-col'>
       <CardHeader>
-        <CardTitle className='text-base'>Add Product Description</CardTitle>
+        <CardTitle className='text-base'>Mô tả sản phẩm</CardTitle>
       </CardHeader>
 
       <CardContent className='flex flex-1'>
         <Textarea
           name='description'
           value={description}
-          placeholder='Enter product description...'
+          placeholder='Nhập mô tả sản phẩm...'
           onChange={handleChange}
           className='flex-1 overflow-y-auto'
         />

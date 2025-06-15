@@ -14,16 +14,16 @@ export default function ProductDescription({ product }: ProductDescriptionProps)
     <Card className="col-start-2 col-span-8 shadow-sm">
       <CardHeader className="pb-2">
         <CardTitle className="text-xl font-semibold flex items-center">
-          Details
+          Thông tin chi tiết
         </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Category Section */}
+        {/* Danh mục */}
         <div>
           <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
             <Tag size={16} className="text-gray-500" />
-            <span>Categories</span>
+            <span>Danh mục</span>
           </h3>
           <div className="flex flex-wrap gap-2 mt-1">
             {product.category.map((cat) => (
@@ -39,9 +39,9 @@ export default function ProductDescription({ product }: ProductDescriptionProps)
 
         <Separator />
 
-        {/* Description Section */}
+        {/* Mô tả */}
         <div>
-          <h3 className="text-sm font-medium mb-2">Description</h3>
+          <h3 className="text-sm font-medium mb-2">Mô tả sản phẩm</h3>
           <div className="rounded-md bg-gray-50 p-4">
             <p className="text-gray-700 leading-relaxed text-sm whitespace-pre-line">
               {product.description}
@@ -51,19 +51,19 @@ export default function ProductDescription({ product }: ProductDescriptionProps)
 
         <Separator />
 
-        {/* Product Specs */}
+        {/* Thông số */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <h3 className="text-sm font-medium mb-2">Quantity Available</h3>
+            <h3 className="text-sm font-medium mb-2">Số lượng còn lại</h3>
             <p className="text-gray-700 text-sm bg-gray-50 p-3 rounded-md font-medium">
-              {product.quantity} items
+              {product.quantity} sản phẩm
             </p>
           </div>
 
           <div>
-            <h3 className="text-sm font-medium mb-2">Return Policy</h3>
+            <h3 className="text-sm font-medium mb-2">Chính sách đổi trả</h3>
             <p className="text-gray-700 text-sm bg-gray-50 p-3 rounded-md font-medium">
-              {product.returnDays} days
+              Trong vòng {product.returnDays} ngày
             </p>
           </div>
         </div>

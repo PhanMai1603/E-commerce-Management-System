@@ -68,16 +68,16 @@ const SubImageForm: React.FC<SubImageFormProps> = ({ setSubImage }) => {
   return (
     <Card className='col-span-5'>
       <CardHeader className="relative">
-        <CardTitle className="text-base">Add Product Other Image</CardTitle>
+        <CardTitle className="text-base">Thêm ảnh phụ</CardTitle>
         <Button
           onClick={handleClear}
           variant="destructive"
           className="absolute top-2 right-2 h-6 w-6 p-0"
+          title="Xóa tất cả ảnh"
         >
           <Trash2 className="w-4 h-4" />
         </Button>
       </CardHeader>
-
 
       <CardContent className={`w-full ${images.length === 0 ? '' : 'space-y-4'}`}>
         <div className='w-full flex gap-x-6'>
@@ -85,7 +85,7 @@ const SubImageForm: React.FC<SubImageFormProps> = ({ setSubImage }) => {
             <div key={index} className='relative group'>
               <Image
                 src={image}
-                alt={image}
+                alt={`Ảnh phụ ${index + 1}`}
                 width={1000}
                 height={1000}
                 className='w-full h-56 object-contain rounded-md'
@@ -93,12 +93,14 @@ const SubImageForm: React.FC<SubImageFormProps> = ({ setSubImage }) => {
               <Button
                 onClick={() => handleDelete(index)}
                 className='absolute h-auto -top-2 -right-2 p-1 bg-red-300 hover:bg-red-500 [&_svg]:size-4'
+                title="Xóa ảnh này"
               >
                 <X />
               </Button>
             </div>
           ))}
         </div>
+
         <div className='w-auto'>
           <div
             className={`relative w-auto flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 group overflow-hidden ${images.length === 0 ? 'h-72 [&_svg]:size-8' : 'h-12 [&_svg]:size-5'}`}

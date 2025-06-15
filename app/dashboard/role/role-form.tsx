@@ -1,18 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
 import { LockKeyhole, Pencil, Plus, Trash2 } from "lucide-react";
 import { getAllRole, getRoleDetail, deleteRole, getSearchRole } from "@/app/api/role";
 import { Role, RoleDetailResponse } from "@/interface/role";
 import get from "lodash/get";
+
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import RoleDetails from "@/components/role/detail";
@@ -42,7 +39,7 @@ export function RoleTable() {
   const fetchRoles = useCallback(async () => {
     try {
       if (!userId || !accessToken) {
-        toast.error("User authentication is required.");
+        toast.error("Cần xác thực người dùng.");
         return;
       }
 
@@ -52,8 +49,7 @@ export function RoleTable() {
 
       setRoles(roleData.roles);
       setTotalPages(roleData.totalPages || 1);
-     setTotalItems(roleData.totalRoles || roleData.roles.length);
-
+      setTotalItems(roleData.totalRoles || roleData.roles.length);
 
       if (!selectedRole) {
         const adminRole = roleData.roles.find((r) => r.name === "Admin");
@@ -62,20 +58,20 @@ export function RoleTable() {
         }
       }
     } catch (error) {
-      toast.error(get(error, "response.data.error.message", "An unknown error occurred."));
+      toast.error(get(error, "response.data.error.message", "Đã xảy ra lỗi không xác định."));
     }
   }, [userId, accessToken, page, size, query, selectedRole]);
 
   const fetchRoleDetails = useCallback(async (roleId: string) => {
     try {
       if (!userId || !accessToken) {
-        toast.error("User authentication is required.");
+        toast.error("Cần xác thực người dùng.");
         return;
       }
       const details = await getRoleDetail(roleId, userId, accessToken);
       setRoleDetails(details);
     } catch (error) {
-      toast.error(get(error, "response.data.error.message", "An unknown error occurred."));
+      toast.error(get(error, "response.data.error.message", "Đã xảy ra lỗi khi lấy chi tiết."));
     }
   }, [userId, accessToken]);
 
@@ -91,13 +87,13 @@ export function RoleTable() {
 
   const handleDelete = async () => {
     if (!userId || !accessToken) {
-      toast.error("User authentication is required.");
+      toast.error("Cần xác thực người dùng.");
       return;
     }
 
     try {
       await deleteRole(roleToDelete, userId, accessToken);
-      toast.success("Role deleted successfully!");
+      toast.success("Xoá vai trò thành công!");
       setRoles((prevRoles) => prevRoles.filter((role) => role.id !== roleToDelete));
       setIsDeleteDialogOpen(false);
       if (selectedRole === roleToDelete) {
@@ -105,13 +101,13 @@ export function RoleTable() {
         setRoleDetails(null);
       }
     } catch (error) {
-      toast.error("Failed to delete role.");
+      toast.error("Xoá vai trò thất bại.");
     }
   };
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">All Role</h1>
+      <h1 className="text-2xl font-bold mb-6">Tất cả vai trò</h1>
       <div className="grid grid-cols-3 gap-4">
         <div className="col-span-1">
           <Card>
@@ -122,7 +118,7 @@ export function RoleTable() {
                     setQuery(query);
                     setPage(1);
                   }}
-                  placeholder="Search roles..."
+                  placeholder="Tìm kiếm vai trò..."
                   width="80%"
                 />
                 <Button
@@ -141,8 +137,8 @@ export function RoleTable() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>Tên vai trò</TableHead>
+                    <TableHead>Hành động</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -217,14 +213,14 @@ export function RoleTable() {
         <Dialog open={isDeleteDialogOpen} onOpenChange={(open) => setIsDeleteDialogOpen(open)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Are you sure you want to delete this role?</DialogTitle>
-              <DialogDescription>This action cannot be undone.</DialogDescription>
+              <DialogTitle>Bạn có chắc muốn xoá vai trò này?</DialogTitle>
+              <DialogDescription>Hành động này không thể hoàn tác.</DialogDescription>
             </DialogHeader>
             <div className="flex justify-end gap-2 mt-4">
               <Button onClick={() => setIsDeleteDialogOpen(false)} variant="outline">
-                Cancel
+                Huỷ
               </Button>
-              <Button onClick={handleDelete}>Delete</Button>
+              <Button onClick={handleDelete}>Xoá</Button>
             </div>
           </DialogContent>
         </Dialog>

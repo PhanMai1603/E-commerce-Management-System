@@ -1,3 +1,4 @@
+"use client";
 import { AttributeItem } from "@/interface/attribute";
 import {
   Card,
@@ -40,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 interface Props {
   attributes: AttributeItem[];
   loading: boolean;
@@ -56,7 +58,6 @@ export default function AttributeTable({
   attributes,
   loading,
   onEdit,
-  onView,
   page,
   setPage,
   size,
@@ -65,14 +66,13 @@ export default function AttributeTable({
 }: Props) {
   return (
     <div className="col-span-2">
-      <h1 className="text-2xl font-bold mb-6">All Attributes</h1>
+      <h1 className="text-2xl font-bold mb-6">Danh sách thuộc tính</h1>
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3 flex-wrap">
-            {/* Page size selector */}
             <div className="flex items-center gap-2">
               <label className="text-sm text-muted-foreground whitespace-nowrap">
-                Show:
+                Hiển thị:
               </label>
               <Select
                 value={size.toString()}
@@ -82,7 +82,7 @@ export default function AttributeTable({
                 }}
               >
                 <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm">
-                  <SelectValue placeholder="Select page size" />
+                  <SelectValue placeholder="Chọn số dòng" />
                 </SelectTrigger>
                 <SelectContent>
                   {[5, 10, 25, 50, 100].map((option) => (
@@ -93,7 +93,6 @@ export default function AttributeTable({
                 </SelectContent>
               </Select>
             </div>
-           
           </div>
         </CardHeader>
 
@@ -101,26 +100,23 @@ export default function AttributeTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[150px]">Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Value</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="w-[150px]">Tên thuộc tính</TableHead>
+                <TableHead>Loại</TableHead>
+                <TableHead>Giá trị</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center">
-                    Loading...
+                    Đang tải dữ liệu...
                   </TableCell>
                 </TableRow>
               ) : attributes.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    className="text-center text-gray-500"
-                  >
-                    No attributes available
+                  <TableCell colSpan={4} className="text-center text-gray-500">
+                    Không có thuộc tính nào.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -174,11 +170,8 @@ export default function AttributeTable({
                           <EllipsisVertical className="cursor-pointer" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onView(attr)}>
-                            View
-                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onEdit(attr.id)}>
-                            Edit
+                            Chỉnh sửa
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

@@ -15,16 +15,16 @@ import { uploadTransfer } from "@/app/api/upload"
 import { Order, OrderStatus, PaymentMethod, PaymentStatus } from "@/interface/order"
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
-  ALL: "All",
-  PENDING: "Pending Confirmation",
-  AWAITING_PAYMENT: "Awaiting Payment",
-  PROCESSING: "Processing Order",
-  READY_TO_SHIP: "Ready to Ship",
-  IN_TRANSIT: "In Transit",
-  DELIVERED: "Delivered",
-  CANCELLED: "Cancelled",
-  DELIVERY_FAILED: "Delivery Failed",
-  RETURN: "Returned",
+  ALL: "Tất cả",
+  PENDING: "Chờ xác nhận",
+  AWAITING_PAYMENT: "Chờ thanh toán",
+  PROCESSING: "Đang xử lý",
+  READY_TO_SHIP: "Sẵn sàng giao",
+  IN_TRANSIT: "Đang giao",
+  DELIVERED: " Đã giao",
+  CANCELLED: " Đã hủy",
+  DELIVERY_FAILED: "Không giao được",
+  RETURN: "Hoàn trả",
 }
 
 
@@ -41,29 +41,29 @@ const statusBadge: Record<OrderStatus, string> = {
 }
 
 const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
-  COD: "Cash on Delivery",
+  COD: "Thanh toán khi nhận hàng",
   VNPAY: "VNPay",
-  MOMO: "Momo",
-  MANUAL: "Bank Transfer",
-}
+  MOMO: "MoMo",
+  MANUAL: "Chuyển khoản ngân hàng",
+};
 
 const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
-  PENDING: "Pending",
-  CANCELLED: "Cancelled",
-  COMPLETED: "Completed",
-  FAILED: "Failed",
-  PENDING_REFUND: "Pending Refund",
-  REFUNDED: "Refunded",
-}
+  PENDING: "Đang chờ xử lý",
+  CANCELLED: "Đã hủy",
+  COMPLETED: "Hoàn tất",
+  FAILED: "Thất bại",
+  PENDING_REFUND: "Chờ hoàn tiền",
+  REFUNDED: "Đã hoàn tiền",
+};
 
 const PAYMENT_STATUS_BADGE: Record<PaymentStatus, string> = {
-  PENDING: "bg-yellow-100 text-yellow-800",
-  CANCELLED: "bg-red-100 text-red-800",
-  COMPLETED: "bg-green-100 text-green-800",
-  FAILED: "bg-red-200 text-red-900",
-  PENDING_REFUND: "bg-blue-100 text-blue-800",
-  REFUNDED: "bg-gray-200 text-gray-800",
-}
+  PENDING: "bg-yellow-100 text-yellow-800",       // Đang chờ xử lý
+  CANCELLED: "bg-red-100 text-red-800",           // Đã hủy
+  COMPLETED: "bg-green-100 text-green-800",       // Hoàn tất
+  FAILED: "bg-red-200 text-red-900",              // Thất bại
+  PENDING_REFUND: "bg-blue-100 text-blue-800",    // Chờ hoàn tiền
+  REFUNDED: "bg-gray-200 text-gray-800",          // Đã hoàn tiền
+};
 
 const isUpdatableStatus = (status: OrderStatus): boolean => {
   return ![
@@ -113,7 +113,7 @@ const PaymentModal = ({
                 </svg>
               </div>
               <div>
-                <h2 className="text-xl font-bold">Payment Information</h2>
+                <h2 className="text-xl font-bold">Thông tin thanh toán</h2>
                 <p className="text-blue-100 text-sm">Order ID: {orderId}</p>
               </div>
             </div>
@@ -133,7 +133,7 @@ const PaymentModal = ({
               {/* Bank Name */}
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700">
-                  Bank Name <span className="text-red-500">*</span>
+                  Tên Ngân hàng <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -154,7 +154,7 @@ const PaymentModal = ({
               {/* Card Number */}
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700">
-                  Card Number <span className="text-red-500">*</span>
+                  Số thẻ <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -175,7 +175,7 @@ const PaymentModal = ({
               {/* Cardholder Name */}
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700">
-                  Cardholder Name <span className="text-red-500">*</span>
+                  Tên chủ thẻ <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -211,9 +211,9 @@ const PaymentModal = ({
                           const accessToken = localStorage.getItem("accessToken") || ""
                           const url = await uploadTransfer(file, userId, accessToken)
                           setBankInfo({ ...bankInfo, transferImage: url })
-                          toast.success("Photo uploaded successfully.")
+                          toast.success("Đã tải ảnh lên thành công.")
                         } catch {
-                          toast.error("Image upload failed.")
+                          toast.error("Không tải được hình ảnh.")
                         }
                       }}
                       className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-white hover:bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
@@ -247,7 +247,7 @@ const PaymentModal = ({
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
-              Submit Payment
+              GỬI
             </button>
             <button
               onClick={onClose}
@@ -256,7 +256,7 @@ const PaymentModal = ({
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-              Cancel
+              HUỶ
             </button>
           </div>
         </div>
@@ -285,7 +285,7 @@ export default function OrderPage() {
       const res = await getAllOrder(userId, accessToken, 1, 100)
       setAllOrders(res.items)
     } catch (err) {
-      toast.error("Failed to load order list.")
+      toast.error("Không tải được danh sách đơn hàng.")
     } finally {
       setLoading(false)
     }
@@ -301,10 +301,10 @@ export default function OrderPage() {
       const userId = localStorage.getItem("userId") || ""
       const accessToken = localStorage.getItem("accessToken") || ""
       await updateOrderStatus(selectedOrderId, userId, accessToken)
-      toast.success("Order status updated successfully!")
+      toast.success("Trạng thái đơn hàng đã được cập nhật thành công!")
       fetchOrders()
     } catch (error) {
-      toast.error("Failed to update order status.")
+      toast.error("Không cập nhật được trạng thái đơn hàng.")
     } finally {
       setSelectedOrderId(null)
     }
@@ -315,13 +315,13 @@ export default function OrderPage() {
     const accessToken = localStorage.getItem("accessToken") || ""
 
     if (!bankInfo.transferImage) {
-      toast.error("Please upload transfer photo first.")
+      toast.error("Vui lòng tải ảnh.")
       return
     }
 
     try {
       await codManualRefund(bankInfo, orderId, userId, accessToken)
-      toast.success("Payment request has been sent.")
+      toast.success("Yêu cầu thanh toán đã được gửi.")
       setShowBankFormForOrder(null)
       setBankInfo({
         bankName: "",
@@ -331,7 +331,7 @@ export default function OrderPage() {
       })
       fetchOrders()
     } catch {
-      toast.error("Failed to submit payment.")
+      toast.error("Không thể gửi thanh toán.")
     }
   }
 
@@ -353,9 +353,9 @@ export default function OrderPage() {
     <div key={order.id} className="rounded-lg border p-4 mb-4 bg-white dark:bg-muted">
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div className="space-y-1 text-sm">
-          <p><strong>ID:</strong> {order.id}</p>
-          <p><strong>Ordered Date:</strong> {new Date(order.createdAt).toLocaleString()}</p>
-          <p><strong>Delivery:</strong> {order.deliveryMethod}</p>
+          <p><strong>Mã đơn hàng:</strong> {order.id}</p>
+          <p><strong>Ngày đặt hàng:</strong> {new Date(order.createdAt).toLocaleString()}</p>
+          <p><strong>Loại vận chuyển:</strong> {order.deliveryMethod}</p>
         </div>
 
         <div className="flex flex-col gap-1 text-sm text-right">
@@ -372,7 +372,7 @@ export default function OrderPage() {
             <img src={item.image} alt={item.productName} className="w-12 h-12 object-cover rounded border" />
             <div className="flex-1 text-sm">
               <p className="font-medium">{item.productName}</p>
-              <p className="text-muted-foreground">Quantity: {item.quantity}</p>
+              <p className="text-muted-foreground">Số lượng: {item.quantity}</p>
             </div>
           </div>
         ))}
@@ -380,7 +380,7 @@ export default function OrderPage() {
 
       <div className="flex justify-between items-end gap-2 pt-4">
         <div className="space-y-1 text-sm">
-          <p><strong>Payment:</strong> {PAYMENT_METHOD_LABELS[order.paymentMethod as PaymentMethod]}</p>
+          <p><strong>Phương thức thanh toán:</strong> {PAYMENT_METHOD_LABELS[order.paymentMethod as PaymentMethod]}</p>
           <p>
             <span className={`inline-block px-2 py-1 rounded ${PAYMENT_STATUS_BADGE[order.paymentStatus as PaymentStatus]}`}>
               {PAYMENT_STATUS_LABELS[order.paymentStatus as PaymentStatus]}
@@ -390,14 +390,14 @@ export default function OrderPage() {
 
         <div className="flex items-center gap-2">
           <Link href={`/dashboard/orders/${order.id}`}>
-            <button className="px-3 py-1 text-sm rounded bg-blue-100 text-blue-800 hover:bg-blue-200 transition">Details</button>
+            <button className="px-3 py-1 text-sm rounded bg-blue-100 text-blue-800 hover:bg-blue-200 transition">Chi tiết</button>
           </Link>
           {isUpdatableStatus(order.status as OrderStatus) && (
             <button
               onClick={() => setSelectedOrderId(order.id)}
               className="px-3 py-1 text-sm rounded bg-gray-100 text-gray-800 hover:bg-gray-200 transition"
             >
-              Update
+              Cập nhật
             </button>
           )}
 
@@ -408,7 +408,7 @@ export default function OrderPage() {
                 onClick={() => setShowBankFormForOrder(order.id)}
                 className="px-3 py-1 text-sm rounded bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition"
               >
-                Pay
+                Xác nhận
               </button>
             )}
 
@@ -417,10 +417,10 @@ export default function OrderPage() {
 
       {selectedOrderId === order.id && (
         <div className="mt-3 bg-gray-50 border rounded p-3 text-sm">
-          <p>Do you want to update the order status?</p>
+          <p>Bạn có muốn cập nhật trạng thái đơn hàng không?</p>
           <div className="flex gap-2 mt-2">
-            <button onClick={confirmEdit} className="px-3 py-1 rounded bg-green-100 text-green-800 hover:bg-green-200">Confirm</button>
-            <button onClick={() => setSelectedOrderId(null)} className="px-3 py-1 rounded bg-red-100 text-red-800 hover:bg-red-200">Cancel</button>
+            <button onClick={confirmEdit} className="px-3 py-1 rounded bg-green-100 text-green-800 hover:bg-green-200">Xác nhận</button>
+            <button onClick={() => setSelectedOrderId(null)} className="px-3 py-1 rounded bg-red-100 text-red-800 hover:bg-red-200">Huỷ</button>
           </div>
         </div>
       )}
@@ -435,7 +435,7 @@ export default function OrderPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-semibold mb-4">Orders</h1>
+      <h1 className="text-xl font-semibold mb-4">Danh sách đơn hàng</h1>
       <Tabs defaultValue="ALL" className="w-full">
         <TabsList className="w-full h-14 overflow-x-auto whitespace-nowrap rounded-lg bg-gray-100 dark:bg-gray-800 p-2">
           {statusTabs.map((status) => (

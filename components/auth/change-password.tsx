@@ -30,15 +30,15 @@ export default function ChangePasswordModal({ open, onClose }: Props) {
       const accessToken = localStorage.getItem('accessToken');
 
       if (!userId || !accessToken) {
-        toast.error('You are not logged in or the information is invalid!');
+        toast.error('Bạn chưa đăng nhập hoặc thông tin không hợp lệ!');
         return;
       }
 
       await changePassword({ oldPassword, newPassword }, userId, accessToken);
-      toast.success('Password changed successfully!');
+      toast.success('Đổi mật khẩu thành công!');
       onClose();
     } catch {
-      toast.error('Unable to change password. Please try again!');
+      toast.error('Không thể đổi mật khẩu. Vui lòng thử lại!');
     } finally {
       setLoading(false);
     }
@@ -50,13 +50,13 @@ export default function ChangePasswordModal({ open, onClose }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl p-6 w-full max-w-md relative animate-fade-in">
         <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">
-          Change Password
+          Đổi mật khẩu
         </h2>
 
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Old Password
+              Mật khẩu cũ
             </label>
             <Input
               type="password"
@@ -67,7 +67,7 @@ export default function ChangePasswordModal({ open, onClose }: Props) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              New Password
+              Mật khẩu mới
             </label>
             <Input
               type="password"
@@ -80,7 +80,7 @@ export default function ChangePasswordModal({ open, onClose }: Props) {
 
         <div className="mt-6 flex justify-end gap-2">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            Hủy
           </Button>
           <Button onClick={handleChangePassword} disabled={loading}>
             {loading ? 'Đang lưu...' : 'Lưu'}

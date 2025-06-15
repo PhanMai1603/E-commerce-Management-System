@@ -49,6 +49,7 @@ export default function UnrepliedReviewsPage() {
   const [filter, setFilter] = useState<"all" | "unreplied" | "replied">("all");
 
   const router = useRouter();
+
   const formatDateTime = (iso: string) => {
     const d = new Date(iso);
     const day = String(d.getDate()).padStart(2, "0");
@@ -80,7 +81,7 @@ export default function UnrepliedReviewsPage() {
       }
       setReviews(data.items || []);
     } catch (err) {
-      toast.error("Error loading review");
+      toast.error("Lỗi khi tải danh sách đánh giá");
     } finally {
       setLoading(false);
     }
@@ -99,16 +100,16 @@ export default function UnrepliedReviewsPage() {
   const handleHide = async (id: string) => {
     try {
       await hideReview(id, userId, accessToken);
-      toast.success("Review hidden successfully");
-      fetchReviews(); // Refresh list
+      toast.success("Đã ẩn đánh giá thành công");
+      fetchReviews(); // Làm mới lại danh sách
     } catch (error) {
-      // Error đã xử lý trong API
+      // Lỗi đã được xử lý ở API
     }
   };
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold">All Review</h1>
+      <h1 className="text-2xl font-semibold">Danh sách đánh giá</h1>
       <Card>
         <CardHeader>
           <div className="flex items-end justify-end">
@@ -118,13 +119,13 @@ export default function UnrepliedReviewsPage() {
                 setFilter(value as "all" | "unreplied" | "replied")
               }
             >
-              <SelectTrigger className="w-[110px]">
+              <SelectTrigger className="w-[130px]">
                 <SelectValue placeholder="Lọc đánh giá" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="unreplied">Unreplied</SelectItem>
-                <SelectItem value="replied">Replied</SelectItem>
+                <SelectItem value="all">Tất cả</SelectItem>
+                <SelectItem value="unreplied">Chưa phản hồi</SelectItem>
+                <SelectItem value="replied">Đã phản hồi</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -141,11 +142,11 @@ export default function UnrepliedReviewsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Image</TableHead>
-                  <TableHead>Content</TableHead>
-                  <TableHead>Star</TableHead>
-                  <TableHead>Date & Time</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead>Hình ảnh</TableHead>
+                  <TableHead>Nội dung</TableHead>
+                  <TableHead>Số sao</TableHead>
+                  <TableHead>Thời gian</TableHead>
+                  <TableHead className="text-right">Hành động</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -153,33 +154,27 @@ export default function UnrepliedReviewsPage() {
                   <TableRow key={review.id}>
                     <TableCell>
                       {review.images.length > 0 && (
-                        <div className="flex flex-wrap gap-3">
-
-                          <img
-                            key="only-image"
-                            src={review.images[0]}
-                            alt="Review Image"
-                            className="w-12 h-12 object-cover rounded-lg border shadow-sm"
-                          />
-                        </div>
+                        <img
+                          key="only-image"
+                          src={review.images[0]}
+                          alt="Hình đánh giá"
+                          className="w-12 h-12 object-cover rounded-lg border shadow-sm"
+                        />
                       )}
-
                     </TableCell>
                     <TableCell className="max-w-sm truncate text-sm">
                       {review.content}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-yellow-500">
-                        {[...Array(Math.max(0, Math.floor(Number(review.star) || 0)))].map((_, i) => (
+                        {[...Array(Math.floor(Number(review.star) || 0))].map((_, i) => (
                           <Star key={i} size={14} fill="currentColor" />
                         ))}
                       </div>
                     </TableCell>
-
                     <TableCell className="text-sm text-muted-foreground">
                       {formatDateTime(review.createdAt)}
                     </TableCell>
-
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger>
@@ -187,15 +182,15 @@ export default function UnrepliedReviewsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onSelect={() => handleView(review.id)}>
-                            View
+                            Xem chi tiết
                           </DropdownMenuItem>
                           <DropdownMenuItem onSelect={() => handleHide(review.id)}>
-                            Hide review
+                            Ẩn đánh giá
                           </DropdownMenuItem>
                           {/* <DropdownMenuItem
                             onSelect={() => router.push(`/dashboard/review/${review.id}#reply`)}
                           >
-                            Reply
+                            Phản hồi
                           </DropdownMenuItem> */}
                         </DropdownMenuContent>
                       </DropdownMenu>

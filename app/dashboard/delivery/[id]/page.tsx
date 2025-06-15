@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DeliveryDataResponse } from "@/interface/delivery"; // Import interface
+import { DeliveryDataResponse } from "@/interface/delivery";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getDeliveryDetail } from "@/app/api/delivery";
@@ -12,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 export default function Page() {
-  const { id } = useParams(); // Lấy id từ URL
+  const { id } = useParams();
   const [delivery, setDelivery] = useState<DeliveryDataResponse>({
     id: "",
     name: "",
@@ -20,25 +21,23 @@ export default function Page() {
     maxDistance: 0,
     baseFee: 0,
     pricing: [],
-    isActive: false,  // Trạng thái là active hay inactive
+    isActive: false,
   });
   const router = useRouter();
-  const userId =
-    typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
-  const accessToken =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
+  const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
+  const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
 
   useEffect(() => {
     const fetchDeliveryDetail = async () => {
       try {
         if (!id || !userId || !accessToken) {
-          toast.error("User authentication is required.");
+          toast.error("Cần đăng nhập để xem thông tin giao hàng.");
           return;
         }
         const data = await getDeliveryDetail(Array.isArray(id) ? id[0] : id, userId, accessToken);
-        setDelivery(data);  // Dữ liệu trả về sẽ có kiểu DeliveryDataResponse
+        setDelivery(data);
       } catch (error) {
-        toast.error("Failed to fetch delivery details.");
+        toast.error("Không thể tải thông tin giao hàng.");
       }
     };
 
@@ -49,7 +48,7 @@ export default function Page() {
     const updatedPricing = [...delivery.pricing];
     updatedPricing[index] = {
       ...updatedPricing[index],
-      [field]: field === 'threshold' ? parseInt(value) : parseFloat(value),
+      [field]: field === "threshold" ? parseInt(value) : parseFloat(value),
     };
     setDelivery({ ...delivery, pricing: updatedPricing });
   };
@@ -57,72 +56,68 @@ export default function Page() {
   return (
     <div>
       <div className="grid grid-cols-2 gap-4">
+        {/* Cột trái */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Detail Delivery Information</CardTitle>
+            <CardTitle className="text-base">Thông tin giao hàng</CardTitle>
           </CardHeader>
 
           <CardContent className="grid grid-cols-2 gap-x-4 gap-y-6">
             <div className="grid col-span-2 gap-x-4 gap-y-6">
-              {/* Delivery Name */}
               <div className="col-span-2">
-                <Label>Delivery Name</Label>
+                <Label>Tên phương thức giao hàng</Label>
                 <Input
                   name="name"
                   value={delivery.name}
                   type="text"
-                  placeholder="Enter delivery name"
+                  placeholder="Nhập tên phương thức giao hàng"
                   readOnly
                 />
               </div>
 
-              {/* Max Distance & Base Fee trên cùng một dòng */}
               <div className="col-span-1">
-                <Label>Max Distance (km)</Label>
+                <Label>Khoảng cách tối đa (km)</Label>
                 <Input
                   name="maxDistance"
                   value={delivery.maxDistance}
                   type="number"
-                  placeholder="Enter max distance"
+                  placeholder="Nhập khoảng cách tối đa"
                   readOnly
                 />
               </div>
               <div className="col-span-1">
-                <Label>Base Fee</Label>
+                <Label>Phí cơ bản (VNĐ)</Label>
                 <Input
                   name="baseFee"
                   value={delivery.baseFee}
                   type="number"
-                  placeholder="Enter base fee"
+                  placeholder="Nhập phí cơ bản"
                   readOnly
                 />
               </div>
 
-              {/* Hiển thị Pricing */}
+              {/* Bảng giá theo km */}
               {delivery.pricing && delivery.pricing.length > 0 && (
                 <div className="col-span-2 grid grid-cols-1 gap-4">
-                  <Label>Fee Per Km</Label>
+                  <Label>Giá theo khoảng cách</Label>
                   {delivery.pricing.map((tier, index) => (
                     <div key={index} className="grid grid-cols-2 gap-4 items-end border p-2 rounded-md">
-                      {/* Threshold */}
                       <div>
-                        <Label>Threshold (Km)</Label>
+                        <Label>Ngưỡng (Km)</Label>
                         <Input
                           type="number"
                           value={tier.threshold}
-                          placeholder="Enter threshold"
-                          onChange={(e) => handlePricingChange(index, 'threshold', e.target.value)}
+                          placeholder="Nhập ngưỡng km"
+                          onChange={(e) => handlePricingChange(index, "threshold", e.target.value)}
                         />
                       </div>
-
-                      {/* Fee Per Km */}
                       <div>
-                        <Label>Fee Per Km</Label>
+                        <Label>Phí mỗi km (VNĐ)</Label>
                         <Input
                           type="number"
                           value={tier.feePerKm}
-                          placeholder="Enter fee per km"
-                          onChange={(e) => handlePricingChange(index, 'feePerKm', e.target.value)}
+                          placeholder="Nhập phí mỗi km"
+                          onChange={(e) => handlePricingChange(index, "feePerKm", e.target.value)}
                         />
                       </div>
                     </div>
@@ -130,11 +125,10 @@ export default function Page() {
                 </div>
               )}
 
-              {/* Hiển thị trạng thái */}
               <div className="col-span-2">
-                <Label>Status</Label>
+                <Label>Trạng thái</Label>
                 <Input
-                  value={delivery.isActive ? "Available" : "Unavailable"}
+                  value={delivery.isActive ? "Đang hoạt động" : "Ngừng hoạt động"}
                   readOnly
                 />
               </div>
@@ -142,26 +136,26 @@ export default function Page() {
           </CardContent>
         </Card>
 
-        {/* Cột phải */}
+        {/* Cột phải: mô tả */}
         <Card className="col-span-1 flex flex-col h-full">
           <CardHeader>
-            <CardTitle className="text-base">Delivery Description</CardTitle>
+            <CardTitle className="text-base">Mô tả phương thức giao hàng</CardTitle>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col">
             <Textarea
               name="description"
               value={delivery.description}
-              placeholder="Enter product description..."
+              placeholder="Nhập mô tả..."
               className="flex-1 h-full resize-none"
               readOnly
             />
           </CardContent>
         </Card>
-
       </div>
 
+      {/* Nút quay lại */}
       <div className="flex justify-end mt-6">
-        <Button onClick={() => router.push("/dashboard/delivery")}>Back</Button>
+        <Button onClick={() => router.push("/dashboard/delivery")}>Quay lại</Button>
       </div>
     </div>
   );

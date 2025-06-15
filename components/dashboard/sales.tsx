@@ -20,7 +20,7 @@ export default function Page() {
         const data = await getSale(userId, accessToken);
         setStatistics(data);
       } catch (error) {
-        console.error("Failed to fetch statistics:", error);
+        console.error("Không thể tải thống kê:", error);
       } finally {
         setLoading(false);
       }
@@ -33,10 +33,10 @@ export default function Page() {
 
   return (
     <div className='grid grid-cols-4 gap-4'>
-      {/* Total Orders */}
+      {/* Tổng số đơn hàng */}
       <Card className='col-span-1'>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className='text-base'>Total Orders</CardTitle>
+          <CardTitle className='text-base'>Tổng đơn hàng</CardTitle>
           <ShoppingBag className="w-5 h-5 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -48,10 +48,10 @@ export default function Page() {
         </CardContent>
       </Card>
 
-      {/* Total Products */}
+      {/* Tổng số sản phẩm */}
       <Card className='col-span-1'>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className='text-base'>Total Products</CardTitle>
+          <CardTitle className='text-base'>Tổng sản phẩm</CardTitle>
           <Box className="w-5 h-5 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -63,10 +63,10 @@ export default function Page() {
         </CardContent>
       </Card>
 
-      {/* Total Users */}
+      {/* Tổng số người dùng */}
       <Card className='col-span-1'>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className='text-base'>Total Users</CardTitle>
+          <CardTitle className='text-base'>Tổng người dùng</CardTitle>
           <Users className="w-5 h-5 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -78,10 +78,10 @@ export default function Page() {
         </CardContent>
       </Card>
 
-      {/* Total Sold Products */}
+      {/* Tổng số sản phẩm đã bán */}
       <Card className='col-span-1'>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className='text-base'>Sold Products</CardTitle>
+          <CardTitle className='text-base'>Sản phẩm đã bán</CardTitle>
           <Layers className="w-5 h-5 text-muted-foreground" />
         </CardHeader>
         <CardContent>

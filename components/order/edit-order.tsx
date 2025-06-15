@@ -21,15 +21,15 @@ export const OrderStatusModal = ({ open, onClose, onConfirm }: OrderStatusModalP
         >
           <X className="h-5 w-5" />
         </button>
-        <h2 className="text-lg font-semibold mb-2">Confirm Order Status Update</h2>
+        <h2 className="text-lg font-semibold mb-2">Xác nhận cập nhật trạng thái đơn</h2>
         <p className="text-sm text-gray-600 mb-6">
-          Are you sure you want to update the status of this order? This action cannot be undone.
+          Bạn có chắc chắn muốn cập nhật trạng thái của đơn hàng này không? Hành động này sẽ không thể hoàn tác.
         </p>
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            Huỷ
           </Button>
-          <Button onClick={onConfirm}>Confirm</Button>
+          <Button onClick={onConfirm}>Xác nhận</Button>
         </div>
       </div>
     </div>

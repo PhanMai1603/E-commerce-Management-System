@@ -50,7 +50,6 @@ const LimitCouponForm: React.FC<LimitCouponFormProps> = ({
     const fetchData = async () => {
       if (!coupon.targetType) return;
 
-      // Reset
       setCategories([]);
       setProducts([]);
 
@@ -66,21 +65,18 @@ const LimitCouponForm: React.FC<LimitCouponFormProps> = ({
           setTotalPages(response.totalPages);
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Lỗi khi tải dữ liệu:", error);
       }
     };
 
     fetchData();
-  }, [coupon.targetType, userId, accessToken]); // 👈 Thêm đầy đủ dependency
-
+  }, [coupon.targetType, userId, accessToken]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     let newValue: string | number | null = value;
 
-    if (
-      ["value", "minValue", "maxValue", "maxUses", "maxUsesPerUser"].includes(name)
-    ) {
+    if (["value", "minValue", "maxValue", "maxUses", "maxUsesPerUser"].includes(name)) {
       newValue = value === "" ? null : Math.max(0, Number(value));
     }
 
@@ -101,12 +97,12 @@ const LimitCouponForm: React.FC<LimitCouponFormProps> = ({
   return (
     <Card className="col-span-1">
       <CardHeader>
-        <CardTitle className="text-base">Add Coupon Limit</CardTitle>
+        <CardTitle className="text-base">Giới hạn mã giảm giá</CardTitle>
       </CardHeader>
 
       <CardContent className="grid grid-cols-2 gap-4">
         <div className="space-y-2 col-span-1">
-          <Label>Min Value</Label>
+          <Label>Giá trị tối thiểu</Label>
           <Input
             type="number"
             name="minValue"
@@ -116,7 +112,7 @@ const LimitCouponForm: React.FC<LimitCouponFormProps> = ({
         </div>
 
         <div className="space-y-2 col-span-1">
-          <Label>Max Value</Label>
+          <Label>Giá trị tối đa</Label>
           <Input
             type="number"
             name="maxValue"
@@ -126,7 +122,7 @@ const LimitCouponForm: React.FC<LimitCouponFormProps> = ({
         </div>
 
         <div className="space-y-2">
-          <Label>Max Uses</Label>
+          <Label>Tổng số lượt sử dụng</Label>
           <Input
             type="number"
             name="maxUses"
@@ -136,7 +132,7 @@ const LimitCouponForm: React.FC<LimitCouponFormProps> = ({
         </div>
 
         <div className="space-y-2">
-          <Label>Max Uses Per User</Label>
+          <Label>Số lượt mỗi người</Label>
           <Input
             type="number"
             name="maxUsesPerUser"
@@ -146,17 +142,17 @@ const LimitCouponForm: React.FC<LimitCouponFormProps> = ({
         </div>
 
         <div className="space-y-2 col-span-2">
-          <Label>Applies to</Label>
+          <Label>Áp dụng cho</Label>
           <Select value={coupon.targetType} onValueChange={handleSelectTargetType}>
             <SelectTrigger className="flex h-10 hover:bg-gray-600/10">
-              <SelectValue placeholder="Select applicable target" />
+              <SelectValue placeholder="Chọn đối tượng áp dụng" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="Order">Order</SelectItem>
-                <SelectItem value="Delivery">Delivery</SelectItem>
-                <SelectItem value="Category">Category</SelectItem>
-                <SelectItem value="Product">Product</SelectItem>
+                <SelectItem value="Order">Đơn hàng</SelectItem>
+                <SelectItem value="Delivery">Vận chuyển</SelectItem>
+                <SelectItem value="Category">Danh mục</SelectItem>
+                <SelectItem value="Product">Sản phẩm</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -164,17 +160,17 @@ const LimitCouponForm: React.FC<LimitCouponFormProps> = ({
 
         {coupon.targetType === "Category" && (
           <div className="space-y-2 col-span-2">
-            <Label>Select Category</Label>
+            <Label>Chọn danh mục</Label>
             <CategorySelection
               setProduct={setProduct}
-              setCoupon={setCoupon} // 👈 thêm dòng này
+              setCoupon={setCoupon}
             />
           </div>
         )}
 
         {coupon.targetType === "Product" && (
           <div className="space-y-2 col-span-2">
-            <Label>Select Products</Label>
+            <Label>Chọn sản phẩm</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -182,8 +178,8 @@ const LimitCouponForm: React.FC<LimitCouponFormProps> = ({
                   className="w-full justify-start text-left"
                 >
                   {coupon.targetIds.length > 0
-                    ? `${coupon.targetIds.length} product(s) selected`
-                    : "Select products"}
+                    ? `Đã chọn ${coupon.targetIds.length} sản phẩm`
+                    : "Chọn sản phẩm"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full max-h-60 overflow-y-auto">

@@ -32,21 +32,19 @@ export function TableDemo() {
   const [deliveries, setDeliveries] = useState<DeliveriesData[]>([]);
   const router = useRouter();
 
-  // Get userId and accessToken from localStorage
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
 
-  // Fetch delivery data
   const fetchDeliveries = useCallback(async () => {
     try {
       if (!userId || !accessToken) {
-        toast.error("User authentication is required.");
+        toast.error("Yêu cầu xác thực người dùng.");
         return;
       }
       const response = await getAllDelivery(userId, accessToken);
       setDeliveries(response.deliveries);
     } catch (error) {
-      const errorMessage = get(error, "message", "An unknown error occurred.");
+      const errorMessage = get(error, "message", "Có lỗi xảy ra.");
       toast.error(errorMessage);
     }
   }, [userId, accessToken]);
@@ -55,19 +53,17 @@ export function TableDemo() {
     fetchDeliveries();
   }, [fetchDeliveries]);
 
-  // Handle view action
   const handleView = (delivery: DeliveriesData) => {
     router.push(`/dashboard/delivery/${delivery.id}`);
   };
 
-  // Handle edit action
   const handleEdit = (id: string) => {
     router.push(`/dashboard/delivery/${id}/edit`);
   };
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">All Deliveries</h1>
+      <h1 className="text-2xl font-bold mb-6">Danh sách phương thức giao hàng</h1>
       <Card>
         <CardHeader className="flex flex-row items-center justify-end pb-0">
           <Button
@@ -75,7 +71,7 @@ export function TableDemo() {
             className="flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
-            Add Delivery
+            Thêm phương thức
           </Button>
         </CardHeader>
 
@@ -83,10 +79,10 @@ export function TableDemo() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>Tên</TableHead>
+                <TableHead>Mô tả</TableHead>
+                <TableHead>Trạng thái</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -103,7 +99,7 @@ export function TableDemo() {
                           : "bg-[#FF563029] text-[#B71D18]"
                           }`}
                       >
-                        {delivery.isActive ? "Available" : "Unavailable"}
+                        {delivery.isActive ? "Đang hoạt động" : "Ngừng hoạt động"}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
@@ -113,10 +109,10 @@ export function TableDemo() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => handleView(delivery)}>
-                            View
+                            Xem chi tiết
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleEdit(delivery.id)}>
-                            Edit
+                            Chỉnh sửa
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -125,8 +121,8 @@ export function TableDemo() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">
-                    No deliveries found.
+                  <TableCell colSpan={4} className="text-center">
+                    Không có phương thức giao hàng nào.
                   </TableCell>
                 </TableRow>
               )}
@@ -135,10 +131,9 @@ export function TableDemo() {
         </CardContent>
 
         <CardFooter className="border-t pt-3 flex justify-end">
-          <span className="text-sm text-gray-500">Total delivery: {deliveries.length}</span>
+          <span className="text-sm text-gray-500">Tổng số: {deliveries.length}</span>
         </CardFooter>
       </Card>
-
     </div>
   );
 }

@@ -27,9 +27,9 @@ const RETURN_FLOW: StatusStep[] = [
   {
     index: 99,
     name: "RETURN",
-    label: "Returned",
+    label: "Hoàn trả",
     icon: RotateCcw,
-    description: "Item has been returned by the customer",
+    description: "Sản phẩm đã được khách hàng hoàn trả",
   },
 ];
 
@@ -39,78 +39,80 @@ const CODStatus: StatusStep[] = [
   {
     index: 0,
     name: "PENDING",
-    label: "Order Placed",
+    label: "Chờ xác nhận",
     icon: ClipboardList,
-    description: "We have received your order",
+    description: "Chúng tôi đã nhận được đơn hàng của bạn",
   },
   {
     index: 1,
     name: "PROCESSING",
-    label: "Processing",
+    label: "Đang xử lý",
     icon: Package,
-    description: "Your items are being prepared",
+    description: "Đơn hàng của bạn đang được chuẩn bị",
   },
   {
     index: 2,
     name: "READY_TO_SHIP",
-    label: "Ready to Ship",
+    label: "Sẵn sàng giao",
     icon: Clock,
-    description: "Waiting for the courier to collect the parcel",
+    description: "Đang chờ đơn vị vận chuyển đến lấy hàng",
   },
   {
     index: 3,
-    name: "IN_TRANSIT",
-    label: "In Transit",
+    name: "In Transit",
+    label: "Đang giao",
     icon: Truck,
-    description: "Your order is on the way to your address",
+    description: "Đơn hàng đang được giao đến bạn",
   },
   {
     index: 4,
     name: "DELIVERED",
-    label: "Delivered",
+    label: "Đã giao",
     icon: CheckCircle,
-    description: "Your package has been delivered successfully",
+    description: "Đơn hàng đã được giao thành công",
   },
 ];
+
 
 
 const VNPayStatus: StatusStep[] = [
   {
     index: 0,
     name: "AWAITING_PAYMENT",
-    label: "Awaiting Payment",
+    label: "Chờ thanh toán",
     icon: Clock,
-    description: "Please complete your payment to proceed",
+    description: "Vui lòng hoàn tất thanh toán để tiếp tục xử lý đơn hàng",
   },
   {
     index: 1,
     name: "PROCESSING",
-    label: "Processing",
+    label: "Đang xử lý",
     icon: Package,
-    description: "We are preparing your order",
+    description: "Chúng tôi đang chuẩn bị đơn hàng của bạn",
   },
   {
     index: 2,
-    name: "READY_TO_SHIP",
+    name: "Sẵn sàng giao",
     label: "Ready to Ship",
     icon: Clock,
-    description: "Your order is ready for dispatch",
+    description: "Đơn hàng của bạn đã sẵn sàng để giao",
   },
   {
     index: 3,
     name: "IN_TRANSIT",
-    label: "In Transit",
+    label: "Đang giao",
     icon: Truck,
-    description: "Your order is on the way",
+    description: "Đơn hàng đang trên đường đến bạn",
   },
   {
     index: 4,
     name: "DELIVERED",
-    label: "Delivered",
+    label: "Đã giao",
     icon: CheckCircle,
-    description: "Your package has been delivered",
+    description: "Đơn hàng đã được giao thành công",
   },
 ];
+
 
 const MOMOStatus = [...VNPayStatus];
 
@@ -172,14 +174,14 @@ export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
     <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 col-span-3">
       <div className="p-6">
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Order Status</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Trạng thái đơn hàng</h3>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-medium border border-purple-200">
               {paymentMethod === "COD"
-                ? "Cash on Delivery"
+                ? "Thanh toán khi nhận hàng"
                 : paymentMethod === "MOMO"
-                ? "MoMo Payment"
-                : "VNPay Payment"}
+                ? "MoMo"
+                : "VNPay"}
             </span>
 
             <span
@@ -191,7 +193,7 @@ export default function OrderTimeline({ paymentMethod, currentStatus }: Props) {
             >
               {isCancelled
                 ? currentStatus === "CANCELLED"
-                  ? "Cancelled"
+                  ? "Đã hủy"
                   : "Delivery Failed"
                 : allSteps[currentIndex]?.label || "Unknown"}
             </span>

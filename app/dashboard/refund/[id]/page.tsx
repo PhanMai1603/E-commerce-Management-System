@@ -18,12 +18,12 @@ const STATUS_BADGE: Record<string, string> = {
 }
 
 const STATUS_LABELS: Record<string, string> = {
-  PENDING: "Pending",
-  APPROVED: "Approved",
-  REJECTED: "Rejected",
-  COMPLETED: "Completed",
-  FAILED: "Failed",
-  NOT_RETURNED: "Not Returned",
+  PENDING: "Đang chờ xử lý",
+  APPROVED: "Đã chấp thuận",
+  REJECTED: "Đã từ chối",
+  COMPLETED: "Đã hoàn tất",
+  FAILED: "Thất bại",
+  NOT_RETURNED: "Chưa hoàn hàng",
 }
 
 export default function RefundDetailPage() {
@@ -43,7 +43,7 @@ export default function RefundDetailPage() {
         const data = await getRefundDetail(id as string, userId, accessToken)
         setRefund(data)
       } catch (err) {
-        toast.error("Failed to fetch refund detail")
+        toast.error("Không thể tải chi tiết yêu cầu hoàn tiền")
       } finally {
         setLoading(false)
       }
@@ -57,7 +57,7 @@ export default function RefundDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Loading information...</p>
+          <p className="text-lg text-gray-600">Đang tải thông tin...</p>
         </div>
       </div>
     )
@@ -68,7 +68,7 @@ export default function RefundDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">❌</div>
-          <p className="text-xl text-red-600 font-medium">Refund request not found</p>
+          <p className="text-xl text-red-600 font-medium">Không tìm thấy yêu cầu hoàn tiền</p>
         </div>
       </div>
     )
@@ -79,7 +79,6 @@ export default function RefundDetailPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          {/* Back Button */}
           <button
             onClick={() => router.back()}
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 mb-6"
@@ -87,13 +86,12 @@ export default function RefundDetailPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back
           </button>
 
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Refund Details</h1>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">ID: {refund.id}</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Chi tiết hoàn tiền</h1>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Mã yêu cầu: {refund.id}</p>
             </div>
             <div className="flex items-center gap-4">
               <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${STATUS_BADGE[refund.status]}`}>
@@ -103,219 +101,159 @@ export default function RefundDetailPage() {
           </div>
         </div>
 
-        {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Main Info */}
           <div className="lg:col-span-2 space-y-6">
             {/* Refund Information */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
-                  Refund Information
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Thông tin hoàn tiền</h2>
               </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Refund Amount</label>
-                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                        {refund.amount.toLocaleString()}₫
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Payment Method</label>
-                      <p className="text-sm text-gray-900 dark:text-white font-medium">{refund.paymentMethod}</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Transaction ID</label>
-                      <p className="text-sm text-gray-900 dark:text-white font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                        {refund.paymentTransactionId}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Manual Processing</label>
-                      <p className="text-sm">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${refund.manualRequired
-                            ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300'
-                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                          }`}>
-                          {refund.manualRequired ? "Required" : "Not Required"}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Số tiền hoàn</label>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    {refund.amount.toLocaleString("vi-VN")}₫
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Phương thức thanh toán</label>
+                  <p className="text-sm text-gray-900 dark:text-white font-medium">{refund.paymentMethod}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Mã giao dịch</label>
+                  <p className="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded mt-1">
+                    {refund.paymentTransactionId}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Xử lý thủ công</label>
+                  <p className="text-sm mt-1">
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${refund.manualRequired
+                        ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300'
+                        : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                      }`}>
+                      {refund.manualRequired ? "Cần xử lý thủ công" : "Không cần"}
+                    </span>
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Product Information */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            {/* Product */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                  Refunded Product
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Sản phẩm đã hoàn</h2>
               </div>
-              <div className="p-6">
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0">
-                    <img
-                      src={refund.item.image}
-                      alt={refund.item.productName}
-                      className="w-20 h-20 object-cover rounded-xl border-2 border-gray-200 dark:border-gray-600"
-                    />
-                  </div>
-                  <div className="flex-1 space-y-3">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {refund.item.productName}
-                      </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{refund.item.variantName}</p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Quantity:</span>
-                        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm font-medium">
-                          {refund.item.quantity}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+              <div className="p-6 flex items-start gap-6">
+                <img
+                  src={refund.item.image}
+                  alt={refund.item.productName}
+                  className="w-20 h-20 object-cover rounded-xl border-2 border-gray-200 dark:border-gray-600"
+                />
+                <div className="flex-1 space-y-2">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{refund.item.productName}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{refund.item.variantName}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Số lượng: {refund.item.quantity}</p>
                 </div>
               </div>
             </div>
 
-            {/* Refund Reason */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            {/* Reason */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                  <span className="w-2 h-2 bg-red-500 rounded-full mr-3"></span>
-                  Refund Reason
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Lý do hoàn tiền</h2>
               </div>
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Main Reason</label>
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Lý do chính</label>
                   <p className="mt-1 text-gray-900 dark:text-white font-medium">{refund.reason}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Detailed Description</label>
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Mô tả chi tiết</label>
                   <p className="mt-1 text-gray-700 dark:text-gray-300 leading-relaxed">{refund.description}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column - Sidebar */}
+          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Order Information */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            {/* Order Info */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
-                  Order Information
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Thông tin đơn hàng</h2>
               </div>
-              <div className="p-6 space-y-4">
+              <div className="p-6 space-y-2">
                 <div>
-                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Order ID</label>
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Mã đơn hàng</label>
                   <p className="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded mt-1">
                     {refund.order.id}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Order Status</label>
-                  <p className="text-sm text-gray-900 dark:text-white font-medium mt-1">{refund.order.status}</p>
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Trạng thái</label>
+                  <p className="text-sm text-gray-900 dark:text-white mt-1">{refund.order.status}</p>
                 </div>
               </div>
             </div>
 
-            {/* Processing Information */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            {/* Admin Info */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                  <span className="w-2 h-2 bg-indigo-500 rounded-full mr-3"></span>
-                  Processing Information
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Người xử lý</h2>
               </div>
-              <div className="p-6 space-y-4">
+              <div className="p-6 flex gap-3 items-start">
+                <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center">
+                  <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                    {refund.admin.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Processed By</label>
-                  <div className="mt-2 flex items-center gap-3">
-                    <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
-                        {refund.admin.name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{refund.admin.name}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{refund.admin.email}</p>
-                    </div>
-                  </div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{refund.admin.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{refund.admin.email}</p>
                 </div>
               </div>
             </div>
 
             {/* Timeline */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                  <span className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></span>
-                  Processing Timeline
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Tiến trình xử lý</h2>
               </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">Refund Requested</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(refund.requestedAt).toLocaleString('en-US')}
-                      </p>
-                    </div>
-                  </div>
-
-                  {refund.approvedAt && (
-                    <div className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">Approved</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(refund.approvedAt).toLocaleString('en-US')}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {refund.rejectedAt && (
-                    <div className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">Rejected</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(refund.rejectedAt).toLocaleString('en-US')}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {refund.completedAt && (
-                    <div className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">Completed</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(refund.completedAt).toLocaleString('en-US')}
-                        </p>
-                      </div>
-                    </div>
-                  )}
+              <div className="p-6 space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">Yêu cầu hoàn tiền</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {new Date(refund.requestedAt).toLocaleString('vi-VN')}
+                  </p>
                 </div>
+
+                {refund.approvedAt && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">Đã chấp thuận</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {new Date(refund.approvedAt).toLocaleString('vi-VN')}
+                    </p>
+                  </div>
+                )}
+
+                {refund.rejectedAt && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">Đã từ chối</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {new Date(refund.rejectedAt).toLocaleString('vi-VN')}
+                    </p>
+                  </div>
+                )}
+
+                {refund.completedAt && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">Đã hoàn tất</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {new Date(refund.completedAt).toLocaleString('vi-VN')}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

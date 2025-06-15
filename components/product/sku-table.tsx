@@ -48,25 +48,25 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
 
   useEffect(() => {
     if (!variants) return;
-  
+
     const colorVariant = variants.find(v => v.name === "Color");
     if (!colorVariant) return;
-  
+
     const validColors = new Set(colorVariant.options);
     const filteredImages: { [key: string]: string } = {};
-  
+
     Object.entries(images).forEach(([color, url]) => {
       if (validColors.has(color)) {
         filteredImages[color] = url;
       }
     });
-  
+
     // Chỉ setImages nếu có khác biệt thật sự
     if (JSON.stringify(filteredImages) !== JSON.stringify(images)) {
       setImages(filteredImages);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variants]);  
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variants]);
 
   useEffect(() => {
     if (combinations.length > 0) {
@@ -225,14 +225,14 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
         <TableHeader>
           <TableRow>
             {variants?.some(variant => variant.name === "Color") && (
-              <TableHead>Image</TableHead>
+              <TableHead>Hình ảnh</TableHead>
             )}
             {variants?.map((variant, index) => (
               <TableHead key={index}>{variant.name}</TableHead>
             ))}
-            <TableHead>Price</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Default</TableHead>
+            <TableHead>Giá</TableHead>
+            <TableHead>Số lượng</TableHead>
+            <TableHead>Mặc định</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -248,7 +248,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
                         <div className='relative group'>
                           <Image
                             src={images[color]}
-                            alt="Product Image"
+                            alt="Ảnh sản phẩm"
                             width={1000}
                             height={1000}
                             className='w-full h-44 object-contain rounded-md'
@@ -260,48 +260,47 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
                             <X />
                           </Button>
                         </div>
+                      ) : loading[rowIndex] ? (
+                        <div className='relative w-full h-44 flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 [&_svg]:size-6 group overflow-hidden'>
+                          <LoaderCircle className="animate-spin" />
+                        </div>
                       ) : (
-                        loading[rowIndex] ? (
-                          <div className='relative w-full h-44 flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 [&_svg]:size-6 group overflow-hidden'>
-                            <LoaderCircle className="animate-spin" />
+                        <div>
+                          <div
+                            className='relative w-full h-44 flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 [&_svg]:size-6 group overflow-hidden'
+                            onClick={() => handleClick(rowIndex)}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                          >
+                            <div className={`absolute bottom-0 left-0 w-full bg-gray-600/10 transition-all duration-300 group-hover:h-full ${isDragOver ? 'h-full' : 'h-0'}`} />
+                            <ImagePlus className='text-gray-400 group-hover:text-gray-500' />
                           </div>
-                        ) : (
-                          <div>
-                            <div
-                              className='relative w-full h-44 flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 [&_svg]:size-6 group overflow-hidden'
-                              onClick={() => handleClick(rowIndex)}
-                              onDragOver={handleDragOver}
-                              onDragLeave={handleDragLeave}
-                            // onDrop={handleDrop}
-                            >
-                              <div className={`absolute bottom-0 left-0 w-full bg-gray-600/10 transition-all duration-300 group-hover:h-full ${isDragOver ? 'h-full' : 'h-0'}`} />
-                              <ImagePlus className='text-gray-400 group-hover:text-gray-500' />
-                            </div>
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={(event) => handleChange(event, color)}
-                              ref={(el) => {
-                                if (el) fileInputRefs.current[rowIndex] = el;
-                              }}
-                              className="hidden"
-                            />
-                          </div>
-                        )
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(event) => handleChange(event, color)}
+                            ref={(el) => {
+                              if (el) fileInputRefs.current[rowIndex] = el;
+                            }}
+                            className="hidden"
+                          />
+                        </div>
                       )
                     ) : (
-                      <span>No Color</span>
+                      <span>Không có màu</span>
                     )}
                   </TableCell>
                 )}
+
                 {combination.map((item, colIndex) => (
                   <TableCell key={colIndex}>{item.value}</TableCell>
                 ))}
+
                 <TableCell>
                   <Input
                     type="number"
                     min="0"
-                    placeholder="Enter price"
+                    placeholder="Nhập giá"
                     value={skuList[rowIndex]?.price ?? 0}
                     onChange={(e) => handleInputChange(rowIndex, "price", e.target.value)}
                   />
@@ -310,7 +309,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
                   <Input
                     type="number"
                     min="0"
-                    placeholder="Enter quantity"
+                    placeholder="Nhập số lượng"
                     value={skuList[rowIndex]?.quantity ?? 0}
                     onChange={(e) => handleInputChange(rowIndex, "quantity", e.target.value)}
                   />
@@ -329,6 +328,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
           })}
         </TableBody>
       </Table>
+
     </div>
   );
 }

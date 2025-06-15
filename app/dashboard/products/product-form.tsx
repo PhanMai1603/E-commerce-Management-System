@@ -19,7 +19,11 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Star, EllipsisVertical, Plus } from "lucide-react";
-import { deleteProduct, getAllProduct, getTopSearchProduct } from "@/app/api/product";
+import {
+  deleteProduct,
+  getAllProduct,
+  getTopSearchProduct,
+} from "@/app/api/product";
 import { Product } from "@/interface/product";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -43,11 +47,27 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import SearchBar from "@/components/Search";
 import { debounce } from "lodash";
 import ConfirmDialog from "@/components/category/confirm";
+
+// ✅ Hàm dịch trạng thái
+const getStatusLabel = (status: string): string => {
+  switch (status) {
+    case "PUBLISHED":
+      return "Đang bán";
+    case "DRAFT":
+      return "Nháp";
+    case "DISCONTINUED":
+      return "Ngừng bán";
+    case "OUT_OF_STOCK":
+      return "Hết hàng";
+    default:
+      return "Không xác định";
+  }
+};
 
 export function ProductTable() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -68,10 +88,11 @@ export function ProductTable() {
       : "";
 
   const debouncedSetQuery = useMemo(
-    () => debounce((val: string) => {
-      setQuery(val);
-      setPage(1);
-    }, 500),
+    () =>
+      debounce((val: string) => {
+        setQuery(val);
+        setPage(1);
+      }, 500),
     []
   );
 
@@ -88,7 +109,7 @@ export function ProductTable() {
         setProducts(response.items);
         setTotalPages(response.totalPages);
       } catch (err) {
-        toast.error("Failed to fetch products");
+        toast.error("Lấy danh sách sản phẩm thất bại");
       } finally {
         setLoading(false);
       }
@@ -105,24 +126,15 @@ export function ProductTable() {
     router.push(`/dashboard/products/${productId}/edit`);
   };
 
-  // const handleDelete = async (productId: string) => {
-  //   try {
-  //     await deleteProduct(productId, userId, accessToken);
-  //     toast.success("Product deleted successfully!");
-  //     setProducts(products.filter((product) => product.id !== productId));
-  //   } catch (error) {
-  //     toast.error("Failed to delete the product.");
-  //   }
-  // };
   const confirmDelete = async () => {
     if (!pendingDeleteId) return;
 
     try {
       await deleteProduct(pendingDeleteId, userId, accessToken);
-      toast.success("Product deleted successfully!");
+      toast.success("Xoá sản phẩm thành công!");
       setProducts((prev) => prev.filter((p) => p.id !== pendingDeleteId));
     } catch (error) {
-      toast.error("Failed to delete the product.");
+      toast.error("Xoá sản phẩm thất bại.");
     } finally {
       setConfirmOpen(false);
       setPendingDeleteId(null);
@@ -134,17 +146,16 @@ export function ProductTable() {
     setConfirmOpen(true);
   };
 
-
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">All Product</h1>
+      <h1 className="text-2xl font-bold mb-6">Danh sách sản phẩm</h1>
 
       <Card>
         <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2">
               <label className="text-sm text-muted-foreground whitespace-nowrap">
-                Show:
+                Hiển thị:
               </label>
               <Select
                 value={size.toString()}
@@ -154,7 +165,7 @@ export function ProductTable() {
                 }}
               >
                 <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm">
-                  <SelectValue placeholder="Select page size" />
+                  <SelectValue placeholder="Chọn số dòng mỗi trang" />
                 </SelectTrigger>
                 <SelectContent>
                   {[5, 10, 25, 50, 100].map((option) => (
@@ -167,7 +178,6 @@ export function ProductTable() {
             </div>
 
             <SearchBar setQuery={debouncedSetQuery} />
-
           </div>
 
           <Button
@@ -175,30 +185,31 @@ export function ProductTable() {
             className="flex items-center gap-2 self-start md:self-auto"
           >
             <Plus className="w-5 h-5" />
-            Add Product
+            Thêm sản phẩm
           </Button>
         </CardHeader>
 
         <CardContent className="relative">
           {loading && (
             <div className="absolute inset-0 bg-white bg-opacity-60 z-10 flex items-center justify-center">
-              <p className="text-gray-600 font-medium">Loading...</p>
+              <p className="text-gray-600 font-medium">Đang tải...</p>
             </div>
           )}
+
           <div className={loading ? "opacity-50 pointer-events-none" : ""}>
             {products.length === 0 ? (
-              <p className="text-center text-gray-500">No products found.</p>
+              <p className="text-center text-gray-500">Không tìm thấy sản phẩm nào.</p>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Image</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Stock</TableHead>
-                    <TableHead>Rating</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>Hình ảnh</TableHead>
+                    <TableHead>Tên</TableHead>
+                    <TableHead>Giá</TableHead>
+                    <TableHead>Tồn kho</TableHead>
+                    <TableHead>Đánh giá</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead className="text-right">Hành động</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -221,10 +232,10 @@ export function ProductTable() {
                       </TableCell>
                       <TableCell>
                         <div className="text-gray-700 font-medium">
-                          {product.quantity} Item Left
+                          {product.quantity} sản phẩm còn lại
                         </div>
                         <div className="text-gray-500 text-sm">
-                          {product.sold} Sold
+                          {product.sold} đã bán
                         </div>
                       </TableCell>
                       <TableCell>
@@ -233,23 +244,26 @@ export function ProductTable() {
                             <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                             <span className="font-medium ml-1">{product.rating}</span>
                           </div>
-                          <span className="text-gray-500 text-sm">{product.views} View</span>
+                          <span className="text-gray-500 text-sm">
+                            {product.views} lượt xem
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <span
-                          className={`inline-block py-1 px-3 rounded-2xl text-sm font-semibold ${product.status === "PUBLISHED"
-                            ? "bg-[#00B8D929] text-[#006C9C]"
-                            : product.status === "DRAFT"
+                          className={`inline-block py-1 px-3 rounded-2xl text-sm font-semibold ${
+                            product.status === "PUBLISHED"
+                              ? "bg-[#00B8D929] text-[#006C9C]"
+                              : product.status === "DRAFT"
                               ? "bg-[#919EAB29] text-[#637381]"
                               : product.status === "DISCONTINUED"
-                                ? "bg-[#FF563029] text-[#B71D18]"
-                                : product.status === "OUT_OF_STOCK"
-                                  ? "bg-[#FFAB0029] text-[#B76E00]"
-                                  : "bg-gray-200 text-gray-600"
-                            }`}
+                              ? "bg-[#FF563029] text-[#B71D18]"
+                              : product.status === "OUT_OF_STOCK"
+                              ? "bg-[#FFAB0029] text-[#B76E00]"
+                              : "bg-gray-200 text-gray-600"
+                          }`}
                         >
-                          {product.status}
+                          {getStatusLabel(product.status)}
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
@@ -259,15 +273,14 @@ export function ProductTable() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleView(product)}>
-                              View
+                              Xem
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleEdit(product.id)}>
-                              Edit
+                              Sửa
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => askDelete(product.id)}>
-                              Delete
+                              Xoá
                             </DropdownMenuItem>
-
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -284,10 +297,9 @@ export function ProductTable() {
                 setPendingDeleteId(null);
               }}
               onConfirm={confirmDelete}
-              title="Confirm Product Deletion"
-              description="This action will permanently delete the product. Are you sure?"
+              title="Xác nhận xoá sản phẩm"
+              description="Thao tác này sẽ xoá vĩnh viễn sản phẩm. Bạn có chắc chắn?"
             />
-
           </div>
         </CardContent>
 

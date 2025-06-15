@@ -22,28 +22,27 @@ const BlockUser: React.FC<BlockUserProps> = ({ id, status, onStatusChange }) => 
 
   const handleSwitch = async () => {
     if (!userId || !accessToken) return;
-  
+
     setLoading(true);
     try {
-      const newStatus = enabled ? "BLOCKED" : "ACTIVE"; // Chuyển trạng thái sang in hoa
-  
+      const newStatus = enabled ? "BLOCKED" : "ACTIVE";
+
       if (enabled) {
         await blockUser(id, userId, accessToken);
-        toast.success("User BLOCKED successfully!");
+        toast.success("Người dùng đã bị chặn!");
       } else {
         await unblockUser(id, userId, accessToken);
-        toast.success("User UNBLOCKED successfully!");
+        toast.success("Đã bỏ chặn người dùng!");
       }
-  
+
       setEnabled(!enabled);
-      onStatusChange(newStatus); // Luôn truyền trạng thái in hoa
+      onStatusChange(newStatus);
     } catch {
-      toast.error("Failed to toggle user status.");
+      toast.error("Không thể cập nhật trạng thái người dùng.");
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="flex items-center space-x-2">
@@ -51,7 +50,9 @@ const BlockUser: React.FC<BlockUserProps> = ({ id, status, onStatusChange }) => 
         checked={enabled}
         onCheckedChange={handleSwitch}
         disabled={loading}
-        className={`group inline-flex h-6 w-11 items-center rounded-full transition ${enabled ? "bg-green-500" : "bg-gray-300"}`}
+        className={`group inline-flex h-6 w-11 items-center rounded-full transition ${
+          enabled ? "bg-green-500" : "bg-gray-300"
+        }`}
       >
         <span
           className={`size-4 transform rounded-full bg-white transition ${
@@ -59,7 +60,7 @@ const BlockUser: React.FC<BlockUserProps> = ({ id, status, onStatusChange }) => 
           }`}
         />
       </Switch>
-      {loading && <p className="text-gray-500 text-sm">Updating...</p>}
+      {loading && <p className="text-gray-500 text-sm">Đang cập nhật...</p>}
     </div>
   );
 };

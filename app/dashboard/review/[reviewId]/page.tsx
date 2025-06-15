@@ -33,13 +33,13 @@ export default function ReviewDetailPage() {
 
   const formatDateTime = (iso: string) => {
     const d = new Date(iso);
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
-    const hours = String(d.getHours()).padStart(2, "0");
-    const minutes = String(d.getMinutes()).padStart(2, "0");
-    const seconds = String(d.getSeconds()).padStart(2, "0");
-    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    return d.toLocaleString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
   };
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function ReviewDetailPage() {
       const data = await getReviewDetail(reviewId, userId, accessToken);
       setReview(data);
     } catch (error) {
-      toast.error("Unable to load review details.");
+      toast.error("Không thể tải đánh giá.");
     } finally {
       setLoading(false);
     }
@@ -69,7 +69,7 @@ export default function ReviewDetailPage() {
 
   const handleReply = async () => {
     if (!replyContent.trim()) {
-      toast.warning("Please enter feedback.");
+      toast.warning("Vui lòng nhập phản hồi.");
       return;
     }
     if (!reviewId || !userId || !accessToken) return;
@@ -77,7 +77,7 @@ export default function ReviewDetailPage() {
     setSubmitting(true);
     try {
       await replyReview(reviewId, userId, accessToken, replyContent.trim());
-      toast.success("Reply sent successfully!");
+      toast.success("Đã gửi phản hồi thành công!");
       setReplyContent("");
       fetchReview();
     } catch (error) {
@@ -89,28 +89,30 @@ export default function ReviewDetailPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Detail Review</h1>
+      <h1 className="text-2xl font-bold mb-6">Chi tiết đánh giá</h1>
+
       {review && (
         <Card>
           <CardHeader>
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-full overflow-hidden border shadow hover:scale-105 transition-transform">
                 <Image
-                  src={review.user.avatar}
-                  alt={review.user.name}
+                  src={review.user?.avatar || "/default-avatar.png"}
+                  alt={review.user?.name || "Người dùng"}
                   width={40}
                   height={40}
                   className="object-cover w-full h-full"
                 />
               </div>
               <div>
-                <div className="font-semibold text-lg">{review.user.name}</div>
+                <div className="font-semibold text-lg text-gray-800">
+                  {review.user?.name || "Ẩn danh"}
+                </div>
                 <div className="flex items-center gap-1 text-yellow-500">
-                  {[...Array(Math.max(0, Math.floor(Number(review.star) || 0)))].map((_, i) => (
+                  {[...Array(Math.floor(Number(review.star) || 0))].map((_, i) => (
                     <Star key={i} size={18} fill="currentColor" />
                   ))}
                 </div>
-
                 <div className="text-sm text-muted-foreground">
                   {formatDateTime(review.createdAt)}
                 </div>
@@ -135,34 +137,35 @@ export default function ReviewDetailPage() {
                 </div>
               )}
 
-              {review.reply ? (
+              {review.reply?.user ? (
                 <div className="bg-gray-50 border-l-4 p-4 rounded-md">
                   <div className="flex items-start">
                     <Image
-                      src={review.reply.user.avatar}
-                      alt={review.reply.user.name}
+                      src={review.reply.user.avatar || "/default-avatar.png"}
+                      alt={review.reply.user.name || "Admin"}
                       width={40}
                       height={40}
                       className="rounded-full border shadow hover:scale-105 transition-transform"
                     />
                     <div className="ml-3">
-                      <div className="text-sm text-muted-foreground">{review.reply.user.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatDateTime(review.reply.createdAt)}
+                      <div className="text-sm font-medium text-gray-800">
+                        {review.reply.user.name || "Admin"}
+                      </div>
+                      <div className="mt-2 text-base text-gray-700">
+                        {review.reply.content}
                       </div>
                     </div>
                   </div>
-                  <div className="mt-3 text-base">{review.reply.content}</div>
                 </div>
               ) : (
                 <div>
                   <Textarea
-                    placeholder="Enter feedback from administrator..."
+                    placeholder="Nhập phản hồi từ quản trị viên..."
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
                   />
                   <Button className="mt-2" onClick={handleReply} disabled={submitting}>
-                    {submitting ? "SENDING..." : "SEND"}
+                    {submitting ? "ĐANG GỬI..." : "GỬI"}
                   </Button>
                 </div>
               )}
@@ -172,7 +175,7 @@ export default function ReviewDetailPage() {
       )}
 
       <div className="flex justify-end mt-6">
-        <Button onClick={() => router.push("/dashboard/review")}>Back</Button>
+        <Button onClick={() => router.push("/dashboard/review")}>Quay lại</Button>
       </div>
     </div>
   );

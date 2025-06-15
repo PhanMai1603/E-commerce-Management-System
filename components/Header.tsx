@@ -4,15 +4,27 @@
 import { useEffect, useState } from "react";
 import { CircleUser, Menu } from "lucide-react";
 import { ModeToggle } from "@/components/ui/mode-toggle";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "./ui/dialog";
 import { Input } from "./ui/input";
 import { toast } from "react-toastify";
 import { logoutRequest } from "@/app/api/auth";
-import { changePassword } from "@/app/api/user";  // Import API đổi mật khẩu
+import { changePassword } from "@/app/api/user";
 import { useRouter } from "next/navigation";
-
 
 interface HeaderProps {
   showSideBar: boolean;
@@ -29,7 +41,6 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
 
   useEffect(() => {
     const storedAvatar = localStorage.getItem("avatarUrl");
-    // console.log(storedAvatar);  // Add this line to debug
     if (storedAvatar) setAvatar(storedAvatar);
 
     const handleStorageChange = () => {
@@ -39,7 +50,6 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
-
 
   const handleChangePassword = async () => {
     setLoading(true);
@@ -53,12 +63,12 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
       }
 
       await changePassword({ oldPassword, newPassword }, userId, accessToken);
-      toast.success("Password changed successfully!");
+      toast.success("Đổi mật khẩu thành công!");
       setOpenDialog(false);
       setOldPassword("");
       setNewPassword("");
     } catch {
-      // toast.error("Failed to change password. Please try again.");
+      toast.error("Không thể đổi mật khẩu. Vui lòng thử lại!");
     } finally {
       setLoading(false);
     }
@@ -70,12 +80,12 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
       const accessToken = localStorage.getItem("accessToken");
 
       if (!userId || !accessToken) {
-        toast.error("You are not logged in or the information is invalid!");
+        toast.error("Bạn chưa đăng nhập hoặc thông tin không hợp lệ!");
         return;
       }
 
       await logoutRequest(userId, accessToken);
-      toast.success("Log out successfully!");
+      toast.success("Đăng xuất thành công!");
 
       localStorage.removeItem("userId");
       localStorage.removeItem("accessToken");
@@ -84,8 +94,8 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
 
       router.push("/");
     } catch (error) {
-      console.error("Logout error:", error);
-      toast.error("An error occurred while logging out.Please try again.");
+      console.error("Lỗi đăng xuất:", error);
+      toast.error("Đã xảy ra lỗi khi đăng xuất. Vui lòng thử lại.");
     }
   };
 
@@ -101,7 +111,7 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
         </button>
 
         <div className="flex flex-1 justify-end items-center relative gap-4">
-          {/* Nút chuyển đổi chế độ sáng/tối */}
+          {/* Nút chuyển chế độ sáng/tối */}
           <ModeToggle />
 
           {/* Mini Profile */}
@@ -109,21 +119,28 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
                 {avatar ? (
-                  <img src={avatar} alt="User Avatar" className="w-8 h-8 rounded-full object-cover" />
+                  <img
+                    src={avatar}
+                    alt="Ảnh đại diện"
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
                 ) : (
                   <CircleUser className="h-5 w-5" />
                 )}
-
               </Button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Account</DropdownMenuLabel>
+              <DropdownMenuLabel>Tài khoản</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push("/auth/profile")}>Profile</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setOpenDialog(true)}>Change Password</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/auth/profile")}>
+                Thông tin cá nhân
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setOpenDialog(true)}>
+                Đổi mật khẩu
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>Đăng xuất</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -133,34 +150,36 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="max-w-md p-6 rounded-xl border border-gray-200 shadow-lg">
           <DialogHeader className="text-center">
-            <DialogTitle className="text-xl font-semibold text-gray-800">Change Password</DialogTitle>
+            <DialogTitle className="text-xl font-semibold text-gray-800">
+              Đổi mật khẩu
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-5 mt-2">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">Old Password</label>
+              <label className="text-sm font-medium text-gray-700">Mật khẩu cũ</label>
               <Input
                 type="password"
-                placeholder="Enter old password"
+                placeholder="Nhập mật khẩu cũ"
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
-                className="rounded-md border-gray-300 focus:ring focus:ring-gray-300"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">New Password</label>
+              <label className="text-sm font-medium text-gray-700">Mật khẩu mới</label>
               <Input
                 type="password"
-                placeholder="Enter new password"
+                placeholder="Nhập mật khẩu mới"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="rounded-md border-gray-300 focus:ring focus:ring-gray-300"
               />
             </div>
           </div>
           <DialogFooter className="flex justify-end space-x-2 mt-6">
-            <Button variant="outline" onClick={() => setOpenDialog(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setOpenDialog(false)}>
+              Hủy
+            </Button>
             <Button onClick={handleChangePassword} disabled={loading}>
-              {loading ? "SAVE..." : "SAVE"}
+              {loading ? "ĐANG LƯU..." : "LƯU"}
             </Button>
           </DialogFooter>
         </DialogContent>

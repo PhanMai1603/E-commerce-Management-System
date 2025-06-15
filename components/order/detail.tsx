@@ -59,8 +59,6 @@ export default function OrderDetailPage() {
         updatedAt={order.timestamps.updatedAt}
         paidAt={order.timestamps.paidAt}
         deliveredAt={order.timestamps.deliveredAt}
-        requestedAt={order.timestamps.requestedAt}
-        approvedAt={order.timestamps.approvedAt}
       />
     </div>
   );

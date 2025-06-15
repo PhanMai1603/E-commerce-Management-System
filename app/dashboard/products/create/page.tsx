@@ -45,55 +45,49 @@ export default function Page() {
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
-    // Kiểm tra nếu thiếu mainImage hoặc subImage
     if (!mainImage) {
-      setErrorMessage("*Main image is required.");
+      setErrorMessage("*Ảnh chính là bắt buộc.");
       return;
     }
 
     if (!subImage || subImage.length === 0) {
-      setErrorMessage("*At least one sub-image is required.");
+      setErrorMessage("*Cần ít nhất một ảnh phụ.");
       return;
     }
 
-    // if (product.video === '') {
-    //   setErrorMessage("*Video URL is required.");
-    //   return;
-    // }
-
     if (product.name === '') {
-      setErrorMessage("*Product name is required.");
+      setErrorMessage("*Tên sản phẩm là bắt buộc.");
       return;
     }
 
     if (product.category.length === 0) {
-      setErrorMessage("*At least one category is required.");
+      setErrorMessage("*Vui lòng chọn ít nhất một danh mục.");
       return;
     }
 
     if (product.originalPrice === 0) {
-      setErrorMessage("*Original price must be greater than 0.");
+      setErrorMessage("*Giá gốc phải lớn hơn 0.");
       return;
     }
 
     if (product.returnDays === -1) {
-      setErrorMessage("*Return days is required.");
+      setErrorMessage("*Vui lòng nhập số ngày cho phép đổi trả.");
       return;
     }
 
     if (product.attributes.length === 0) {
-      setErrorMessage("*At least one attribute is required.");
+      setErrorMessage("*Cần ít nhất một thuộc tính.");
       return;
     }
 
     if (product.description === '') {
-      setErrorMessage("*Description is required.");
+      setErrorMessage("*Vui lòng nhập mô tả sản phẩm.");
       return;
     }
 
     const colorVariant = product.variants?.find(variant => variant.name === "Color");
     if (colorVariant && colorVariant.options.some(option => option.trim() === "")) {
-      setErrorMessage("*Color variant contains an empty option.");
+      setErrorMessage("*Thuộc tính màu sắc có giá trị rỗng.");
       return;
     }
 
@@ -101,10 +95,8 @@ export default function Page() {
       if (userId && accessToken) {
         setLoading(true);
 
-        // Upload main image
         const mainImageResponse = await uploadProductImage(mainImage, userId, accessToken);
 
-        // Upload sub-images
         const uploadedImages = await Promise.all(
           subImage.map(async (file) => {
             const response = await uploadProductImage(file, userId, accessToken);
@@ -112,21 +104,20 @@ export default function Page() {
           })
         );
 
-        // Tạo object product mới thay vì dùng state cũ
         const updatedProduct = {
           ...product,
           mainImage: mainImageResponse,
           subImages: uploadedImages,
         };
 
-        // Gửi sản phẩm lên API
         await createProduct(updatedProduct, userId, accessToken);
-        toast.success("Create product successful!");
-        
+        toast.success("Tạo sản phẩm thành công!");
+
         router.push("/dashboard/products");
       }
     } catch (error) {
-      console.error("Error fetching product:", error);
+      console.error("Lỗi khi tạo sản phẩm:", error);
+      toast.error("Đã xảy ra lỗi khi tạo sản phẩm.");
     } finally {
       setLoading(false);
     }
@@ -136,7 +127,7 @@ export default function Page() {
     router.back();
   }
 
-  if (!accessToken || !userId) return <p>Loading...</p>;
+  if (!accessToken || !userId) return <p>Đang tải...</p>;
 
   return (
     <div className='grid grid-cols-6 gap-4'>
@@ -176,14 +167,14 @@ export default function Page() {
           onClick={handleGoBack}
           className='bg-gray-200 text-gray-900 hover:bg-gray-300'
         >
-          CANCEL
+          HỦY BỎ
         </Button>
 
         <Button
           onClick={handleSubmit}
           disabled={loading}
         >
-          CREATE PRODUCT
+          {loading ? "ĐANG TẠO..." : "TẠO SẢN PHẨM"}
         </Button>
       </div>
     </div>

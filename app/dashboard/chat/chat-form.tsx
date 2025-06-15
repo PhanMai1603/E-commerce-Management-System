@@ -208,7 +208,7 @@ const ChatUI: React.FC<Props> = ({ userId, accessToken, role }) => {
       <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
         {/* Header */}
         <div className="p-4 bg-white border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-800">Chat</h2>
+          <h2 className="text-lg font-semibold text-gray-800">Tin nhắn</h2>
         </div>
         {/* Conversations List */}
         <div className="flex-1 overflow-y-auto">
@@ -221,8 +221,8 @@ const ChatUI: React.FC<Props> = ({ userId, accessToken, role }) => {
             </div>
           ) : (
             conversations.map((conv) => {
-              const name = conv.user.name;
-              const avatar = isValidUrl(conv.user.avatar) ? conv.user.avatar : "/avatar.jpg";
+              const name = conv.user?.name || "Ẩn danh";
+              const avatar = isValidUrl(conv.user?.avatar) ? conv.user.avatar : "/avatar.jpg";
               const last = conv.latestMessage;
               const isSelected = selectedConversation === conv.id;
               const hasNotification = notificationConversations.has(conv.id);

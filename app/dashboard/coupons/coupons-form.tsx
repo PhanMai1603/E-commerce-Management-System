@@ -37,7 +37,7 @@ export default function CouponTable() {
         const response = await getAllCoupons(userId, accessToken, page, size);
         setCouponsData(response);
       } catch (error) {
-        toast.error("Failed to fetch coupons");
+        toast.error("Không lấy được phiếu giảm giá");
       }
     };
 
@@ -57,7 +57,7 @@ export default function CouponTable() {
   return (
 
     <div>
-      <h1 className="text-2xl font-bold mb-6">All Coupon</h1>
+      <h1 className="text-2xl font-bold mb-6">Danh sách mã giảm giá</h1>
 
       <Card>
         <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4">
@@ -90,23 +90,21 @@ export default function CouponTable() {
             className="flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
-            Add Coupon
+            Thêm mã giảm giá 
           </Button>
         </CardHeader>
 
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Code</TableHead>
-                <TableHead>Discount</TableHead>
-                <TableHead>Date</TableHead>
-                {/* <TableHead>End Date</TableHead> */}
-                <TableHead>Type</TableHead>
-                <TableHead>Applies To</TableHead>
-                <TableHead>Status</TableHead>
-                {/* <TableHead className="text-right"></TableHead> */}
+               <TableRow>
+                <TableHead>Tên</TableHead>
+                <TableHead>Mã</TableHead>
+                <TableHead>Giảm giá</TableHead>
+                <TableHead>Thời gian</TableHead>
+                <TableHead>Loại</TableHead>
+                <TableHead>Áp dụng cho</TableHead>
+                <TableHead>Trạng thái</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -126,9 +124,9 @@ export default function CouponTable() {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span><strong>From:</strong> {new Date(coupon.startDate).toLocaleDateString()}</span>
+                      <span><strong>Từ:</strong> {new Date(coupon.startDate).toLocaleDateString()}</span>
                       <span>
-                        <strong>To:</strong> {new Date(coupon.endDate).toLocaleDateString()}
+                        <strong>Đến:</strong> {new Date(coupon.endDate).toLocaleDateString()}
                       </span>
                     </div>
                   </TableCell>
@@ -142,7 +140,7 @@ export default function CouponTable() {
                         : "bg-red-100 text-red-700"
                         }`}
                     >
-                      {coupon.isActive ? "Active" : "Expired"}
+                      {coupon.isActive ? "Đang hoạt động" : "Hết hạn"}
                     </span>
                   </TableCell>
                   {/* <TableCell className="text-right">

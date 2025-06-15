@@ -11,8 +11,8 @@ interface ConfirmDialogProps {
 
 export default function ConfirmDialog({
     open,
-    title = "Confirm Delete",
-    description = "Are you sure you want to delete this item?",
+    title = "Xác nhận xóa",
+    description = "Bạn có chắc chắn muốn xóa mục này không?",
     onConfirm,
     onCancel,
 }: ConfirmDialogProps) {
@@ -25,17 +25,16 @@ export default function ConfirmDialog({
                 <p>{description}</p>
                 <DialogFooter className="mt-4">
                     <Button variant="outline" onClick={onCancel}>
-                        Cancel
+                        Hủy
                     </Button>
                     <Button
                         variant="default"
                         className="bg-black text-white hover:bg-neutral-800"
                         onClick={onConfirm}
                     >
-                        Delete
+                        Xóa
                     </Button>
                 </DialogFooter>
-
             </DialogContent>
         </Dialog>
     );

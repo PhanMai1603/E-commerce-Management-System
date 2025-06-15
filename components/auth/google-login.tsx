@@ -32,7 +32,7 @@ export function GoogleLoginHandler() {
 
           const isAdmin = await checkAdmin(userId, accessToken);
           if (!isAdmin) {
-            toast.error("You do not have admin privileges!");
+            toast.error("Bạn không có quyền quản trị!");
             return;
           }
 
@@ -44,12 +44,12 @@ export function GoogleLoginHandler() {
           localStorage.setItem("isLogin", "true");
 
           setIsLogin(true);
-          toast.success("Login successful!");
+          toast.success("Đăng nhập thành công!");
 
           router.push("/dashboard");
         } catch (err) {
-          console.error("Google login error:", err);
-          toast.error("Login failed!");
+          console.error("Lỗi đăng nhập Google:", err);
+          toast.error("Đăng nhập thất bại!");
         }
       };
 

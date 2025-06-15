@@ -41,9 +41,8 @@ export interface ReviewDataResponse {
     user: {
       id: string;
       name: string;
-      avatar: string;
+      avatar: string | null;
     };
-    createdAt: string;
   } | null;
   reports: {
     count: number;

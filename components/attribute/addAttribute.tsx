@@ -50,99 +50,98 @@ export default function AddAttributeForm({
 
   return (
     <div className="col-span-1 mt-14">
-   <Card>
+<Card>
+  <CardHeader>
+    <CardTitle className="text-center">Thêm Thuộc Tính</CardTitle>
+  </CardHeader>
 
-      <CardHeader>
-        <CardTitle className="text-center">Add Attribute</CardTitle>
-      </CardHeader>
+  <CardContent className="grid grid-cols-6 gap-x-2 gap-y-4">
+    <div className="space-y-2 col-span-6">
+      <Label>Tên thuộc tính</Label>
+      <Input
+        name='name'
+        type='text'
+        placeholder='Nhập tên thuộc tính'
+        disabled={disabled}
+        value={attributeName}
+        onChange={(e) => setAttributeName(e.target.value)}
+      />
+    </div>
 
-      <CardContent className="grid grid-cols-6 gap-x-2 gap-y-4">
-        <div className="space-y-2 col-span-6">
-          <Label>Attribute Name</Label>
-          <Input
-            name='name'
-            type='text'
-            placeholder='Enter name'
-            disabled={disabled}
-            value={attributeName}
-            onChange={(e) => setAttributeName(e.target.value)}
-          />
-        </div>
+    <div className="space-y-2 col-span-6">
+      <Label>Kiểu thuộc tính</Label>
+      <Select
+        disabled={disabled}
+        value={attributeType}
+        onValueChange={(val) => setAttributeType(val as "COLOR" | "TEXT")}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Chọn kiểu" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="COLOR">MÀU SẮC</SelectItem>
+          <SelectItem value="TEXT">VĂN BẢN</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
 
-        <div className="space-y-2 col-span-6">
-          <Label>Attribute Type</Label>
-          <Select
-            disabled={disabled}
-            value={attributeType}
-            onValueChange={(val) => setAttributeType(val as "COLOR" | "TEXT")}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="COLOR">COLOR</SelectItem>
-              <SelectItem value="TEXT">TEXT</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="flex items-center justify-between col-span-6">
+      <Label>Biến thể</Label>
+      <Switch
+        disabled={disabled}
+        checked={isVariant}
+        onCheckedChange={setIsVariant}
+      />
+    </div>
 
-        <div className="flex items-center justify-between col-span-6">
-          <Label>Is Variant</Label>
-          <Switch
-            disabled={disabled}
-            checked={isVariant}
-            onCheckedChange={setIsVariant}
-          />
-        </div>
-
-        {/* VALUE INPUTS */}
-        {isVariant && attributeValues.map((v, index) => (
-          <div className="col-span-6 grid grid-cols-6 gap-2 items-center" key={index}>
-            <Input
-              placeholder="Value Name"
-              className="col-span-2"
-              value={v.value}
-              onChange={(e) => handleValueChange(index, "value", e.target.value)}
-              disabled={disabled}
-            />
-            <Input
-              placeholder={attributeType === "COLOR" ? "#FF5733" : "Description"}
-              className="col-span-3"
-              value={v.description_url}
-              onChange={(e) => handleValueChange(index, "description_url", e.target.value)}
-              disabled={disabled}
-            />
-            <Button
-              variant="destructive"
-              className="col-span-1"
-              onClick={() => handleRemoveValue(index)}
-              disabled={disabled}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-        ))}
-
-        {isVariant && (
-          <Button
-            className="col-span-6"
-            variant="outline"
-            onClick={handleAddValue}
-            disabled={disabled}
-          >
-            ADD VALUE
-          </Button>
-        )}
-
-        <Button
+    {isVariant && attributeValues.map((v, index) => (
+      <div className="col-span-6 grid grid-cols-6 gap-2 items-center" key={index}>
+        <Input
+          placeholder="Tên giá trị"
+          className="col-span-2"
+          value={v.value}
+          onChange={(e) => handleValueChange(index, "value", e.target.value)}
           disabled={disabled}
-          className="w-full col-span-6"
-          onClick={onSubmit}
+        />
+        <Input
+          placeholder={attributeType === "COLOR" ? "#FF5733" : "Mô tả"}
+          className="col-span-3"
+          value={v.description_url}
+          onChange={(e) => handleValueChange(index, "description_url", e.target.value)}
+          disabled={disabled}
+        />
+        <Button
+          variant="destructive"
+          className="col-span-1"
+          onClick={() => handleRemoveValue(index)}
+          disabled={disabled}
         >
-          ADD ATTRIBUTE
+          <Trash2 className="w-4 h-4" />
         </Button>
-      </CardContent>
-    </Card>
+      </div>
+    ))}
+
+    {isVariant && (
+      <Button
+        className="col-span-6"
+        variant="outline"
+        onClick={handleAddValue}
+        disabled={disabled}
+      >
+        THÊM GIÁ TRỊ
+      </Button>
+    )}
+
+    <Button
+      disabled={disabled}
+      className="w-full col-span-6"
+      onClick={onSubmit}
+    >
+      THÊM THUỘC TÍNH
+    </Button>
+  </CardContent>
+</Card>
+
     </div>
   );
 }

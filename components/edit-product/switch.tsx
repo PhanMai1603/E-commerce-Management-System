@@ -1,21 +1,30 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { publishProduct, unPublishProduct } from '@/app/api/product';
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Switch } from '../ui/switch';
-import { publishAllVariant, publishVariant, unPublishAllVariant, unPublishVariant } from '@/app/api/variant';
+import {
+  publishAllVariant,
+  publishVariant,
+  unPublishAllVariant,
+  unPublishVariant,
+} from '@/app/api/variant';
 
 interface PublishProps {
-  id: string[] | string | undefined,
-  status: string | undefined,
-  item: string,
+  id: string[] | string | undefined;
+  status: string | undefined;
+  item: string; // 'product' | 'variant' | 'all-variant'
 }
 
 const Publish: React.FC<PublishProps> = ({ id, status, item }) => {
   const [enabled, setEnabled] = useState(false);
 
-  const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
-  const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
+  const userId =
+    typeof window !== 'undefined' ? localStorage.getItem('userId') || '' : '';
+  const accessToken =
+    typeof window !== 'undefined'
+      ? localStorage.getItem('accessToken') || ''
+      : '';
 
   useEffect(() => {
     setEnabled(status === 'PUBLISHED');
@@ -27,31 +36,32 @@ const Publish: React.FC<PublishProps> = ({ id, status, item }) => {
         if (item === 'product') {
           if (checked) {
             await publishProduct(id, userId, accessToken);
-            toast.success("Published product successful!");
+            toast.success('Đã bật trạng thái đang bán cho sản phẩm!');
           } else {
             await unPublishProduct(id, userId, accessToken);
-            toast.success("Unpublished product successful!");
+            toast.success('Đã tắt trạng thái đang bán của sản phẩm!');
           }
-        } if (item === 'variant') {
+        } else if (item === 'variant') {
           if (checked) {
             await publishVariant(id, userId, accessToken);
-            toast.success("Published variant successful!");
+            toast.success('Đã bật trạng thái đang bán cho biến thể!');
           } else {
             await unPublishVariant(id, userId, accessToken);
-            toast.success("Unpublished variant successful!");
+            toast.success('Đã tắt trạng thái đang bán của biến thể!');
           }
-        } if (item === 'all-variant') {
+        } else if (item === 'all-variant') {
           if (checked) {
             await publishAllVariant(id, userId, accessToken);
-            toast.success("Published all variant successful!");
+            toast.success('Đã bật trạng thái đang bán cho tất cả biến thể!');
           } else {
             await unPublishAllVariant(id, userId, accessToken);
-            toast.success("Unpublished all variant successful!");
+            toast.success('Đã tắt trạng thái đang bán của tất cả biến thể!');
           }
         }
+
         setEnabled(checked);
       } catch (error) {
-        toast.error("Failed to toggle product status.");
+        toast.error('Không thể thay đổi trạng thái.');
       }
     }
   };
@@ -62,7 +72,7 @@ const Publish: React.FC<PublishProps> = ({ id, status, item }) => {
       checked={enabled}
       onCheckedChange={handleSwitch}
     />
-  )
-}
+  );
+};
 
 export default Publish;

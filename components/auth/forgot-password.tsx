@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link"; // ✅ Import Link
+import Link from "next/link";
 
 import { forgotPassword } from '@/app/api/auth';
 import { toast } from 'react-toastify';
@@ -27,9 +27,9 @@ export function ForgotForm({
     setLoading(true);
     try {
       await forgotPassword(formData);
-      toast.success('Password reset link sent successfully!');
+      toast.success('Đã gửi liên kết đặt lại mật khẩu thành công!');
     } catch {
-      toast.error("There was an error sending the reset link. Please try again.");
+      toast.error("Gửi liên kết thất bại. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
@@ -38,27 +38,27 @@ export function ForgotForm({
   return (
     <form className={cn('flex flex-col gap-6', className)} onSubmit={handleSubmit} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Forgot your password?</h1>
+        <h1 className="text-2xl font-bold">Quên mật khẩu?</h1>
         <p className="text-balance text-sm text-muted-foreground">
-          Please enter the email address associated with your account and we will email you a link to reset your password.
+          Vui lòng nhập email mà bạn đã đăng ký, chúng tôi sẽ gửi liên kết đặt lại mật khẩu cho bạn.
         </p>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" placeholder="Enter your email" required />
+          <Input id="email" name="email" type="email" placeholder="Nhập email của bạn" required />
         </div>
         <Button 
           type="submit" 
           className="w-full"
           disabled={loading}
         >
-          {loading ? "SENDING..." : "SEND REQUEST"}
+          {loading ? "ĐANG GỬI..." : "GỬI YÊU CẦU"}
         </Button>
       </div>
       <div className="text-center text-sm">
         <Link href="/" className="hover:underline">
-          BACK
+          Quay lại
         </Link>
       </div>
     </form>

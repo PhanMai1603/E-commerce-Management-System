@@ -7,7 +7,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "react-toastify";
 import { updateRole } from "@/app/api/role";
 import { RoleDetailResponse } from "@/interface/role";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const categories = ["PAGE", "MANAGE_PRODUCT", "SYSTEM", "MANAGE_ORDER", "SETTING"] as const;
@@ -17,10 +24,43 @@ const entities: { [key in typeof categories[number]]: string[] } = {
   MANAGE_PRODUCT: ["PRODUCT", "CATEGORY", "ATTRIBUTE", "SKU", "UPLOAD", "COUPON"],
   SYSTEM: ["USER", "ROLE"],
   MANAGE_ORDER: ["REVIEW", "ORDER"],
-  SETTING: ["PAYMENT_TYPE", "DELIVERY_TYPE", "CITY"],
+  SETTING: ["PAYMENT_TYPE", "DELIVERY_TYPE", "CITY"]
 };
 
 const actions = ["CREATE", "VIEW", "UPDATE", "DELETE"];
+
+const categoryLabels: Record<string, string> = {
+  PAGE: "Trang chính",
+  MANAGE_PRODUCT: "Quản lý sản phẩm",
+  SYSTEM: "Hệ thống",
+  MANAGE_ORDER: "Quản lý đơn hàng",
+  SETTING: "Cài đặt"
+};
+
+const entityLabels: Record<string, string> = {
+  PANEL: "Bảng điều khiển",
+  DASHBOARD: "Thống kê",
+  PRODUCT: "Sản phẩm",
+  CATEGORY: "Danh mục",
+  ATTRIBUTE: "Thuộc tính",
+  SKU: "Biến thể",
+  UPLOAD: "Tải lên",
+  COUPON: "Mã giảm giá",
+  USER: "Người dùng",
+  ROLE: "Vai trò",
+  REVIEW: "Đánh giá",
+  ORDER: "Đơn hàng",
+  PAYMENT_TYPE: "Phương thức thanh toán",
+  DELIVERY_TYPE: "Hình thức giao hàng",
+  CITY: "Thành phố"
+};
+
+const actionLabels: Record<string, string> = {
+  CREATE: "Tạo",
+  VIEW: "Xem",
+  UPDATE: "Sửa",
+  DELETE: "Xóa"
+};
 
 interface RoleEditFormProps {
   role: RoleDetailResponse;
@@ -58,53 +98,51 @@ export default function RoleEditForm({ role, onSave, onCancel }: RoleEditFormPro
         ...(prev[category] || {}),
         [entity]: {
           ...(prev[category]?.[entity] || {}),
-          [action]: !(prev[category]?.[entity]?.[action] ?? false),
-        },
-      },
+          [action]: !(prev[category]?.[entity]?.[action] ?? false)
+        }
+      }
     }));
   };
 
   const handleSubmit = async () => {
     const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
     const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
-  
+
     if (!userId || !accessToken) {
-      toast.error("User ID or Access Token is missing");
+      toast.error("Thiếu thông tin đăng nhập.");
       return;
     }
-  
+
     const newTrimmed = roleName.trim();
     if (!newTrimmed) {
-      toast.error("Role name cannot be empty");
+      toast.error("Tên vai trò không được để trống.");
       return;
     }
-  
+
     const updatedData: any = {
-      name: newTrimmed, // luôn gửi name!
-      permissions,
+      name: newTrimmed,
+      permissions
     };
-  
+
     try {
       await updateRole(role.id, updatedData, userId, accessToken);
-      toast.success("Role updated successfully!");
+      toast.success("Cập nhật vai trò thành công!");
       onSave();
       onCancel();
     } catch (error) {
-      toast.error("Failed to update role");
+      toast.error("Cập nhật vai trò thất bại.");
     }
   };
-  
-  
 
   return (
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
-          <CardTitle>Edit Role</CardTitle>
+          <CardTitle>Chỉnh sửa vai trò</CardTitle>
         </CardHeader>
         <CardContent>
           <Input
-            placeholder="Enter role name"
+            placeholder="Nhập tên vai trò"
             value={roleName}
             onChange={(e) => setRoleName(e.target.value)}
             className="mb-4"
@@ -113,10 +151,10 @@ export default function RoleEditForm({ role, onSave, onCancel }: RoleEditFormPro
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
+                <TableHead>Thực thể</TableHead>
                 {actions.map((action) => (
                   <TableHead key={action} className="text-center">
-                    {action}
+                    {actionLabels[action]}
                   </TableHead>
                 ))}
               </TableRow>
@@ -126,13 +164,13 @@ export default function RoleEditForm({ role, onSave, onCancel }: RoleEditFormPro
                 <React.Fragment key={category}>
                   <TableRow key={`${category}-header`} className="bg-gray-200">
                     <TableCell colSpan={actions.length + 1} className="font-bold">
-                      {category}
+                      {categoryLabels[category]}
                     </TableCell>
                   </TableRow>
 
                   {entities[category].map((entity) => (
                     <TableRow key={`${category}-${entity}`}>
-                      <TableCell className="pl-6">{entity}</TableCell>
+                      <TableCell className="pl-6">{entityLabels[entity]}</TableCell>
                       {actions.map((action) => (
                         <TableCell key={`${category}-${entity}-${action}`} className="text-center">
                           <Checkbox
@@ -151,9 +189,8 @@ export default function RoleEditForm({ role, onSave, onCancel }: RoleEditFormPro
       </Card>
 
       <div className="flex gap-2 justify-end">
-       
-        <Button onClick={onCancel} variant="secondary">CANCEL</Button>
-         <Button onClick={handleSubmit}>SAVE</Button>
+        <Button onClick={onCancel} variant="secondary">Hủy</Button>
+        <Button onClick={handleSubmit}>Lưu</Button>
       </div>
     </div>
   );

@@ -30,9 +30,7 @@ const InformationCouponForm: React.FC<InformationCouponFormProps> = ({
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
-        
         let newValue: string | number | null = value;
-
         if (["value", "minValue", "maxValue", "maxUses", "maxUsesPerUser"].includes(name)) {
             newValue = value === "" ? null : Math.max(0, Number(value));
         }
@@ -50,56 +48,53 @@ const InformationCouponForm: React.FC<InformationCouponFormProps> = ({
         }));
     };
 
-    // ✅ Cập nhật type khi chọn từ dropdown
     const handleSelect = (value: "PERCENT" | "AMOUNT") => {
         setCoupon((prev) => ({
             ...prev,
-            type: value, // ✅ Đúng kiểu enum, không cần ép kiểu
+            type: value,
         }));
     };
-    
+
     return (
         <Card className="col-span-1">
             <CardHeader>
-                <CardTitle className="text-base">Add Coupon Information</CardTitle>
+                <CardTitle className="text-base">Thông tin mã giảm giá</CardTitle>
             </CardHeader>
 
             <CardContent className="grid grid-cols-2 gap-4">
-                {/* Name */}
+                {/* Tên mã giảm giá */}
                 <div className="space-y-2 col-span-1">
-                    <Label>Coupon Name</Label>
+                    <Label>Tên mã</Label>
                     <Input
                         name="name"
                         value={coupon.name}
                         type="text"
-                        placeholder="Enter coupon name"
+                        placeholder="Nhập tên mã giảm giá"
                         onChange={handleChange}
                     />
                 </div>
 
-                {/* Code */}
+                {/* Mã code */}
                 <div className="space-y-2">
-                    <Label>Code</Label>
-                    <Input 
-                        name="code" 
-                        value={coupon.code} 
-                        onChange={handleChange} 
+                    <Label>Mã code</Label>
+                    <Input
+                        name="code"
+                        value={coupon.code}
+                        placeholder="Nhập mã"
+                        onChange={handleChange}
                     />
                 </div>
 
-                {/* Start Date */}
+                {/* Ngày bắt đầu */}
                 <div className="space-y-2">
-                    <Label>Start Date</Label>
+                    <Label>Ngày bắt đầu</Label>
                     <Popover open={openStart} onOpenChange={setOpenStart}>
                         <PopoverTrigger asChild>
-                            <Button
-                                variant="outline"
-                                className="w-full justify-start text-left"
-                            >
+                            <Button variant="outline" className="w-full justify-start text-left">
                                 {coupon.startDate ? (
-                                    new Date(coupon.startDate).toLocaleDateString()
+                                    new Date(coupon.startDate).toLocaleDateString("vi-VN")
                                 ) : (
-                                    <span>Pick a date</span>
+                                    <span>Chọn ngày</span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
@@ -118,19 +113,16 @@ const InformationCouponForm: React.FC<InformationCouponFormProps> = ({
                     </Popover>
                 </div>
 
-                {/* End Date */}
+                {/* Ngày kết thúc */}
                 <div className="space-y-2">
-                    <Label>End Date</Label>
+                    <Label>Ngày kết thúc</Label>
                     <Popover open={openEnd} onOpenChange={setOpenEnd}>
                         <PopoverTrigger asChild>
-                            <Button
-                                variant="outline"
-                                className="w-full justify-start text-left"
-                            >
+                            <Button variant="outline" className="w-full justify-start text-left">
                                 {coupon.endDate ? (
-                                    new Date(coupon.endDate).toLocaleDateString()
+                                    new Date(coupon.endDate).toLocaleDateString("vi-VN")
                                 ) : (
-                                    <span>Pick a date</span>
+                                    <span>Chọn ngày</span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
@@ -149,30 +141,31 @@ const InformationCouponForm: React.FC<InformationCouponFormProps> = ({
                     </Popover>
                 </div>
 
-                {/* Types */}
+                {/* Loại giảm giá */}
                 <div className="space-y-2 col-span-1">
-                    <Label>Types</Label>
+                    <Label>Loại giảm giá</Label>
                     <Select onValueChange={handleSelect} value={coupon.type}>
                         <SelectTrigger className="flex h-10 hover:bg-gray-600/10">
-                            <SelectValue placeholder="Select type" />
+                            <SelectValue placeholder="Chọn loại" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
-                                <SelectItem value="PERCENT">Percent</SelectItem>
-                                <SelectItem value="AMOUNT">Amount</SelectItem>
+                                <SelectItem value="PERCENT">Theo phần trăm</SelectItem>
+                                <SelectItem value="AMOUNT">Theo số tiền</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                     </Select>
                 </div>
 
-                {/* Value */}
+                {/* Giá trị giảm */}
                 <div className="space-y-2 col-span-1">
-                    <Label>Value</Label>
+                    <Label>Giá trị</Label>
                     <Input
                         name="value"
                         type="number"
                         value={coupon.value}
                         onChange={handleChange}
+                        placeholder="Nhập giá trị giảm"
                     />
                 </div>
             </CardContent>

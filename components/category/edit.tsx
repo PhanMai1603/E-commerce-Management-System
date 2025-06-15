@@ -36,7 +36,7 @@ export default function CategoryEditModal({
 
   const handleUpdateCategory = async () => {
     if (!category || !categoryName.trim()) {
-      toast.error("Category name cannot be empty!");
+      toast.error("Tên danh mục không được để trống!");
       return;
     }
 
@@ -49,11 +49,11 @@ export default function CategoryEditModal({
         userId,
         accessToken
       );
-      toast.success("Category updated successfully!");
+      toast.success("Cập nhật danh mục thành công!");
       onOpenChange(false);
       onCategoryUpdated();
     } catch (error) {
-      toast.error("Error updating category. Please try again.");
+      toast.error("Cập nhật thất bại. Vui lòng thử lại!");
     }
   };
 
@@ -68,14 +68,14 @@ export default function CategoryEditModal({
         >
           <X className="w-5 h-5" />
         </button>
-        <h2 className="text-xl font-semibold mb-4">Edit Category</h2>
+        <h2 className="text-xl font-semibold mb-4">Chỉnh sửa danh mục</h2>
         <Input
-          placeholder="Category Name"
+          placeholder="Tên danh mục"
           value={categoryName}
           onChange={(e) => setCategoryName(e.target.value)}
         />
         <Button onClick={handleUpdateCategory} className="mt-4 w-full">
-          Save Changes
+          Lưu thay đổi
         </Button>
       </div>
     </div>

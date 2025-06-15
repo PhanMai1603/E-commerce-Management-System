@@ -10,16 +10,6 @@ import AttributeForm from './information/attribute'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import Publish from './switch'
 
-// interface InformationFormProps {
-//   product: ProductDetail,
-//   updatedProduct: ProductUpdate,
-//   setUpdatedProduct: React.Dispatch<React.SetStateAction<ProductUpdate>>,
-//   userId: string,
-//   accessToken: string,
-//   importQuantity: string,
-//   setImportQuantity: React.Dispatch<React.SetStateAction<string>>,
-// }
-
 interface InformationFormProps {
   product: ProductDetail;
   updatedProduct: ProductUpdate;
@@ -28,10 +18,8 @@ interface InformationFormProps {
   accessToken: string;
   importQuantity: ImportProduct;
   setImportQuantity: React.Dispatch<React.SetStateAction<ImportProduct>>;
-  hasSkuTable: boolean; // ✅ THÊM DÒNG NÀY
+  hasSkuTable: boolean;
 }
-
-
 
 const InformationForm: React.FC<InformationFormProps> = ({
   product,
@@ -90,102 +78,98 @@ const InformationForm: React.FC<InformationFormProps> = ({
     });
   };
 
-  // const attributeCount = product.attributes?.length ?? 0;
-
   return (
     <Card className='col-span-3'>
       <CardHeader>
-        <CardTitle className='text-base'>Edit Product Information</CardTitle>
+        <CardTitle className='text-base'>Chỉnh sửa thông tin sản phẩm</CardTitle>
       </CardHeader>
 
       <CardContent className='grid grid-cols-6 gap-x-6 gap-y-8'>
         <div className='space-y-2 col-span-6'>
-          <Label>Video URL</Label>
+          <Label>Đường dẫn video</Label>
           <Input
             name='video'
             value={displayProduct.video ?? ''}
             type='text'
-            placeholder='Enter video url'
+            placeholder='Nhập URL video'
             onChange={handleChange}
           />
         </div>
 
         <div className='space-y-2 col-span-6'>
-          <Label>Product Name</Label>
+          <Label>Tên sản phẩm</Label>
           <Input
             name='name'
             value={displayProduct.name ?? ''}
             type='text'
-            placeholder='Enter product name'
+            placeholder='Nhập tên sản phẩm'
             onChange={handleChange}
           />
         </div>
 
         <div className='w-full space-y-2 col-span-6'>
-          <Label>Product Categories</Label>
+          <Label>Danh mục sản phẩm</Label>
           <CategorySelection product={product} setUpdatedProduct={setUpdatedProduct} />
         </div>
 
-<div className="col-span-6 grid grid-cols-6 gap-x-6 items-end">
-  {/* Original Price */}
-  <div className="col-span-4 flex flex-col gap-1">
-    <Label>Original Price</Label>
-    <Input
-      name="originalPrice"
-      value={displayProduct.originalPrice ?? ''}
-      type="number"
-      min="0"
-      placeholder="Enter product original price"
-      onChange={handleChange}
-      className="h-10"
-    />
-  </div>
+        <div className="col-span-6 grid grid-cols-6 gap-x-6 items-end">
+          {/* Giá gốc */}
+          <div className="col-span-4 flex flex-col gap-1">
+            <Label>Giá gốc</Label>
+            <Input
+              name="originalPrice"
+              value={displayProduct.originalPrice ?? ''}
+              type="number"
+              min="0"
+              placeholder="Nhập giá gốc"
+              onChange={handleChange}
+              className="h-10"
+            />
+          </div>
 
-  {/* Import Quantity */}
-  <div className="col-span-1 flex flex-col gap-1">
-    <Label>Import Quantity</Label>
-    <Input
-      type="number"
-      min="0"
-      value={importQuantity.quantity || ''}
-      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-        setImportQuantity((prev) => ({
-          ...prev,
-          quantity: Number(e.target.value),
-        }))
-      }
-      placeholder="Qty"
-      disabled={hasSkuTable}
-      className="h-10"
-    />
-  </div>
+          {/* Số lượng nhập */}
+          <div className="col-span-1 flex flex-col gap-1">
+            <Label>Số lượng nhập</Label>
+            <Input
+              type="number"
+              min="0"
+              value={importQuantity.quantity || ''}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setImportQuantity((prev) => ({
+                  ...prev,
+                  quantity: Number(e.target.value),
+                }))
+              }
+              placeholder="Số lượng"
+              disabled={hasSkuTable}
+              className="h-10"
+            />
+          </div>
 
-  {/* Return Day */}
-  <div className="col-span-1 flex flex-col gap-1">
-    <Label>Return Day</Label>
-    <Select
-      value={String(displayProduct.returnDays ?? '')}
-      onValueChange={handleValueChange}
-    >
-      <SelectTrigger className="h-10">
-        <SelectValue placeholder="Select" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectItem value="0">0 day</SelectItem>
-          <SelectItem value="7">7 days</SelectItem>
-          <SelectItem value="14">14 days</SelectItem>
-          <SelectItem value="30">30 days</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  </div>
-</div>
-
-
+          {/* Số ngày hoàn trả */}
+          <div className="col-span-1 flex flex-col gap-1">
+            <Label>Số ngày hoàn trả</Label>
+            <Select
+              value={String(displayProduct.returnDays ?? '')}
+              onValueChange={handleValueChange}
+            >
+              <SelectTrigger className="h-10">
+                <SelectValue placeholder="Chọn" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="0">0 ngày</SelectItem>
+                  <SelectItem value="7">7 ngày</SelectItem>
+                  <SelectItem value="14">14 ngày</SelectItem>
+                  <SelectItem value="30">30 ngày</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         <div className='space-y-2 col-span-6'>
-          <Label>Product Attributes</Label>
+          <Label>Thuộc tính sản phẩm</Label>
           <AttributeForm
             product={product}
             setUpdatedProduct={setUpdatedProduct}
@@ -195,7 +179,7 @@ const InformationForm: React.FC<InformationFormProps> = ({
         </div>
 
         <div className='space-x-4 col-span-6 flex justify-end items-center'>
-          <Label>Publish Product</Label>
+          <Label>Bán sản phẩm</Label>
           <Publish id={product.id} status={product.status} item='product' />
         </div>
       </CardContent>

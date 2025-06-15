@@ -4,7 +4,7 @@ import { CouponData } from "@/interface/coupon";
 
 interface DescriptionCouponFormProps {
   description: string;
-  setCoupon: React.Dispatch<React.SetStateAction<CouponData>>; // Đổi `setProduct` thành `setCoupon`
+  setCoupon: React.Dispatch<React.SetStateAction<CouponData>>;
 }
 
 const DescriptionCouponForm: React.FC<DescriptionCouponFormProps> = ({ description, setCoupon }) => {
@@ -20,14 +20,14 @@ const DescriptionCouponForm: React.FC<DescriptionCouponFormProps> = ({ descripti
   return (
     <Card className="col-span-2 flex flex-col">
       <CardHeader>
-        <CardTitle className="text-base">Add Coupon Description</CardTitle>
+        <CardTitle className="text-base">Mô tả mã giảm giá</CardTitle>
       </CardHeader>
 
       <CardContent className="flex flex-1">
         <Textarea
           name="description"
           value={description}
-          placeholder="Enter coupon description..."
+          placeholder="Nhập mô tả mã giảm giá..."
           onChange={handleChange}
           className="flex-1 overflow-y-auto"
         />

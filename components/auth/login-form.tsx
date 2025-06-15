@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import React, { useEffect, useState } from "react";
+
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -12,9 +13,9 @@ import { useAuth } from "@/app/context/AppContext";
 import useDeviceInfo from "@/hooks/useDeviceInfo";
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"form">) {
-    const [formData, setFormData] = useState({
-    email: "shareandcaret@gmail.com", // Pre-filled email
-    password: "ShareAndCare2024", // Pre-filled password
+  const [formData, setFormData] = useState({
+    email: "shareandcaret@gmail.com",
+    password: "ShareAndCare2024",
   });
   const [loading, setLoading] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -28,7 +29,6 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
     setIsLogin(false);
   }, [setIsLogin]);
 
-  // 👇 Handle Google Redirect Login
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const accessToken = urlParams.get("accessToken");
@@ -47,16 +47,15 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
       checkAdmin(userId, accessToken)
         .then((isAdmin) => {
           if (isAdmin) {
-            toast.success("Login with Google successful!");
+            toast.success("Đăng nhập bằng Google thành công!");
             router.push("/dashboard");
           } else {
-            toast.error("You do not have admin privileges!");
+            toast.error("Bạn không có quyền quản trị!");
           }
         })
-        .catch(() => toast.error("Error checking admin privileges."));
+        .catch(() => toast.error("Lỗi kiểm tra quyền quản trị."));
     }
   }, [router, setIsLogin]);
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -75,7 +74,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
         deviceName,
       });
 
-      toast.success("Login successful!");
+      toast.success("Đăng nhập thành công!");
       setIsLogin(true);
 
       const currentTime = Date.now();
@@ -90,14 +89,14 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
       const userId = response.user.id;
 
       const isAdmin = await checkAdmin(userId, accessToken);
-      
+
       if (isAdmin) {
         router.push("/dashboard");
       } else {
-        toast.error("You do not have admin privileges!");
+        toast.error("Bạn không có quyền quản trị!");
       }
     } catch {
-      toast.error("Login failed!");
+      toast.error("Đăng nhập thất bại!");
     } finally {
       setLoading(false);
     }
@@ -108,9 +107,9 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
       {isClient && (
         <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit} {...props}>
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-bold">Login to your account</h1>
+            <h1 className="text-2xl font-bold">Đăng nhập tài khoản</h1>
             <p className="text-sm text-muted-foreground">
-              Enter your email below to login to your account
+              Vui lòng nhập email và mật khẩu để đăng nhập
             </p>
           </div>
           <div className="grid gap-6">
@@ -120,7 +119,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                 id="email"
                 type="email"
                 name="email"
-                placeholder="m@example.com"
+                placeholder="nhap@email.com"
                 required
                 onChange={handleChange}
                 value={formData.email}
@@ -128,12 +127,12 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
             </div>
             <div className="grid gap-2">
               <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Mật khẩu</Label>
                 <a
                   href="/auth/forgot-password"
                   className="ml-auto text-sm underline-offset-4 hover:underline"
                 >
-                  Forgot your password?
+                  Quên mật khẩu?
                 </a>
               </div>
               <Input
@@ -146,11 +145,11 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "LOGGING IN..." : "LOGIN"}
+              {loading ? "ĐANG ĐĂNG NHẬP..." : "ĐĂNG NHẬP"}
             </Button>
             <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
               <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                Or continue with
+                Hoặc đăng nhập bằng
               </span>
             </div>
             <Button
@@ -166,7 +165,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                 alt="Google icon"
                 className="w-5 h-5"
               />
-              <span className="text-sm font-medium text-gray-700">Sign in with Google</span>
+              <span className="text-sm font-medium text-gray-700">Đăng nhập với Google</span>
             </Button>
           </div>
         </form>

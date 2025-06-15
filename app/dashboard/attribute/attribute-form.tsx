@@ -32,6 +32,7 @@ export default function AttributesTableWrapper() {
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(5);
   const [totalPages, setTotalPages] = useState<number>(1);
+
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken =
@@ -43,7 +44,7 @@ export default function AttributesTableWrapper() {
       const response = await getAllAttributes(userId, accessToken, page, size);
       setAttributes(response.items);
     } catch (error) {
-      toast.error("Failed to fetch attributes.");
+      toast.error("Không thể lấy danh sách thuộc tính.");
     } finally {
       setLoading(false);
     }
@@ -55,16 +56,16 @@ export default function AttributesTableWrapper() {
 
   const handleAddAttribute = async () => {
     if (!attributeName || !attributeType) {
-      return toast.error("Please fill in all required information!");
+      return toast.error("Vui lòng điền đầy đủ thông tin!");
     }
 
     if (isVariant && attributeValues.length === 0) {
-      return toast.error("Please add at least one value!");
+      return toast.error("Vui lòng thêm ít nhất một giá trị!");
     }
 
     const hasEmpty = attributeValues.some((v) => !v.value || !v.description_url);
     if (isVariant && hasEmpty) {
-      return toast.error("Please fill all value fields!");
+      return toast.error("Vui lòng điền đầy đủ các trường giá trị!");
     }
 
     try {
@@ -75,38 +76,36 @@ export default function AttributesTableWrapper() {
         values: isVariant ? attributeValues : [],
       });
 
-      toast.success("Attribute added successfully!");
+      toast.success("Thêm thuộc tính thành công!");
       setAttributeName("");
       setAttributeType("");
       setIsVariant(false);
       setAttributeValues([{ value: "", description_url: "" }]);
       fetchAttributes();
     } catch {
-      toast.error("Failed to add attribute.");
+      toast.error("Không thể thêm thuộc tính.");
     }
   };
 
   const handleAddValue = async () => {
     if (!editingAttribute || values.length === 0) {
-      return toast.error("Please fill in at least one value!");
+      return toast.error("Vui lòng nhập ít nhất một giá trị!");
     }
 
     const isEmpty = values.some((v) => !v.value || !v.description_url);
-    if (isEmpty) return toast.error("Please fill all value fields!");
+    if (isEmpty) return toast.error("Vui lòng điền đầy đủ các trường giá trị!");
 
-    // 🔥 Check duplicate in current input
     const inputSet = new Set(values.map(v => v.value.trim().toLowerCase()));
     if (inputSet.size !== values.length) {
-      return toast.error("Duplicate values in input!");
+      return toast.error("Có giá trị bị trùng lặp trong ô nhập!");
     }
 
-    // 🔥 Check against existing attribute values
     const existing = new Set(
       editingAttribute.values?.map(v => v.value.trim().toLowerCase())
     );
     const hasDuplicate = values.some(v => existing.has(v.value.trim().toLowerCase()));
     if (hasDuplicate) {
-      return toast.error("One or more values already exist in this attribute!");
+      return toast.error("Một hoặc nhiều giá trị đã tồn tại trong thuộc tính này!");
     }
 
     try {
@@ -115,12 +114,12 @@ export default function AttributesTableWrapper() {
         values,
       });
 
-      toast.success("Values added successfully!");
+      toast.success("Thêm giá trị thành công!");
       setValues([]);
       setEditingAttribute(null);
       fetchAttributes();
     } catch {
-      toast.error("Failed to add values.");
+      toast.error("Không thể thêm giá trị.");
     }
   };
 
@@ -130,16 +129,16 @@ export default function AttributesTableWrapper() {
       setEditingAttribute(attr);
       setValues([{ value: "", description_url: "" }]);
     } else {
-      toast.error("Attribute not found.");
+      toast.error("Không tìm thấy thuộc tính.");
     }
   };
 
   const handleView = (attribute: AttributeItem) => {
-    console.log("Viewing attribute:", attribute);
+    console.log("Xem thuộc tính:", attribute);
   };
 
   return (
-    <div className="grid grid-cols-3 gap-4 ">
+    <div className="grid grid-cols-3 gap-4">
       <AttributeTable
         attributes={attributes}
         loading={loading}
@@ -151,7 +150,6 @@ export default function AttributesTableWrapper() {
         setSize={setSize}
         totalPages={totalPages}
       />
-
 
       <AddAttributeForm
         attributeName={attributeName}
@@ -172,10 +170,9 @@ export default function AttributesTableWrapper() {
           values={values}
           setValues={setValues}
           onSubmit={handleAddValue}
-          onCancel={() => setEditingAttribute(null)} // 🆕
+          onCancel={() => setEditingAttribute(null)}
         />
       )}
-
     </div>
   );
 }

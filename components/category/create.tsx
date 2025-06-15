@@ -24,31 +24,28 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
   const [childCategories, setChildCategories] = useState<Category[]>([]);
   const [subChildCategories, setSubChildCategories] = useState<Category[]>([]);
 
-  // Fetch top-level categories when the modal is opened
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const data = await getAllCategories();
         setCategories(data);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Lỗi khi tải danh mục:", error);
       }
     };
 
     if (open) {
       fetchCategories();
-      resetState();  // Reset everything on open
+      resetState();
     }
   }, [open]);
 
-  // Reset all states on modal close
   const resetState = () => {
     setNewCategory({ name: "", parentId: "", childId: "" });
     setChildCategories([]);
     setSubChildCategories([]);
   };
 
-  // Handle parent category change
   const handleParentChange = async (parentId: string) => {
     setNewCategory({ name: newCategory.name, parentId, childId: "" });
     setChildCategories([]);
@@ -59,12 +56,11 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
         const data = await getChildCategories(parentId);
         setChildCategories(data);
       } catch (error) {
-        console.error("Error fetching child categories:", error);
+        console.error("Lỗi khi tải danh mục con:", error);
       }
     }
   };
 
-  // Handle child category change
   const handleChildChange = async (childId: string) => {
     setNewCategory((prev) => ({ ...prev, childId }));
     setSubChildCategories([]);
@@ -74,15 +70,14 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
         const data = await getChildCategories(childId);
         setSubChildCategories(data);
       } catch (error) {
-        console.error("Error fetching sub-child categories:", error);
+        console.error("Lỗi khi tải danh mục con cấp 2:", error);
       }
     }
   };
 
-  // Create new category
   const handleCreateCategory = async () => {
     if (!newCategory.name.trim()) {
-      toast.error("Category name is required!");
+      toast.error("Tên danh mục không được để trống!");
       return;
     }
 
@@ -96,14 +91,14 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
       const accessToken = localStorage.getItem("accessToken") || "";
 
       await createCategories(categoryData, userId, accessToken);
-      toast.success("Category created successfully!");
+      toast.success("✅ Tạo danh mục thành công!");
 
       resetState();
       onOpenChange(false);
       onCategoryCreated();
     } catch (error) {
-      console.error("Error creating category:", error);
-      toast.error("Failed to create category.");
+      console.error("Lỗi khi tạo danh mục:", error);
+      toast.error("❌ Tạo danh mục thất bại.");
     }
   };
 
@@ -111,22 +106,21 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Category</DialogTitle>
+          <DialogTitle>Thêm danh mục mới</DialogTitle>
         </DialogHeader>
 
         <Input
-          placeholder="Category Name"
+          placeholder="Nhập tên danh mục"
           value={newCategory.name}
           onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
         />
 
-        {/* Dropdown for Parent (Top-level) */}
         <select
           value={newCategory.parentId}
           onChange={(e) => handleParentChange(e.target.value)}
           className="w-full p-2 border rounded-md mt-2"
         >
-          <option value="">No Parent (Top-level Category)</option>
+          <option value="">Không có danh mục cha (Cấp 1)</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
@@ -134,14 +128,13 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
           ))}
         </select>
 
-        {/* Dropdown for Child (Level 2) */}
         {childCategories.length > 0 && (
           <select
             value={newCategory.childId}
             onChange={(e) => handleChildChange(e.target.value)}
             className="w-full p-2 border rounded-md mt-2"
           >
-            <option value="">Select Subcategory</option>
+            <option value="">Chọn danh mục con</option>
             {childCategories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -151,7 +144,7 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
         )}
 
         <Button onClick={handleCreateCategory} className="mt-2">
-          ADD CATEGORY
+          Thêm danh mục
         </Button>
       </DialogContent>
     </Dialog>

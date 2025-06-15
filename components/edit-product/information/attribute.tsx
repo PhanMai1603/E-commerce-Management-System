@@ -134,7 +134,7 @@ const AttributeForm: React.FC<AttributeFormProps> = ({ product, setUpdatedProduc
           const response = await getAllAttribute(userId, accessToken);
           setAttributes(response);
         } catch (error) {
-          console.error("Error fetching attributes:", error);
+          console.error("Lỗi khi tìm nạp thuộc tính:", error);
         }
       }
     }
@@ -342,11 +342,11 @@ const AttributeForm: React.FC<AttributeFormProps> = ({ product, setUpdatedProduc
             }
           >
             <SelectTrigger className="col-span-3 hover:bg-gray-600/10">
-              <SelectValue placeholder="Select name" />
+              <SelectValue placeholder="Chọn thuộc tính" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectLabel className="text-xs">Generate to variant</SelectLabel>
+                <SelectLabel className="text-xs">Có biến thể</SelectLabel>
                 {attributes?.items
                   .filter((attr) => attr.isVariantAttribute)
                   .map((attr) => (
@@ -357,7 +357,7 @@ const AttributeForm: React.FC<AttributeFormProps> = ({ product, setUpdatedProduc
               </SelectGroup>
               <span className="block w-full h-0.5 my-2 bg-gray-200"></span>
               <SelectGroup>
-                <SelectLabel className="text-xs">Not generate to variant</SelectLabel>
+                <SelectLabel className="text-xs">Không có biến thể</SelectLabel>
                 {attributes?.items
                   .filter((attr) => !attr.isVariantAttribute)
                   .map((attr) => (
@@ -401,7 +401,7 @@ const AttributeForm: React.FC<AttributeFormProps> = ({ product, setUpdatedProduc
                 <Button
                   className='flex justify-between items-center w-full px-3 bg-transparent font-normal text-gray-600 hover:bg-transparent'
                 >
-                  Select product attributes
+                  Chọn thuộc tính sản phẩm
                   <ChevronDown />
                 </Button>
               </div>

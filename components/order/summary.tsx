@@ -29,47 +29,46 @@ export default function Summary({ pricing }: SummaryProps) {
 
   return (
     <div className="col-span-1">
-      <Card className="shadow-lg border border-gray-200 bg-gradient-to-br from-white to-gray-50">
+      <Card className="rounded-2xl shadow-xl border border-gray-200 bg-gradient-to-br from-white to-slate-50">
         <CardHeader className="border-b pb-4">
-          <h3 className="text-xl font-bold text-gray-900">Order Summary</h3>
+          <h3 className="text-2xl font-bold text-gray-800">Tóm tắt đơn hàng</h3>
         </CardHeader>
 
-        <CardContent className="space-y-3 text-sm text-gray-700">
-          {/* Items */}
+        <CardContent className="space-y-4 text-sm text-gray-700 py-4">
           <div className="flex justify-between">
-            <span>Subtotal:</span>
-            <span className="font-medium">{formatCurrency(itemsPrice)}</span>
+            <span className="font-medium text-gray-600">Tạm tính:</span>
+            <span className="font-semibold">{formatCurrency(itemsPrice)}</span>
           </div>
 
-          {/* Discounts */}
           <div className="flex justify-between text-red-600">
-            <span>Product Discount:</span>
+            <span>Giảm giá sản phẩm:</span>
             <span>-{formatCurrency(productDiscount)}</span>
           </div>
+
           <div className="flex justify-between text-red-600">
-            <span>Coupon Discount:</span>
+            <span>Mã giảm giá:</span>
             <span>-{formatCurrency(couponDiscount)}</span>
           </div>
 
-          {/* Shipping */}
           <div className="flex justify-between">
-            <span>Shipping Fee:</span>
-            <span className="font-medium">{formatCurrency(shippingPrice)}</span>
+            <span className="font-medium text-gray-600">Phí vận chuyển:</span>
+            <span className="font-semibold">{formatCurrency(shippingPrice)}</span>
           </div>
+
           <div className="flex justify-between text-red-600">
-            <span>Shipping Discount:</span>
+            <span>Giảm giá vận chuyển:</span>
             <span>-{formatCurrency(shippingDiscount)}</span>
           </div>
 
-          {/* Total Savings */}
-          <div className="flex justify-between text-green-600 font-medium border-t pt-3">
-            <span>Total Savings:</span>
+          <hr className="my-2 border-t border-gray-300" />
+
+          <div className="flex justify-between text-green-600 font-medium">
+            <span>Tiết kiệm tổng cộng:</span>
             <span>-{formatCurrency(totalSavings)}</span>
           </div>
 
-          {/* Grand total */}
-          <div className="flex justify-between items-center border-t pt-4 mt-2 text-lg font-bold text-gray-900">
-            <span>Total to Pay:</span>
+          <div className="flex justify-between items-center border-t pt-4 mt-4 text-lg font-bold text-gray-900">
+            <span>Tổng thanh toán:</span>
             <span className="text-green-700">{formatCurrency(totalPrice)}</span>
           </div>
         </CardContent>

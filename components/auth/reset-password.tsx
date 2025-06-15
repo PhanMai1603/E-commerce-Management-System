@@ -17,7 +17,7 @@ export function ResetPasswordForm({
 }: React.ComponentPropsWithoutRef<"form">) {
   const pathName = usePathname();
   const router = useRouter();
-  const resetToken = pathName.split("/").pop() || ""; // Lấy token từ URL
+  const resetToken = pathName.split("/").pop() || "";
 
   const [formData, setFormData] = useState({
     resetToken: resetToken,
@@ -26,22 +26,20 @@ export function ResetPasswordForm({
 
   const [loading, setLoading] = useState(false);
 
-  // Xử lý thay đổi input
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, newPassword: e.target.value }));
   };
 
-  // Xử lý gửi form
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!formData.newPassword) {
-      toast.error("Password cannot be empty!");
+      toast.error("Mật khẩu không được để trống!");
       return;
     }
 
     if (!formData.resetToken) {
-      toast.error("Invalid reset token.");
+      toast.error("Token đặt lại không hợp lệ.");
       return;
     }
 
@@ -49,10 +47,10 @@ export function ResetPasswordForm({
 
     try {
       await resetPassword(formData);
-      toast.success("Your password has been updated successfully. Please log in again.");
+      toast.success("Đổi mật khẩu thành công. Vui lòng đăng nhập lại.");
       router.push("/");
     } catch {
-      toast.error("Failed to reset password. Please try again.");
+      toast.error("Đặt lại mật khẩu thất bại. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
@@ -61,31 +59,31 @@ export function ResetPasswordForm({
   return (
     <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Reset Your Password</h1>
+        <h1 className="text-2xl font-bold">Đặt lại mật khẩu</h1>
         <p className="text-sm text-muted-foreground">
-          Enter your new password below.
+          Vui lòng nhập mật khẩu mới của bạn bên dưới.
         </p>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-2">
-          <Label htmlFor="newPassword">New Password</Label>
+          <Label htmlFor="newPassword">Mật khẩu mới</Label>
           <Input
             id="newPassword"
             name="newPassword"
             type="password"
-            placeholder="Enter new password"
+            placeholder="Nhập mật khẩu mới"
             value={formData.newPassword}
             onChange={handleChange}
             required
           />
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "RESETING..." : "RESET PASSWORD"}
+          {loading ? "ĐANG XỬ LÝ..." : "ĐẶT LẠI MẬT KHẨU"}
         </Button>
       </div>
       <div className="text-center text-sm">
-         <Link href="/" className="hover:underline">
-          BACK
+        <Link href="/" className="hover:underline">
+          Quay lại
         </Link>
       </div>
     </form>

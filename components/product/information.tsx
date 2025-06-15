@@ -40,68 +40,68 @@ const InformationForm: React.FC<InformationFormProps> = ({ product, setProduct, 
   return (
     <Card className='col-span-3'>
       <CardHeader>
-        <CardTitle className='text-base'>Add Product Information</CardTitle>
+        <CardTitle className='text-base'>Thông tin sản phẩm</CardTitle>
       </CardHeader>
 
       <CardContent className='grid grid-cols-6 gap-x-6 gap-y-8'>
         <div className='space-y-2 col-span-6'>
-          <Label>Video URL</Label>
+          <Label>URL video giới thiệu</Label>
           <Input
             name='video'
             value={product.video}
             type='text'
-            placeholder='Enter video url'
+            placeholder='Nhập đường dẫn video'
             onChange={handleChange}
           />
         </div>
 
         <div className='space-y-2 col-span-6'>
-          <Label>Product Name</Label>
+          <Label>Tên sản phẩm</Label>
           <Input
             name='name'
             value={product.name}
             type='text'
-            placeholder='Enter product name'
+            placeholder='Nhập tên sản phẩm'
             onChange={handleChange}
           />
         </div>
 
         <div className='w-full space-y-2 col-span-6'>
-          <Label>Product Categories</Label>
+          <Label>Danh mục sản phẩm</Label>
           <CategorySelection setProduct={setProduct} />
         </div>
 
         <div className='space-y-2 col-span-4'>
-          <Label>Product Original Price</Label>
+          <Label>Giá gốc</Label>
           <Input
             name='originalPrice'
             value={product.originalPrice}
             type='number'
             min="0"
-            placeholder='Enter product original price'
+            placeholder='Nhập giá gốc'
             onChange={handleChange}
           />
         </div>
 
         <div className='space-y-2 col-span-2'>
-          <Label>Product Return Day</Label>
+          <Label>Số ngày hoàn trả</Label>
           <Select onValueChange={(value) => handleSelect(value)}>
             <SelectTrigger className='flex h-10 hover:bg-gray-600/10'>
-              <SelectValue placeholder="Select return day" />
+              <SelectValue placeholder="Chọn số ngày" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="0">0 day</SelectItem>
-                <SelectItem value="7">7 days</SelectItem>
-                <SelectItem value="14">14 days</SelectItem>
-                <SelectItem value="30">30 days</SelectItem>
+                <SelectItem value="0">Không cho đổi trả</SelectItem>
+                <SelectItem value="7">7 ngày</SelectItem>
+                <SelectItem value="14">14 ngày</SelectItem>
+                <SelectItem value="30">30 ngày</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
         </div>
 
         <div className='space-y-2 col-span-6'>
-          <Label>Product Attributes</Label>
+          <Label>Thuộc tính sản phẩm</Label>
           <AttributeForm
             product={product}
             setProduct={setProduct}

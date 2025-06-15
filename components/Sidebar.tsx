@@ -18,35 +18,35 @@ interface SidebarProps {
 
 const sidebarGroups = [
   {
-    title: "General",
+    title: "Chung",
     links: [
       { title: "Dashboard", icon: ChartNoAxesCombined, href: "/dashboard" },
-      { title: "Category", icon: LayoutGrid, href: "/dashboard/categories" },
-      { title: "Attributes", icon: Package2, href: "/dashboard/attribute" },
-      { title: "Products", icon: Shirt, href: "/dashboard/products" },
-      { title: "Orders", icon: ShoppingBag, href: "/dashboard/orders" },
-      { title: "Coupons", icon: TicketPercent, href: "/dashboard/coupons" },
-      { title: "Review", icon: MessageSquareHeart, href: "/dashboard/review" },
+      { title: "Danh mục", icon: LayoutGrid, href: "/dashboard/categories" },
+      { title: "Thuộc tính", icon: Package2, href: "/dashboard/attribute" },
+      { title: "Sản phẩm", icon: Shirt, href: "/dashboard/products" },
+      { title: "Đơn hàng", icon: ShoppingBag, href: "/dashboard/orders" },
+      { title: "Mã giảm giá", icon: TicketPercent, href: "/dashboard/coupons" },
+      { title: "Đánh giá", icon: MessageSquareHeart, href: "/dashboard/review" },
     ],
   },
   {
-    title: "User",
+    title: "Người dùng",
     links: [
-      { title: "Users", icon: Users2, href: "/dashboard/users" },
-      { title: "Roles", icon: UserRoundCog, href: "/dashboard/role" },
-
+      { title: "Người dùng", icon: Users2, href: "/dashboard/users" },
+      { title: "Vai trò", icon: UserRoundCog, href: "/dashboard/role" },
     ],
   },
   {
-    title: "Other",
+    title: "Khác",
     links: [
-      { title: "Delivery", icon: Truck, href: "/dashboard/delivery" },
-      { title: "Return", icon: RefreshCcw, href: "/dashboard/refund" },
-      { title: "Transactions", icon: CreditCard, href: "/dashboard/transactions" },
-      { title: "Chat", icon: MessageCircle, href: "/dashboard/chat" }
+      { title: "Giao hàng", icon: Truck, href: "/dashboard/delivery" },
+      { title: "Hoàn hàng", icon: RefreshCcw, href: "/dashboard/refund" },
+      { title: "Giao dịch", icon: CreditCard, href: "/dashboard/transactions" },
+      { title: "Trò chuyện", icon: MessageCircle, href: "/dashboard/chat" }
     ],
   },
 ];
+
 
 export default function Sidebar({ showSidebar }: SidebarProps) {
   return (

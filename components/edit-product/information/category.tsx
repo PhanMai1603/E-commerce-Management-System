@@ -38,7 +38,7 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ product, setUpdat
         const response = await getAllCategories();
         setAllCategories(response);
       } catch (error) {
-        console.error("Failed to fetch categories:", error);
+        console.error("Không thể tải danh mục:", error);
       } finally {
         setCategoriesLoading(false);
       }
@@ -75,7 +75,7 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ product, setUpdat
         const response = await getAllCategories();
         setAllCategories(response);
       } catch (err) {
-        console.error('Error loading categories', err);
+        console.error('Lỗi tải danh mục', err);
       } finally {
         setCategoriesLoading(false);
       }
@@ -158,8 +158,8 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ product, setUpdat
           className="w-full justify-between"
         >
           {selectedCategories.length > 0
-            ? `${selectedCategories.length} selected`
-            : 'Select categories'}
+            ? `${selectedCategories.length} danh mục đã chọn`
+            : 'Chọn danh mục'}
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -178,7 +178,7 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ product, setUpdat
 
         <div className="space-y-1">
           {categoriesLoading ? (
-            <div className="text-sm text-muted-foreground">Loading...</div>
+            <div className="text-sm text-muted-foreground">Đang tải danh mục...</div>
           ) : (
             renderCategoryTree(allCategories)
           )}

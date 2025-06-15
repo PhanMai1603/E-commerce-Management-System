@@ -20,7 +20,7 @@ export default function Product({ items }: ProductProps) {
     <div className="col-span-3">
       <Card>
         <CardHeader>
-          <h3 className="text-lg font-semibold">Products</h3>
+          <h3 className="text-lg font-semibold">Sản phẩm</h3>
         </CardHeader>
 
         <CardContent>
@@ -28,14 +28,11 @@ export default function Product({ items }: ProductProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[80px]">Image</TableHead>
-                  <TableHead>Product</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Price</TableHead>
-                  
-                  {/* <TableHead>Product Discount</TableHead>
-                  <TableHead>Coupon Discount</TableHead> */}
-                  <TableHead>Subtotal</TableHead>
+                  <TableHead className="w-[80px]">Hình ảnh</TableHead>
+                  <TableHead>Tên sản phẩm</TableHead>
+                  <TableHead>Số lượng</TableHead>
+                  <TableHead>Giá</TableHead>
+                  <TableHead>Thành tiền</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -61,11 +58,8 @@ export default function Product({ items }: ProductProps) {
                           {item.variantSlug}
                         </div>
                       </TableCell>
-                    
                       <TableCell>{item.quantity}</TableCell>
-                        <TableCell>{item.price.toLocaleString()}₫</TableCell>
-                      {/* <TableCell>{item.productDiscount.toLocaleString()}₫</TableCell>
-                      <TableCell>{item.couponDiscount.toLocaleString()}₫</TableCell> */}
+                      <TableCell>{item.price.toLocaleString()}₫</TableCell>
                       <TableCell className="font-semibold">
                         {subtotal.toLocaleString()}₫
                       </TableCell>

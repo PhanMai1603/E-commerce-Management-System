@@ -13,7 +13,6 @@ import OtherImageForm from '@/components/edit-product/other-image';
 import SkuTable from '@/components/edit-product/sku-table';
 import Publish from '@/components/edit-product/switch';
 import { Label } from '@radix-ui/react-label';
-// import { uploadProductImage } from '@/app/api/upload';
 
 const EditProductPage = () => {
   const { id } = useParams();
@@ -75,24 +74,19 @@ const EditProductPage = () => {
   const isAnySkuPublished = product.skuList.skuList.some(item => item.status !== 'PUBLISHED');
 
   useEffect(() => {
-    console.log("updatedProduct:", updatedProduct);
-  }, [updatedProduct])
-
-  useEffect(() => {
     const fetchProduct = async () => {
       try {
         if (id && userId && accessToken) {
           const data = await getProductDetail(id as string, userId, accessToken);
           setProduct(data);
-          setUpdatedProduct(prev => {
-            return {
-              ...prev,
-              productKey: data.product.code,
-            };
-          });
+          setUpdatedProduct(prev => ({
+            ...prev,
+            productKey: data.product.code,
+          }));
         }
       } catch (error) {
-        console.error("Error fetching product:", error);
+        console.error("Lỗi khi lấy dữ liệu sản phẩm:", error);
+        toast.error("Không thể tải dữ liệu sản phẩm");
       }
     };
 
@@ -101,56 +95,27 @@ const EditProductPage = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
-
     try {
-      // // Helper function để fetch file từ blob URL và upload
-      // const uploadBlobIfNeeded = async (url: string): Promise<string> => {
-      //   if (url.startsWith('blob:http://localhost:3031')) {
-      //     const blob = await fetch(url).then(res => res.blob());
-      //     const file = new File([blob], 'image.webp', { type: blob.type });
-      //     const uploadedUrl = await uploadProductImage(file, userId, accessToken);
-      //     return uploadedUrl;
-      //   }
-      //   return url;
-      // };
-
-      // // Xử lý mainImage nếu là blob
-      // if (updatedProduct.mainImage?.startsWith('blob:http://localhost:3031')) {
-      //   updatedProduct.mainImage = await uploadBlobIfNeeded(updatedProduct.mainImage);
-      // }
-
-      // // Xử lý subImages nếu có blob
-      // if (Array.isArray(updatedProduct.subImages)) {
-      //   const updatedImages = await Promise.all(
-      //     updatedProduct.subImages.map((img) => uploadBlobIfNeeded(img))
-      //   );
-      //   updatedProduct.subImages = updatedImages;
-      // } else {
-      //   updatedProduct.subImages = [];
-      // }
-
-      // Call importProduct nếu cần
       if (
         (importQuantity.skuList && importQuantity.skuList.length > 0) ||
         (importQuantity.quantity && importQuantity.quantity > 0)
       ) {
         await importProduct(importQuantity, userId, accessToken);
-        toast.success('Update quantity successful!');
+        toast.success('Cập nhật số lượng thành công!');
       }
 
-      // Call updateProduct nếu có data
       if (
         (updatedProduct.productKey && updatedProduct.productKey.trim() !== "") ||
         (Object.keys(updatedProduct).length > 1)
       ) {
-        // updatedProduct.updatedBy = userId;
         await updateProduct(updatedProduct, userId, accessToken);
-        toast.success('Update product successful!');
+        toast.success('Cập nhật sản phẩm thành công!');
       }
 
       router.push("/dashboard/products");
     } catch (error) {
-      console.error("Error fetching product:", error);
+      console.error("Lỗi khi cập nhật sản phẩm:", error);
+      toast.error("Không thể cập nhật sản phẩm");
     } finally {
       setLoading(false);
     }
@@ -160,7 +125,7 @@ const EditProductPage = () => {
     router.back();
   }
 
-  if (product.product.id === '') return <div>Loading...</div>;
+  if (product.product.id === '') return <div>Đang tải dữ liệu sản phẩm...</div>;
 
   return (
     <div className="grid grid-cols-6 gap-4">
@@ -176,13 +141,6 @@ const EditProductPage = () => {
         setUpdatedProduct={setUpdatedProduct}
       />
 
-      {/* <InformationForm
-        product={product.product}
-        updatedProduct={updatedProduct}
-        setUpdatedProduct={setUpdatedProduct}
-        userId={userId}
-        accessToken={accessToken}
-      /> */}
       <InformationForm
         product={product.product}
         updatedProduct={updatedProduct}
@@ -212,7 +170,7 @@ const EditProductPage = () => {
           />
 
           <div className='space-x-4 col-span-6 flex justify-end items-center'>
-            <Label>Publish All Variant</Label>
+            <Label>Bán tất cả biến thể</Label>
             <Publish
               id={id}
               status={!isAnySkuPublished ? 'PUBLISHED' : 'DRAFT'}
@@ -227,14 +185,14 @@ const EditProductPage = () => {
           onClick={handleGoBack}
           className='bg-gray-200 text-gray-900 hover:bg-gray-300'
         >
-          CANCEL
+          HỦY
         </Button>
 
         <Button
           onClick={handleSubmit}
           disabled={loading}
         >
-          UPDATE PRODUCT
+          {loading ? "Đang cập nhật..." : "CẬP NHẬT SẢN PHẨM"}
         </Button>
       </div>
     </div>

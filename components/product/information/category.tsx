@@ -31,11 +31,10 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
     if (!isPopoverOpen) {
       try {
         setCategoriesLoading(true);
-
         const response = await getAllCategories();
         setAllCategories(response);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Lỗi khi tải danh mục:", error);
       } finally {
         setCategoriesLoading(false);
       }
@@ -49,12 +48,9 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
       for (const category of list) {
         if (category.children.some((child) => child.id === id)) {
           parents.push({ id: category.id, name: category.name });
-
-          // Tiếp tục tìm cha của cha (duyệt toàn bộ danh sách)
-          findParent(category.id, categories);
+          findParent(category.id, categories); // tiếp tục tìm cha của cha
         }
 
-        // Kiểm tra con của con (đệ quy xuống các cấp thấp hơn)
         if (category.children.length > 0) {
           findParent(id, category.children);
         }
@@ -70,14 +66,10 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
       let updatedCategories: Category[] = [...prev];
 
       if (prev.some((category) => category.id === categoryId)) {
-        // Nếu đã chọn → Xóa khỏi danh sách
         updatedCategories = updatedCategories.filter((category) => category.id !== categoryId);
-
       } else {
-        // Nếu chưa chọn → Thêm vào danh sách
         updatedCategories.push({ id: categoryId, name: categoryName });
 
-        // Thêm tất cả category cha vào danh sách
         const parents = findParentCategories(categoryId, allCategories);
         parents.forEach((parent) => {
           if (!updatedCategories.some((cat) => cat.id === parent.id)) {
@@ -90,10 +82,8 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
     });
   };
 
-
   const handleDelete = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, categoryId: string) => {
     event.preventDefault();
-
     setSelectedCategories((prev) => prev.filter((category) => category.id !== categoryId));
   };
 
@@ -106,16 +96,14 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
           className='w-full'
         >
           <div className='flex justify-between items-center w-full'>
-            <div className={`${selectedCategories.length > 0 ? 'flex': 'hidden'} flex-wrap items-center my-2 gap-y-2 w-full`}>
+            <div className={`${selectedCategories.length > 0 ? 'flex' : 'hidden'} flex-wrap items-center my-2 gap-y-2 w-full`}>
               {selectedCategories.map((selected) => (
-                <div
-                  key={selected.id}
-                  className='relative'
-                >
+                <div key={selected.id} className='relative'>
                   <span className='text-sm text-nowrap font-medium px-3 py-1 ml-2 bg-gray-600/10 rounded-full'>{selected.name}</span>
                   <Button
                     onClick={(event) => handleDelete(event, selected.id)}
                     className='absolute h-auto -top-1 -right-1 p-1 bg-red-300 hover:bg-red-500 [&_svg]:size-2'
+                    title="Xoá danh mục này"
                   >
                     <X />
                   </Button>
@@ -123,24 +111,22 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
               ))}
             </div>
             <Button className={`flex justify-between items-center px-3 bg-transparent font-normal text-gray-600 hover:bg-transparent ${selectedCategories.length > 0 ? 'w-auto' : 'w-full'}`}>
-              Select product categories
+              Chọn danh mục sản phẩm
               <ChevronDown />
             </Button>
           </div>
         </PopoverTrigger>
+
         <PopoverContent className='w-full min-w-[var(--radix-popper-anchor-width)]'>
           {categoriesLoading ? (
-            <p> Loading...</p>
+            <p>Đang tải...</p>
           ) : allCategories.length === 0 ? (
-            <p className="text-center text-gray-500">No categories found.</p>
+            <p className="text-center text-gray-500">Không tìm thấy danh mục nào.</p>
           ) : (
             <div className='grid grid-cols-3 gap-6 items-start'>
               {allCategories.map((categories) => (
                 categories.children.length === 0 ? (
-                  <div
-                    key={categories.id}
-                    className='flex justify-between items-center'
-                  >
+                  <div key={categories.id} className='flex justify-between items-center'>
                     <Label htmlFor={categories.id}>{categories.name}</Label>
                     <Checkbox
                       id={categories.id}
@@ -154,10 +140,7 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setProduct }) => 
                     <div className='ml-3'>
                       {categories.children.map((category) => (
                         category.children.length === 0 ? (
-                          <div
-                            key={category.id}
-                            className='flex justify-between items-center'
-                          >
+                          <div key={category.id} className='flex justify-between items-center'>
                             <Label htmlFor={category.id}>{category.name}</Label>
                             <Checkbox
                               id={category.id}

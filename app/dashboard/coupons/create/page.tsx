@@ -54,18 +54,18 @@ export default function DiscountForm() {
 
   const handleSubmit = async () => {
     if (!accessToken || !userId) {
-      toast.error("Missing authentication. Please log in again.");
+      toast.error("Thiếu thông tin xác thực. Vui lòng đăng nhập lại.");
       return;
     }
 
     setLoading(true);
     try {
       await createCoupon(coupon, userId, accessToken);
-      toast.success("Coupon created successfully!");
+      toast.success("Tạo mã giảm giá thành công!");
 
       router.push("/dashboard/coupons");
     } catch (error) {
-      toast.error("Failed to create coupon. Please try again.");
+      toast.error("Không thể tạo mã. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
@@ -95,10 +95,10 @@ export default function DiscountForm() {
           onClick={() => router.push("/dashboard/coupons")}
           className='bg-gray-200 text-gray-900 hover:bg-gray-300'
         >
-           CANCEL
+            HỦY
         </Button>
         <Button onClick={handleSubmit} disabled={loading}>
-          {loading ? "Creating..." : "CREATE COUPON"}
+          {loading ? "Đang tạo..." : "TẠO MÃ GIẢM GIÁ"}
         </Button>
       </div>
 

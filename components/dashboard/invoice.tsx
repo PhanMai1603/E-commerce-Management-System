@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -73,12 +72,10 @@ export function Order() {
       setOrders(response.items || []);
       setTotalItems(response.total);
       setTotalPages(response.totalPages);
-
     } catch (error) {
-      toast.error("Failed to load orders");
+      toast.error("Không thể tải danh sách đơn hàng");
     }
   };
-
 
   useEffect(() => {
     fetchOrders();
@@ -92,7 +89,7 @@ export function Order() {
     if (!selectedOrderId) return;
     try {
       await updateOrderStatus(selectedOrderId, userId, accessToken);
-      toast.success("Order status updated successfully!");
+      toast.success("Cập nhật trạng thái đơn hàng thành công!");
       fetchOrders();
     } catch (error) {
       // lỗi đã được xử lý trong API
@@ -104,11 +101,11 @@ export function Order() {
   return (
     <Card>
       <CardHeader className="flex justify-between items-start text-xl">
-        <CardTitle>All Order</CardTitle>
+        <CardTitle>Tất cả đơn hàng</CardTitle>
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
             <label className="text-sm text-muted-foreground whitespace-nowrap">
-              Show:
+              Hiển thị:
             </label>
             <Select
               value={size.toString()}
@@ -118,7 +115,7 @@ export function Order() {
               }}
             >
               <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm">
-                <SelectValue placeholder="Select page size" />
+                <SelectValue placeholder="Chọn số lượng mỗi trang" />
               </SelectTrigger>
               <SelectContent>
                 {[5, 10, 25, 50, 100].map((option) => (
@@ -136,16 +133,16 @@ export function Order() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Customer</TableHead>
-              <TableHead>Items</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Order Date</TableHead>
-              <TableHead>Delivery Method</TableHead>
-              <TableHead>Payment Method</TableHead>
-              <TableCell>Paymet Status</TableCell>
-              <TableHead>Order Status</TableHead>
-              <TableHead>Next Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Khách hàng</TableHead>
+              <TableHead>Sản phẩm</TableHead>
+              <TableHead>Tổng tiền</TableHead>
+              <TableHead>Ngày đặt</TableHead>
+              <TableHead>Hình thức giao hàng</TableHead>
+              <TableHead>Phương thức thanh toán</TableHead>
+              <TableHead>Trạng thái thanh toán</TableHead>
+              <TableHead>Trạng thái đơn hàng</TableHead>
+              <TableHead>Trạng thái tiếp theo</TableHead>
+              <TableHead className="text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -155,8 +152,7 @@ export function Order() {
                 <TableCell>
                   {order.items.reduce((total, item) => total + item.quantity, 0)}
                 </TableCell>
-
-                <TableCell>{order.totalPrice.toLocaleString()}đ</TableCell>
+                <TableCell>{order.totalPrice.toLocaleString()}₫</TableCell>
                 <TableCell>
                   {new Date(order.createdAt).toLocaleString("vi-VN", {
                     day: "2-digit",
@@ -167,7 +163,6 @@ export function Order() {
                     hour12: false,
                   })}
                 </TableCell>
-
                 <TableCell>{order.deliveryMethod}</TableCell>
                 <TableCell className="text-left">{order.paymentMethod}</TableCell>
                 <TableCell>
@@ -176,20 +171,19 @@ export function Order() {
                 <TableCell>
                   <OrderStatusBadge status={order.status} />
                 </TableCell>
-
                 <TableCell>{order.nextStatus}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
+                        <span className="sr-only">Mở menu</span>
                         <EllipsisVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleView(order)}>
                         <Eye className="mr-2 h-4 w-4" />
-                        View
+                        Xem chi tiết
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => {
@@ -198,7 +192,7 @@ export function Order() {
                         }}
                       >
                         <PencilLine className="mr-2 h-4 w-4" />
-                        Edit
+                        Cập nhật trạng thái
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -208,6 +202,7 @@ export function Order() {
           </TableBody>
         </Table>
       </CardContent>
+
       <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
         <Pagination>
           <PaginationContent>
@@ -220,7 +215,6 @@ export function Order() {
                 }}
               />
             </PaginationItem>
-
             {Array.from({ length: totalPages }).map((_, i) => {
               const pageNumber = i + 1;
               return (
@@ -238,7 +232,6 @@ export function Order() {
                 </PaginationItem>
               );
             })}
-
             <PaginationItem>
               <PaginationNext
                 href="#"

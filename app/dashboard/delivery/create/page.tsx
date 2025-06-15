@@ -23,24 +23,20 @@ export default function Page() {
     pricing: [],
   })
 
-  // Xử lý thay đổi input
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    let parsedValue = name === 'maxDistance' || name === 'baseFee' ? Number(value) || 0 : value;
+    const { name, value } = e.target
+    let parsedValue = name === 'maxDistance' || name === 'baseFee' ? Number(value) || 0 : value
 
-    // Nếu là số và là các trường maxDistance hoặc baseFee, đảm bảo giá trị không âm
     if ((name === 'maxDistance' || name === 'baseFee') && typeof parsedValue === 'number' && parsedValue < 0) {
-      parsedValue = 0; // Đặt lại giá trị nếu nhập số âm
+      parsedValue = 0
     }
 
     setDelivery((prev) => ({
       ...prev,
       [name]: parsedValue,
-    }));
-  };
+    }))
+  }
 
-
-  // Thêm Pricing Tier mới
   const handleAddPricing = () => {
     setDelivery((prev) => ({
       ...prev,
@@ -48,43 +44,32 @@ export default function Page() {
     }))
   }
 
-
-  // Cập nhật giá trị của Pricing Tier
   const handlePricingChange = (index: number, field: keyof Pricing, value: string) => {
     const newPricing = [...delivery.pricing]
+    let parsedValue = Number(value) || 0
+    if (parsedValue < 0) parsedValue = 0
 
-    // Chuyển giá trị nhập vào thành số
-    let parsedValue = Number(value) || 0;
-
-    // Nếu giá trị âm, đặt lại thành 0
-    if (parsedValue < 0) {
-      parsedValue = 0;
-    }
-
-    // Cập nhật giá trị vào pricing
-    newPricing[index][field] = parsedValue;
-    setDelivery((prev) => ({ ...prev, pricing: newPricing }));
+    newPricing[index][field] = parsedValue
+    setDelivery((prev) => ({ ...prev, pricing: newPricing }))
   }
 
-  // Xóa Pricing Tier
   const handleRemovePricing = (index: number) => {
     const newPricing = delivery.pricing.filter((_, i) => i !== index)
     setDelivery((prev) => ({ ...prev, pricing: newPricing }))
   }
 
-  // Gửi dữ liệu lên API
   const handleCreateDelivery = async () => {
     try {
       setLoading(true)
 
-      const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
-      const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
+      const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : ""
+      const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : ""
 
       await createDelivery(delivery, userId, accessToken)
-      toast.success('Delivery created successfully!')
+      toast.success('Tạo phương thức giao hàng thành công!')
       router.push('/dashboard/delivery')
     } catch (error) {
-      // toast.error('Failed to create delivery')
+      toast.error('Tạo phương thức giao hàng thất bại!')
     } finally {
       setLoading(false)
     }
@@ -95,80 +80,77 @@ export default function Page() {
       {/* Cột trái */}
       <Card>
         <CardHeader>
-          <CardTitle className='text-base'>Add Delivery Information</CardTitle>
+          <CardTitle className='text-base'>Thêm phương thức giao hàng</CardTitle>
         </CardHeader>
 
         <CardContent className='grid grid-cols-2 gap-x-4 gap-y-6'>
-          {/* Delivery Name */}
+          {/* Tên phương thức */}
           <div className='col-span-2'>
-            <Label>Delivery Name</Label>
+            <Label>Tên phương thức giao hàng</Label>
             <Input
               name='name'
               value={delivery.name}
               type='text'
-              placeholder='Enter delivery name'
+              placeholder='Nhập tên phương thức giao hàng'
               onChange={handleChange}
             />
           </div>
 
-          {/* Max Distance & Base Fee trên cùng một dòng */}
+          {/* Khoảng cách tối đa & phí cơ bản */}
           <div className='col-span-1'>
-            <Label>Max Distance (km)</Label>
+            <Label>Khoảng cách tối đa (km)</Label>
             <Input
               name='maxDistance'
               value={delivery.maxDistance}
               type='number'
-              placeholder='Enter max distance'
+              placeholder='Nhập khoảng cách tối đa'
               onChange={handleChange}
             />
           </div>
           <div className='col-span-1'>
-            <Label>Base Fee</Label>
+            <Label>Phí cơ bản (VNĐ)</Label>
             <Input
               name='baseFee'
               value={delivery.baseFee}
               type='number'
-              placeholder='Enter base fee'
+              placeholder='Nhập phí cơ bản'
               onChange={handleChange}
             />
           </div>
 
-          {/* Add Pricing Tier */}
+          {/* Thêm mức phí */}
           <div className='col-span-2'>
-            <Label>Add Price Tier</Label>
+            <Label>Thêm mức tính phí</Label>
             <Button
               onClick={handleAddPricing}
               className='w-full flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:bg-gray-100 focus-visible:ring-0'>
-              <Plus className='text-gray-400' /> Add Pricing Tier
+              <Plus className='text-gray-400' /> Thêm mức tính phí
             </Button>
           </div>
 
-          {/* Danh sách Pricing Tier */}
+          {/* Danh sách mức phí */}
           {delivery.pricing.map((tier, index) => (
             <div key={index} className='col-span-2 grid grid-cols-3 gap-4 items-end border p-2 rounded-md'>
-              {/* Threshold */}
               <div>
-                <Label>Threshold(Km)</Label>
+                <Label>Ngưỡng (Km)</Label>
                 <Input
                   type='number'
                   value={tier.threshold}
-                  placeholder='Enter threshold'
+                  placeholder='Nhập ngưỡng'
                   onChange={(e) => handlePricingChange(index, 'threshold', e.target.value)}
                 />
               </div>
 
-              {/* Fee Per Km */}
               <div>
-                <Label>Fee Per Km</Label>
+                <Label>Phí mỗi Km (VNĐ)</Label>
                 <Input
                   type='number'
                   value={tier.feePerKm}
-                  placeholder='Enter fee per km'
+                  placeholder='Nhập phí mỗi Km'
                   onChange={(e) => handlePricingChange(index, 'feePerKm', e.target.value)}
                 />
               </div>
 
-              {/* Trash Button */}
               <Button
                 className='bg-red-500 hover:bg-red-600 text-white h-10'
                 onClick={() => handleRemovePricing(index)}
@@ -178,8 +160,7 @@ export default function Page() {
             </div>
           ))}
 
-
-          {/* Submit Button */}
+          {/* Nút hành động */}
           <div className='col-span-2 flex gap-4'>
             <Button
               className='flex-1 bg-gray-200 text-gray-900 hover:bg-gray-300'
@@ -187,30 +168,29 @@ export default function Page() {
               variant='outline'
               type='button'
             >
-              CANCEL
+              HỦY
             </Button>
             <Button
               className='flex-1'
               onClick={handleCreateDelivery}
               disabled={loading}
             >
-              {loading ? 'CREATING...' : 'CREATE DELIVERY'}
+              {loading ? 'ĐANG TẠO...' : 'TẠO PHƯƠNG THỨC'}
             </Button>
           </div>
-
         </CardContent>
       </Card>
 
       {/* Cột phải */}
       <Card className='col-span-1 flex flex-col h-full'>
         <CardHeader>
-          <CardTitle className='text-base'>Add Delivery Description</CardTitle>
+          <CardTitle className='text-base'>Mô tả phương thức giao hàng</CardTitle>
         </CardHeader>
         <CardContent className='flex-1 flex flex-col'>
           <Textarea
             name='description'
             value={delivery.description}
-            placeholder='Enter delivery description...'
+            placeholder='Nhập mô tả phương thức giao hàng...'
             onChange={handleChange}
             className='flex-1 h-full resize-none'
           />

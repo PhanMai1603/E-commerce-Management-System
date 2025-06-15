@@ -60,73 +60,63 @@ export default function ProductInformation({
       <div className="flex items-center mb-1">
         <Badge variant="outline" className="text-xs font-normal">
           <Tag size={12} className="mr-1" />
-          CODE: {product.code}
+          MÃ: {product.code}
         </Badge>
         {product.status === "PUBLISHED" && (
           <Badge className="ml-2 bg-green-100 text-green-800 hover:bg-green-200 transition duration-300">
-            In Stock
+            Còn hàng
           </Badge>
         )}
         {product.status === "OUT_OF_STOCK" && (
           <Badge className="ml-2 bg-red-100 text-red-800 hover:bg-red-200 transition duration-300">
-            Out of Stock
+            Hết hàng
           </Badge>
         )}
       </div>
+
       <h1 className="text-3xl font-semibold text-gray-900 mb-2">
         {product.name}
       </h1>
+
       <div className="flex items-center mb-4">
         <div className="flex mr-2">{renderStars(product.rating)}</div>
         <span className="text-sm text-gray-600">
-          {product.rating.toFixed(1)} ({product.ratingCount} Reviews)
+          {product.rating.toFixed(1)} ({product.ratingCount} đánh giá)
         </span>
 
         {Number(product.sold) > 0 && (
           <>
             <span className="mx-2 text-gray-400">|</span>
-            <span className="text-sm text-gray-600">{product.sold} Sold</span>
+            <span className="text-sm text-gray-600">{product.sold} đã bán</span>
           </>
         )}
       </div>
+
       <div className="mb-4">
         <div className="flex items-center">
           <span className="text-3xl font-bold text-primary">
             {product.minPrice.toLocaleString()}đ -{" "}
             {product.maxPrice.toLocaleString()}đ
           </span>
-          {/* {hasDiscount && (
-            <>
-              <span className="ml-3 text-lg text-gray-500 line-through">
-                {product.originalPrice?.toLocaleString()}đ
-              </span>
-              <Badge className="ml-3 bg-red-100 text-red-800 hover:bg-red-200 transition duration-300">
-                -{discountPercentage}%
-              </Badge>
-            </>
-          )} */}
         </div>
       </div>
+
       <Separator className="my-4" />
 
-      {/* Variants Section */}
-
+      {/* Biến thể sản phẩm */}
       <div className="mb-4">
         {product.variants && product.variants.length > 0 && (
           <div className="mb-4">
             {product.variants.map((variant, variantIndex) => (
               <div key={variantIndex} className="mb-4">
-                <div className="mb-2 font-semibold">{variant.name}</div>
+                <div className="mb-2 font-semibold">
+                  {variant.name === "Color" ? "Màu sắc" : variant.name}
+                </div>
                 <ul className="flex flex-wrap gap-2">
                   {variant.options.map((option, optionIndex) => {
-                    // Chỉ xử lý đặc biệt nếu là biến thể "Color"
-                    const isColorVariant = variant.name
-                      .toLowerCase()
-                      .includes("color");
-                    const image =
-                      variant.images[optionIndex] || product.mainImage;
-                    const isSelected =
-                      isColorVariant && selectedImage === image;
+                    const isColorVariant = variant.name.toLowerCase().includes("color");
+                    const image = variant.images[optionIndex] || product.mainImage;
+                    const isSelected = isColorVariant && selectedImage === image;
 
                     return (
                       <li

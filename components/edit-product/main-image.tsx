@@ -14,7 +14,11 @@ interface MainImageFormProps {
   setUpdatedProduct: React.Dispatch<React.SetStateAction<ProductUpdate>>;
 }
 
-const MainImageForm: React.FC<MainImageFormProps> = ({ mainImage, updatedProduct, setUpdatedProduct }) => {
+const MainImageForm: React.FC<MainImageFormProps> = ({
+  mainImage,
+  updatedProduct,
+  setUpdatedProduct,
+}) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [displayImage, setDisplayImage] = useState<string>(updatedProduct.mainImage ?? mainImage);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -73,7 +77,7 @@ const MainImageForm: React.FC<MainImageFormProps> = ({ mainImage, updatedProduct
   return (
     <Card className="col-span-1">
       <CardHeader>
-        <CardTitle className="text-base">Edit Product Main Image</CardTitle>
+        <CardTitle className="text-base">Ảnh chính của sản phẩm</CardTitle>
       </CardHeader>
 
       <CardContent className="w-full">
@@ -105,7 +109,7 @@ const MainImageForm: React.FC<MainImageFormProps> = ({ mainImage, updatedProduct
           <div className="relative group">
             <Image
               src={displayImage ?? ''}
-              alt="Main"
+              alt="Ảnh chính"
               width={1000}
               height={1000}
               className="w-full h-72 object-cover rounded-md"

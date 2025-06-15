@@ -53,7 +53,7 @@ const MainImageForm: React.FC<MainImageFormProps> = ({ setMainImage }) => {
     setIsDragOver(false);
     const file = event.dataTransfer.files;
 
-    setMainImage(file[0])
+    setMainImage(file[0]);
 
     const previewUrl = URL.createObjectURL(file[0]);
     setImage(previewUrl);
@@ -62,7 +62,7 @@ const MainImageForm: React.FC<MainImageFormProps> = ({ setMainImage }) => {
   return (
     <Card className='col-span-1'>
       <CardHeader>
-        <CardTitle className='text-base'>Add Product Main Image</CardTitle>
+        <CardTitle className='text-base'>Thêm ảnh chính</CardTitle>
       </CardHeader>
 
       <CardContent className='w-full'>
@@ -90,7 +90,7 @@ const MainImageForm: React.FC<MainImageFormProps> = ({ setMainImage }) => {
           <div className='relative group'>
             <Image
               src={image}
-              alt={image}
+              alt="Ảnh sản phẩm"
               width={1000}
               height={1000}
               className='w-full h-72 object-cover rounded-md'
@@ -98,6 +98,7 @@ const MainImageForm: React.FC<MainImageFormProps> = ({ setMainImage }) => {
             <Button
               onClick={handleDelete}
               className='absolute h-auto -top-2 -right-2 p-1 bg-red-300 hover:bg-red-500 [&_svg]:size-4'
+              title="Xóa ảnh"
             >
               <X />
             </Button>

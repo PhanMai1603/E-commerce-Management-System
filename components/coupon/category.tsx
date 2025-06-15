@@ -22,7 +22,6 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setCoupon, setPro
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
 
-  // Cập nhật cả Product & Coupon khi chọn danh mục
   useEffect(() => {
     const selectedIds = selectedCategories.map((category) => category.id);
 
@@ -44,7 +43,7 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setCoupon, setPro
         const response = await getAllCategories();
         setAllCategories(response);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Lỗi khi tải danh mục:", error);
       } finally {
         setCategoriesLoading(false);
       }
@@ -58,7 +57,7 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setCoupon, setPro
       for (const category of list) {
         if (category.children.some((child) => child.id === id)) {
           parents.push({ id: category.id, name: category.name });
-          findParent(category.id, categories); // Đệ quy cha của cha
+          findParent(category.id, categories);
         }
 
         if (category.children.length > 0) {
@@ -74,7 +73,6 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setCoupon, setPro
   const handleCategoryChange = (categoryId: string, categoryName: string) => {
     setSelectedCategories((prev) => {
       let updatedCategories = [...prev];
-
       const exists = prev.some((cat) => cat.id === categoryId);
 
       if (exists) {
@@ -82,7 +80,6 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setCoupon, setPro
       } else {
         updatedCategories.push({ id: categoryId, name: categoryName });
 
-        // Thêm cha nếu chưa có
         const parents = findParentCategories(categoryId, allCategories);
         parents.forEach((parent) => {
           if (!updatedCategories.some((cat) => cat.id === parent.id)) {
@@ -128,16 +125,16 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({ setCoupon, setPro
               ))}
             </div>
             <Button className={`flex justify-between items-center px-3 bg-transparent font-normal text-gray-600 hover:bg-transparent ${selectedCategories.length > 0 ? 'w-auto' : 'w-full'}`}>
-              Select product categories
+              Chọn danh mục sản phẩm
               <ChevronDown />
             </Button>
           </div>
         </PopoverTrigger>
         <PopoverContent className='w-full min-w-[var(--radix-popper-anchor-width)] max-h-96 overflow-y-auto'>
           {categoriesLoading ? (
-            <p>Loading...</p>
+            <p>Đang tải danh mục...</p>
           ) : allCategories.length === 0 ? (
-            <p className="text-center text-gray-500">No categories found.</p>
+            <p className="text-center text-gray-500">Không tìm thấy danh mục nào.</p>
           ) : (
             <div className='grid grid-cols-3 gap-6 items-start'>
               {allCategories.map((category) =>

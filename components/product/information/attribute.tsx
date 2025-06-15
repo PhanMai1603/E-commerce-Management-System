@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import { getAllAttribute, getAllAttributes } from "@/app/api/attribute";
+import { getAllAttribute } from "@/app/api/attribute";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -24,7 +24,7 @@ interface SelectedValues {
   value: string,
 }
 
-const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userId, accessToken }) => {
+const AttributeForm: React.FC<AttributeFormProps> = ({ product, setProduct, userId, accessToken }) => {
   const [attributes, setAttributes] = useState<AllAttributeResponse>();
   const [newAttributes, setNewAttributes] = useState<ProductAttribute[]>([]);
   const [isSelectOpen, setIsSelectOpen] = useState<boolean[]>([]);
@@ -43,7 +43,7 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
           const response = await getAllAttribute(userId, accessToken);
           setAttributes(response);
         } catch (error) {
-          console.error("Error fetching attributes:", error);
+          console.error("Lỗi khi tải thuộc tính:", error);
         }
       }
     }
@@ -51,20 +51,16 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
     fetchAttribute();
   }, [accessToken, isSelectOpen, userId]);
 
-  // Set product.attributes
   useEffect(() => {
     setProduct((prev) => {
       const validAttributes = newAttributes.filter(attr => attr.id !== "" && attr.values.length > 0);
-
       return { ...prev, attributes: [...validAttributes] };
     });
   }, [newAttributes, setProduct]);
 
-  // Set product.variants
   useEffect(() => {
     if (!attributes) return;
 
-    // Set variants dựa trên thứ tự của newAttributes
     setProduct((prev) => {
       const newVariants = newAttributes.map((newAttr) => {
         const matchingAttr = attributes.items.find(attr =>
@@ -74,11 +70,9 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
         );
         if (!matchingAttr) return null;
 
-        // Lọc giá trị options của variant theo thứ tự values trong newAttr
         const options = matchingAttr.values
           .filter((value) => newAttr.values.includes(value.valueId))
           .sort((a, b) => {
-            // Sắp xếp options theo thứ tự values trong newAttr
             const indexA = newAttr.values.indexOf(a.valueId);
             const indexB = newAttr.values.indexOf(b.valueId);
             return indexA - indexB;
@@ -86,8 +80,8 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
           .map((value) => value.value);
 
         const oldVariant = prev.variants?.find((v) => v.name === matchingAttr.name);
-
         let images: string[] = [];
+
         if (oldVariant && oldVariant.name === "Color") {
           images = options.map((option) => {
             const oldIdx = oldVariant.options.findIndex((opt) => opt === option);
@@ -108,7 +102,6 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
       };
     });
 
-    // Reset sau khi xử lý
     if (deletedInfo) setDeletedInfo(null);
   }, [newAttributes, attributes, deletedInfo, setProduct]);
 
@@ -138,7 +131,6 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
         i === index ? { id: value, values: [] } : item
       )
     );
-
     setSelectedValues((prev) => {
       const updatedValues = [...prev];
       updatedValues[index] = [];
@@ -156,32 +148,22 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
     setSelectedValues((prev) => {
       const updatedValues = [...prev];
 
-      // Đảm bảo mảng tại index tồn tại, nếu chưa có thì tạo mới
-      if (!updatedValues[index]) {
-        updatedValues[index] = [];
-      }
-
-      // Kiểm tra xem valueId đã tồn tại chưa
+      if (!updatedValues[index]) updatedValues[index] = [];
       const exists = updatedValues[index].some((v) => v.valueId === valueId);
 
-      if (exists) {
-        // Nếu tồn tại, cập nhật value
-        updatedValues[index] = updatedValues[index].filter((v) => v.valueId !== valueId);
-      } else {
-        // Nếu chưa tồn tại, thêm mới vào mảng
-        updatedValues[index] = [...updatedValues[index], { valueId, value: value }];
-      }
+      updatedValues[index] = exists
+        ? updatedValues[index].filter((v) => v.valueId !== valueId)
+        : [...updatedValues[index], { valueId, value }];
 
-      // Cập nhật setNewAttributes sau khi setSelectedValues đã hoàn tất
       setNewAttributes((prevAttributes) =>
         prevAttributes.map((item, i) =>
           i === index
-            ? { ...item, values: updatedValues[index] && updatedValues[index].map((v) => v.valueId) }
+            ? { ...item, values: updatedValues[index].map((v) => v.valueId) }
             : item
         )
       );
 
-      return updatedValues; // Trả về state mới cho setSelectedValues
+      return updatedValues;
     });
   };
 
@@ -191,7 +173,6 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
     index: number
   ) => {
     event.preventDefault();
-
     const currentAttr = attributes?.items.find(attr => attr.id === newAttributes[index].id);
     if (!currentAttr) return;
 
@@ -203,7 +184,6 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
         i === index ? values.filter((value) => value.valueId !== selected.valueId) : values
       );
 
-      // Cập nhật newAttributes
       setNewAttributes((prevAttributes) =>
         prevAttributes.map((item, i) =>
           i === index
@@ -212,12 +192,11 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
         )
       );
 
-      // Gửi thông tin xóa cho useEffect xử lý
       setDeletedInfo({
         valueId: selected.valueId,
         valueName: selected.value,
         attrName: currentAttr.name,
-      })
+      });
 
       return updatedValues;
     });
@@ -226,33 +205,32 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
   return (
     <div className="flex flex-col gap-y-4">
       {newAttributes.map((attribute, index) => (
-        <div
-          key={index}
-          className="grid grid-cols-12 gap-x-4 items-center"
-        >
+        <div key={index} className="grid grid-cols-12 gap-x-4 items-center">
           <Select
             value={attribute.id}
             onOpenChange={(isOpen) => handleSelectChange(isOpen, index)}
             onValueChange={(value) => handleChangeName(value, index)}
           >
             <SelectTrigger className='col-span-3 hover:bg-gray-600/10'>
-              <SelectValue placeholder="Select name" />
+              <SelectValue placeholder="Chọn tên thuộc tính" />
             </SelectTrigger>
-            <SelectContent className="h-full">
+            <SelectContent>
               <SelectGroup>
-                <SelectLabel className="text-[0.75rem]">Generate to variant</SelectLabel>
-                {attributes && attributes.items
-                  .filter(attribute => attribute.isVariantAttribute === true)
-                  .map((attribute) => (
-                    <SelectItem key={attribute.id} value={attribute.id}>{attribute.name}</SelectItem>
+                <SelectLabel className="text-xs">Tạo biến thể</SelectLabel>
+                {attributes?.items
+                  .filter(attr => attr.isVariantAttribute)
+                  .map(attr => (
+                    <SelectItem key={attr.id} value={attr.id}>{attr.name}</SelectItem>
                   ))}
               </SelectGroup>
               <span className="block w-full h-0.5 my-2 bg-gray-200"></span>
               <SelectGroup>
-                <SelectLabel className="text-[0.75rem]">Not generate to variant</SelectLabel>
-                {attributes && attributes.items.filter(attribute => attribute.isVariantAttribute === false).map((attribute) => (
-                  <SelectItem key={attribute.id} value={attribute.id}>{attribute.name}</SelectItem>
-                ))}
+                <SelectLabel className="text-xs">Không tạo biến thể</SelectLabel>
+                {attributes?.items
+                  .filter(attr => !attr.isVariantAttribute)
+                  .map(attr => (
+                    <SelectItem key={attr.id} value={attr.id}>{attr.name}</SelectItem>
+                  ))}
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -261,21 +239,16 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
             open={isPopoverOpen[index]}
             onOpenChange={(isOpen) => handlePopoverChange(isOpen, index)}
           >
-            <PopoverTrigger
-              asChild
-              className="col-span-8 border rounded-md min-h-9"
-            >
+            <PopoverTrigger asChild className="col-span-8 border rounded-md min-h-9">
               <div className='flex items-center'>
-                <div className={`${!selectedValues[index] || selectedValues[index].length === 0 ? 'hidden' : 'flex'} flex-wrap w-full gap-y-2 py-2`}>
-                  {selectedValues[index] && selectedValues[index].map((selected) => (
-                    <div
-                      key={selected.valueId}
-                      className='relative'
-                    >
+                <div className={`${!selectedValues[index]?.length ? 'hidden' : 'flex'} flex-wrap w-full gap-y-2 py-2`}>
+                  {selectedValues[index]?.map((selected) => (
+                    <div key={selected.valueId} className='relative'>
                       <span className='text-sm text-nowrap font-medium px-3 py-1 ml-2 bg-gray-600/10 rounded-full'>{selected.value}</span>
                       <Button
                         onClick={(event) => handleDeleteValue(event, selected, index)}
                         className='absolute h-auto -top-1 -right-1 p-1 bg-red-300 hover:bg-red-500 [&_svg]:size-2'
+                        title="Xoá giá trị"
                       >
                         <X />
                       </Button>
@@ -283,27 +256,24 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
                   ))}
                 </div>
                 <Button className='flex justify-between items-center w-full px-3 bg-transparent font-normal text-gray-600 hover:bg-transparent'>
-                  Select product attributes
+                  Chọn giá trị thuộc tính
                   <ChevronDown />
                 </Button>
               </div>
             </PopoverTrigger>
+
             <PopoverContent className='grid grid-cols-3 gap-x-14 gap-y-2 w-full min-w-[var(--radix-popper-anchor-width)]'>
-              {/* Lấy values của attribute hiện tại */}
               {(() => {
                 const currentAttribute = attributes?.items.find(item => item.id === attribute.id);
                 const currentValues = currentAttribute?.values || [];
-
-                // Kiểm tra xem tất cả values đã được chọn chưa
                 const isAllSelected = currentValues.length > 0 && currentValues.every(value =>
                   selectedValues[index]?.some(selected => selected.valueId === value.valueId)
                 );
 
                 return (
                   <>
-                    {/* Select All Checkbox */}
                     <div className='flex justify-between items-center space-x-4'>
-                      <Label>Select All</Label>
+                      <Label>Chọn tất cả</Label>
                       <Checkbox
                         checked={isAllSelected}
                         onCheckedChange={() => {
@@ -330,23 +300,12 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
                       />
                     </div>
 
-                    {/* Các value cụ thể */}
                     {currentValues.map((value) => (
-                      <div
-                        key={value.valueId}
-                        className='flex justify-between items-center space-x-4'
-                      >
-
-                      <div className="flex gap-x-2">
-                      <span
-                      className="inline-block w-4 h-4 rounded-full border"
-                      style={{
-                        backgroundColor:value.descriptionUrl,
-                      }}
-                      />
-                      <Label htmlFor={value.valueId}>{value.value} </Label>
-  
-                      </div>
+                      <div key={value.valueId} className='flex justify-between items-center space-x-4'>
+                        <div className="flex gap-x-2">
+                          <span className="inline-block w-4 h-4 rounded-full border" style={{ backgroundColor: value.descriptionUrl }} />
+                          <Label htmlFor={value.valueId}>{value.value}</Label>
+                        </div>
 
                         <Checkbox
                           id={value.valueId}
@@ -359,12 +318,12 @@ const AttributeForm: React.FC<AttributeFormProps> = ({product, setProduct, userI
                 );
               })()}
             </PopoverContent>
-
           </Popover>
 
           <Button
             onClick={() => handleDeleteAttribute(index)}
             className='col-span-1 w-fit flex items-center justify-center font-bold bg-transparent text-red-400 hover:bg-transparent hover:text-red-500 [&_svg]:size-6'
+            title="Xoá thuộc tính này"
           >
             <X />
           </Button>

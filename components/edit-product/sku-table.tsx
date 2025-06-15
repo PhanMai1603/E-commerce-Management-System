@@ -210,7 +210,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
         [color]: imageUrl
       }));
     } catch (error) {
-      console.error("Error fetching image URL:", error);
+      console.error("Lỗi khi tải URL hình ảnh:", error);
     } finally {
       setLoading(prev => {
         const newLoading = [...prev];
@@ -308,13 +308,13 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
         <TableHeader>
           <TableRow>
             {hasColor && (
-              <TableHead>Image</TableHead>
+              <TableHead>Hình ảnh</TableHead>
             )}
             {(updatedProduct.variants ?? product.product.variants)?.map((variant, index) => (
               <TableHead key={index}>{variant.name}</TableHead>
             ))}
-            <TableHead>Price</TableHead>
-            <TableHead>Import Quantity</TableHead>
+            <TableHead>Giá</TableHead>
+            <TableHead>Số lượng nhập khẩu</TableHead>
             <TableHead>Public</TableHead>
             {/* <TableHead>Default</TableHead> */}
           </TableRow>

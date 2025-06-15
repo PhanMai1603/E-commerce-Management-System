@@ -43,7 +43,6 @@ const SubImageForm: React.FC<SubImageFormProps> = ({ subImages, updatedProduct, 
     if (!event.target.files) return;
 
     const newFiles = Array.from(event.target.files);
-
     const newPreviewUrls = newFiles.map(file => URL.createObjectURL(file));
     setDisplayImages(prevImages => [...prevImages, ...newPreviewUrls]);
   };
@@ -70,9 +69,7 @@ const SubImageForm: React.FC<SubImageFormProps> = ({ subImages, updatedProduct, 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(false);
-
     const newFiles = Array.from(event.dataTransfer.files);
-
     const newPreviewUrls = newFiles.map(file => URL.createObjectURL(file));
     setDisplayImages(prevImages => [...prevImages, ...newPreviewUrls]);
   };
@@ -80,7 +77,7 @@ const SubImageForm: React.FC<SubImageFormProps> = ({ subImages, updatedProduct, 
   return (
     <Card className="col-span-5">
       <CardHeader className="relative">
-        <CardTitle className="text-base">Add Product Other Image</CardTitle>
+        <CardTitle className="text-base">Ảnh phụ của sản phẩm</CardTitle>
         <Button
           onClick={handleClear}
           variant="destructive"
@@ -90,14 +87,13 @@ const SubImageForm: React.FC<SubImageFormProps> = ({ subImages, updatedProduct, 
         </Button>
       </CardHeader>
 
-
       <CardContent className={`w-full ${displayImages.length === 0 ? '' : 'space-y-4'}`}>
         <div className='w-full flex gap-x-6'>
           {displayImages.map((image, index) => (
             <div key={index} className='relative group'>
               <Image
                 src={image}
-                alt={image}
+                alt="Ảnh phụ"
                 width={1000}
                 height={1000}
                 className='w-full h-56 object-contain rounded-md'

@@ -87,11 +87,8 @@ export interface OrderItem {
     updatedAt:string
     paidAt:string
     deliveredAt:string
-    requestedAt:string
-    approvedAt:string
   }
-
-  returnReason:string |null
+  // returnReason:string |null
   deliveryMethod:DeliveryMethod;
   shippingAddress:ShippingAddress;
   items:OrderItem[];  
