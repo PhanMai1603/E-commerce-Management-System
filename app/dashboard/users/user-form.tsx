@@ -17,6 +17,7 @@ import {
   PaginationPrevious,
   PaginationNext,
   PaginationLink,
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
 
 import {
@@ -160,19 +161,18 @@ export function UserTable() {
                     <TableCell className="font-medium">{user.role?.name || "Không rõ"}</TableCell>
                     <TableCell className="font-medium">
                       <span
-                        className={`inline-block py-1 px-3 rounded-full text-sm font-semibold ${
-                          user.status?.toUpperCase() === "ACTIVE"
+                        className={`inline-block py-1 px-3 rounded-full text-sm font-semibold ${user.status?.toUpperCase() === "ACTIVE"
                             ? "bg-[#22C55E29] text-[#118D57]"
                             : user.status?.toUpperCase() === "BLOCKED"
-                            ? "bg-[#FF563029] text-[#B71D18]"
-                            : "bg-[#919EAB29] text-[#637381]"
-                        }`}
+                              ? "bg-[#FF563029] text-[#B71D18]"
+                              : "bg-[#919EAB29] text-[#637381]"
+                          }`}
                       >
                         {user.status === "ACTIVE"
                           ? "Hoạt động"
                           : user.status === "BLOCKED"
-                          ? "Bị chặn"
-                          : "Không rõ"}
+                            ? "Bị chặn"
+                            : "Không rõ"}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
@@ -217,13 +217,15 @@ export function UserTable() {
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious
+                <PaginationLink
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
                     setPage((prev) => Math.max(prev - 1, 1));
                   }}
-                />
+                >
+                  Trước
+                </PaginationLink>
               </PaginationItem>
 
               {Array.from({ length: totalPages }).map((_, i) => {
@@ -244,14 +246,22 @@ export function UserTable() {
                 );
               })}
 
+              {totalPages > 5 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+
               <PaginationItem>
-                <PaginationNext
+                <PaginationLink
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
                     setPage((prev) => Math.min(prev + 1, totalPages));
                   }}
-                />
+                >
+                  Sau
+                </PaginationLink>
               </PaginationItem>
             </PaginationContent>
           </Pagination>

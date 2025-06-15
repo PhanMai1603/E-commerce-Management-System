@@ -79,8 +79,8 @@ export default function AddAttributeForm({
           <SelectValue placeholder="Chọn kiểu" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="COLOR">MÀU SẮC</SelectItem>
-          <SelectItem value="TEXT">VĂN BẢN</SelectItem>
+          <SelectItem value="COLOR">COLOR</SelectItem>
+          <SelectItem value="TEXT">TEXT</SelectItem>
         </SelectContent>
       </Select>
     </div>

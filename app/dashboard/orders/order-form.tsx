@@ -428,8 +428,7 @@ export default function OrderPage() {
   )
 
   const renderOrders = (orders: Order[]) =>
-    orders.length === 0 ? <p className="py-4">No orders found.</p> : orders.map(renderOrderCard)
-
+    orders.length === 0 ? <p className="py-4">Không tìm thấy đơn đặt hàng nào.</p> : orders.map(renderOrderCard)
   const filterByStatus = (status: string) =>
     status === "ALL" ? allOrders : allOrders.filter((order) => order.status === status)
 
@@ -447,7 +446,7 @@ export default function OrderPage() {
         {statusTabs.map((status) => (
           <TabsContent key={status} value={status}>
             {loading ? (
-              <p className="py-4">Loading orders...</p>
+              <p className="py-4">Đang tải...</p>
             ) : (
               renderOrders(filterByStatus(status))
             )}

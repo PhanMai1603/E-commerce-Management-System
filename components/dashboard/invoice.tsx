@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -29,6 +30,7 @@ import {
   PaginationPrevious,
   PaginationNext,
   PaginationLink,
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
 import type { Order } from "@/interface/order";
 import { toast } from "react-toastify";
@@ -204,46 +206,61 @@ export function Order() {
       </CardContent>
 
       <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setPage((prev) => Math.max(prev - 1, 1));
-                }}
-              />
-            </PaginationItem>
-            {Array.from({ length: totalPages }).map((_, i) => {
-              const pageNumber = i + 1;
-              return (
-                <PaginationItem key={pageNumber}>
-                  <PaginationLink
-                    href="#"
-                    isActive={pageNumber === page}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setPage(pageNumber);
-                    }}
-                  >
-                    {pageNumber}
-                  </PaginationLink>
-                </PaginationItem>
-              );
-            })}
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setPage((prev) => Math.min(prev + 1, totalPages));
-                }}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </CardFooter>
+
+  <Pagination>
+    <PaginationContent>
+      <PaginationItem>
+        <PaginationLink
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            setPage((prev) => Math.max(prev - 1, 1));
+          }}
+        >
+          Trước
+        </PaginationLink>
+      </PaginationItem>
+
+      {Array.from({ length: totalPages }).map((_, i) => {
+        const pageNumber = i + 1;
+        return (
+          <PaginationItem key={pageNumber}>
+            <PaginationLink
+              href="#"
+              isActive={pageNumber === page}
+              onClick={(e) => {
+                e.preventDefault();
+                setPage(pageNumber);
+              }}
+            >
+              {pageNumber}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      })}
+
+      {totalPages > 5 && (
+        <PaginationItem>
+          <PaginationEllipsis />
+        </PaginationItem>
+      )}
+
+      <PaginationItem>
+        <PaginationLink
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            setPage((prev) => Math.min(prev + 1, totalPages));
+          }}
+        >
+          Sau
+        </PaginationLink>
+      </PaginationItem>
+    </PaginationContent>
+  </Pagination>
+</CardFooter>
+
+
 
       <OrderStatusModal
         open={modalOpen}

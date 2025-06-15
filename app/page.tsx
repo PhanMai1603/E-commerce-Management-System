@@ -12,7 +12,7 @@ export default function Home() {
         <div className="flex justify-center gap-2 md:justify-start"></div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <Suspense fallback={<div>Loading login form...</div>}>
+            <Suspense fallback={<div>Đang tải...</div>}>
               <LoginForm />
               <GoogleLoginHandler /> {/* 👈 bọc phần xử lý useSearchParams ở đây */}
             </Suspense>

@@ -29,8 +29,6 @@ const STATUS_TEXT: Record<string, string> = {
   APPROVED: "Đã phê duyệt",
   REJECTED: "Đã từ chối",
   COMPLETED: "Hoàn thành",
-  FAILED: "Thất bại",
-  NOT_RETURNED: "Chưa hoàn trả",
 }
 
 const RefundPage = () => {

@@ -21,6 +21,19 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+// ✅ Mapping để hiển thị tiếng Việt
+const COUPON_TYPE_LABEL: Record<string, string> = {
+  PERCENT: "Phần trăm",
+  FIXED: "Giảm tiền",
+};
+
+const TARGET_TYPE_LABEL: Record<string, string> = {
+  Order: "Đơn hàng",
+  Delivery: "Vận chuyển",
+  Category: "Danh mục",
+  Product: "Sản phẩm",
+};
+
 export default function CouponTable() {
   const [couponsData, setCouponsData] = useState<getAllCouponsResponse | null>(null);
   const [page, setPage] = useState<number>(1);
@@ -53,7 +66,6 @@ export default function CouponTable() {
     }
   };
 
-
   return (
 
     <div>
@@ -63,7 +75,7 @@ export default function CouponTable() {
         <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4">
           {/* Left side: Show dropdown */}
           <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground whitespace-nowrap">Show:</label>
+            <label className="text-sm text-muted-foreground whitespace-nowrap">Hiển thị:</label>
             <Select
               value={size.toString()}
               onValueChange={(val) => {
@@ -90,14 +102,14 @@ export default function CouponTable() {
             className="flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
-            Thêm mã giảm giá 
+            Thêm mã giảm giá
           </Button>
         </CardHeader>
 
         <CardContent>
           <Table>
             <TableHeader>
-               <TableRow>
+              <TableRow>
                 <TableHead>Tên</TableHead>
                 <TableHead>Mã</TableHead>
                 <TableHead>Giảm giá</TableHead>
@@ -130,9 +142,8 @@ export default function CouponTable() {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell>{coupon.type}</TableCell>
-
-                  <TableCell>{coupon.targetType}</TableCell>
+                  <TableCell>{COUPON_TYPE_LABEL[coupon.type] ?? coupon.type}</TableCell>
+                  <TableCell>{TARGET_TYPE_LABEL[coupon.targetType] ?? coupon.targetType}</TableCell>
                   <TableCell>
                     <span
                       className={`px-2 py-1 rounded-full text-sm font-semibold ${coupon.isActive
@@ -157,13 +168,15 @@ export default function CouponTable() {
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious
+                <PaginationLink
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
                     setPage((prev) => Math.max(prev - 1, 1));
                   }}
-                />
+                >
+                  Trước
+                </PaginationLink>
               </PaginationItem>
 
               {Array.from({ length: totalPages }).map((_, i) => {
@@ -191,17 +204,20 @@ export default function CouponTable() {
               )}
 
               <PaginationItem>
-                <PaginationNext
+                <PaginationLink
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
                     setPage((prev) => Math.min(prev + 1, totalPages));
                   }}
-                />
+                >
+                  Sau
+                </PaginationLink>
               </PaginationItem>
             </PaginationContent>
           </Pagination>
         </CardFooter>
+
       </Card>
     </div>
   );

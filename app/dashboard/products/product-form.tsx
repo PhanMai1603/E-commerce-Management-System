@@ -304,54 +304,61 @@ export function ProductTable() {
         </CardContent>
 
         <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setPage((prev) => Math.max(prev - 1, 1));
-                  }}
-                />
-              </PaginationItem>
+  
+  <Pagination>
+    <PaginationContent>
+      <PaginationItem>
+        <PaginationLink
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            setPage((prev) => Math.max(prev - 1, 1));
+          }}
+        >
+          Trước
+        </PaginationLink>
+      </PaginationItem>
 
-              {Array.from({ length: totalPages }).map((_, i) => {
-                const pageNumber = i + 1;
-                return (
-                  <PaginationItem key={pageNumber}>
-                    <PaginationLink
-                      href="#"
-                      isActive={pageNumber === page}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setPage(pageNumber);
-                      }}
-                    >
-                      {pageNumber}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              })}
+      {Array.from({ length: totalPages }).map((_, i) => {
+        const pageNumber = i + 1;
+        return (
+          <PaginationItem key={pageNumber}>
+            <PaginationLink
+              href="#"
+              isActive={pageNumber === page}
+              onClick={(e) => {
+                e.preventDefault();
+                setPage(pageNumber);
+              }}
+            >
+              {pageNumber}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      })}
 
-              {totalPages > 5 && (
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              )}
+      {totalPages > 5 && (
+        <PaginationItem>
+          <PaginationEllipsis />
+        </PaginationItem>
+      )}
 
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setPage((prev) => Math.min(prev + 1, totalPages));
-                  }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </CardFooter>
+      <PaginationItem>
+        <PaginationLink
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            setPage((prev) => Math.min(prev + 1, totalPages));
+          }}
+        >
+          Sau
+        </PaginationLink>
+      </PaginationItem>
+    </PaginationContent>
+  </Pagination>
+</CardFooter>
+
+
       </Card>
     </div>
   );

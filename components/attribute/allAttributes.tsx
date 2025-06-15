@@ -30,8 +30,6 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationPrevious,
-  PaginationNext,
   PaginationLink,
 } from "@/components/ui/pagination";
 import {
@@ -183,49 +181,55 @@ export default function AttributeTable({
           </Table>
         </CardContent>
 
-        <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
-          <Pagination className="mt-4">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (page > 1) setPage(page - 1);
-                  }}
-                />
-              </PaginationItem>
+<CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
+  <Pagination className="mt-4">
+    <PaginationContent>
+      <PaginationItem>
+        <PaginationLink
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            if (page > 1) setPage(page - 1);
+          }}
+        >
+          Trước
+        </PaginationLink>
+      </PaginationItem>
 
-              {Array.from({ length: totalPages }).map((_, index) => {
-                const pageNumber = index + 1;
-                return (
-                  <PaginationItem key={pageNumber}>
-                    <PaginationLink
-                      href="#"
-                      isActive={pageNumber === page}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setPage(pageNumber);
-                      }}
-                    >
-                      {pageNumber}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              })}
+      {Array.from({ length: totalPages }).map((_, index) => {
+        const pageNumber = index + 1;
+        return (
+          <PaginationItem key={pageNumber}>
+            <PaginationLink
+              href="#"
+          isActive={pageNumber === page}
+           
+              onClick={(e) => {
+                e.preventDefault();
+                setPage(pageNumber);
+              }}
+            >
+              {pageNumber}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      })}
 
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (page < totalPages) setPage(page + 1);
-                  }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </CardFooter>
+      <PaginationItem>
+        <PaginationLink
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            if (page < totalPages) setPage(page + 1);
+          }}
+        >
+          Sau
+        </PaginationLink>
+      </PaginationItem>
+    </PaginationContent>
+  </Pagination>
+</CardFooter>
+
       </Card>
     </div>
   );

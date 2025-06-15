@@ -11,7 +11,7 @@ interface SearchBarProps {
 
 export default function SearchBar({
   setQuery,
-  placeholder = "Search...",
+  placeholder = "Tìm kiếm...",
   width,
 }: SearchBarProps) {
   const [localInput, setLocalInput] = useState("");
