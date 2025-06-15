@@ -48,25 +48,25 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
 
   useEffect(() => {
     if (!variants) return;
-
-    const colorVariant = variants.find(v => v.name === "Color");
+  
+    const colorVariant = variants.find(v => v.name === "Màu sắc");
     if (!colorVariant) return;
-
+  
     const validColors = new Set(colorVariant.options);
     const filteredImages: { [key: string]: string } = {};
-
+  
     Object.entries(images).forEach(([color, url]) => {
       if (validColors.has(color)) {
         filteredImages[color] = url;
       }
     });
-
+  
     // Chỉ setImages nếu có khác biệt thật sự
     if (JSON.stringify(filteredImages) !== JSON.stringify(images)) {
       setImages(filteredImages);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variants]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variants]);  
 
   useEffect(() => {
     if (combinations.length > 0) {
@@ -92,7 +92,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
   useEffect(() => {
     setProduct(prev => {
       const updatedVariants = prev.variants?.map(variant =>
-        variant.name === "Color"
+        variant.name === "Màu sắc"
           ? { ...variant, images: Object.values(images) }
           : variant
       );
@@ -129,7 +129,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
       setLoading(prev => {
         const newLoading = [...prev];
         combinations.forEach((combination, index) => {
-          if (combination.some(item => item.name === "Color" && item.value === color)) {
+          if (combination.some(item => item.name === "Màu sắc" && item.value === color)) {
             newLoading[index] = true;
           }
         });
@@ -148,7 +148,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
       setLoading(prev => {
         const newLoading = [...prev];
         combinations.forEach((combination, index) => {
-          if (combination.some(item => item.name === "Color" && item.value === color)) {
+          if (combination.some(item => item.name === "Màu sắc" && item.value === color)) {
             newLoading[index] = false;
           }
         });
@@ -167,7 +167,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
     setLoading(prev => {
       const newLoading = [...prev];
       combinations.forEach((combination, index) => {
-        if (combination.some(item => item.name === "Color" && item.value === color)) {
+        if (combination.some(item => item.name === "Màu sắc" && item.value === color)) {
           newLoading[index] = false;
         }
       });
@@ -224,31 +224,31 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
       <Table>
         <TableHeader>
           <TableRow>
-            {variants?.some(variant => variant.name === "Color") && (
-              <TableHead>Hình ảnh</TableHead>
+            {variants?.some(variant => variant.name === "Màu sắc") && (
+              <TableHead>Image</TableHead>
             )}
             {variants?.map((variant, index) => (
               <TableHead key={index}>{variant.name}</TableHead>
             ))}
-            <TableHead>Giá</TableHead>
-            <TableHead>Số lượng</TableHead>
-            <TableHead>Mặc định</TableHead>
+            <TableHead>Price</TableHead>
+            <TableHead>Quantity</TableHead>
+            <TableHead>Default</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {combinations.map((combination, rowIndex) => {
-            const colorItem = combination.find(item => item.name === "Color");
+            const colorItem = combination.find(item => item.name === "Màu sắc");
             const color = colorItem ? colorItem.value : "";
             return (
               <TableRow key={rowIndex}>
-                {variants?.some(variant => variant.name === "Color") && (
+                {variants?.some(variant => variant.name === "Màu sắc") && (
                   <TableCell className="border p-2 w-32">
                     {color ? (
                       images[color] ? (
                         <div className='relative group'>
                           <Image
                             src={images[color]}
-                            alt="Ảnh sản phẩm"
+                            alt="Product Image"
                             width={1000}
                             height={1000}
                             className='w-full h-44 object-contain rounded-md'
@@ -260,47 +260,48 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
                             <X />
                           </Button>
                         </div>
-                      ) : loading[rowIndex] ? (
-                        <div className='relative w-full h-44 flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 [&_svg]:size-6 group overflow-hidden'>
-                          <LoaderCircle className="animate-spin" />
-                        </div>
                       ) : (
-                        <div>
-                          <div
-                            className='relative w-full h-44 flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 [&_svg]:size-6 group overflow-hidden'
-                            onClick={() => handleClick(rowIndex)}
-                            onDragOver={handleDragOver}
-                            onDragLeave={handleDragLeave}
-                          >
-                            <div className={`absolute bottom-0 left-0 w-full bg-gray-600/10 transition-all duration-300 group-hover:h-full ${isDragOver ? 'h-full' : 'h-0'}`} />
-                            <ImagePlus className='text-gray-400 group-hover:text-gray-500' />
+                        loading[rowIndex] ? (
+                          <div className='relative w-full h-44 flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 [&_svg]:size-6 group overflow-hidden'>
+                            <LoaderCircle className="animate-spin" />
                           </div>
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(event) => handleChange(event, color)}
-                            ref={(el) => {
-                              if (el) fileInputRefs.current[rowIndex] = el;
-                            }}
-                            className="hidden"
-                          />
-                        </div>
+                        ) : (
+                          <div>
+                            <div
+                              className='relative w-full h-44 flex justify-center items-center bg-white rounded-md border border-dashed border-gray-400 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0 [&_svg]:size-6 group overflow-hidden'
+                              onClick={() => handleClick(rowIndex)}
+                              onDragOver={handleDragOver}
+                              onDragLeave={handleDragLeave}
+                            // onDrop={handleDrop}
+                            >
+                              <div className={`absolute bottom-0 left-0 w-full bg-gray-600/10 transition-all duration-300 group-hover:h-full ${isDragOver ? 'h-full' : 'h-0'}`} />
+                              <ImagePlus className='text-gray-400 group-hover:text-gray-500' />
+                            </div>
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(event) => handleChange(event, color)}
+                              ref={(el) => {
+                                if (el) fileInputRefs.current[rowIndex] = el;
+                              }}
+                              className="hidden"
+                            />
+                          </div>
+                        )
                       )
                     ) : (
-                      <span>Không có màu</span>
+                      <span>No Color</span>
                     )}
                   </TableCell>
                 )}
-
                 {combination.map((item, colIndex) => (
                   <TableCell key={colIndex}>{item.value}</TableCell>
                 ))}
-
                 <TableCell>
                   <Input
                     type="number"
                     min="0"
-                    placeholder="Nhập giá"
+                    placeholder="Enter price"
                     value={skuList[rowIndex]?.price ?? 0}
                     onChange={(e) => handleInputChange(rowIndex, "price", e.target.value)}
                   />
@@ -309,7 +310,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
                   <Input
                     type="number"
                     min="0"
-                    placeholder="Nhập số lượng"
+                    placeholder="Enter quantity"
                     value={skuList[rowIndex]?.quantity ?? 0}
                     onChange={(e) => handleInputChange(rowIndex, "quantity", e.target.value)}
                   />
@@ -328,7 +329,6 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, variants, setP
           })}
         </TableBody>
       </Table>
-
     </div>
   );
 }

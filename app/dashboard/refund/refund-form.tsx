@@ -227,12 +227,12 @@ const RefundPage = () => {
                       await approveRequest(req.id, userId, accessToken)
                     }
                   }
-                  toast.success("Đã duyệt tất cả yêu cầu thành công!")
+                  toast.success("Đã duyệt yêu cầu hoàn tiền thành công!")
                   setApproveModalOpen(false)
                   await refreshData()
                 }}
               >
-                Duyệt
+                Xác nhận
               </button>
             </div>
           </div>
@@ -273,7 +273,7 @@ const RefundPage = () => {
                   await refreshData()
                 }}
               >
-                Từ chối
+                Gửi
               </button>
             </div>
           </div>

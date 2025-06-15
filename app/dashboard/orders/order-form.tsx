@@ -321,7 +321,7 @@ export default function OrderPage() {
 
     try {
       await codManualRefund(bankInfo, orderId, userId, accessToken)
-      toast.success("Yêu cầu thanh toán đã được gửi.")
+      toast.success("Xác nhận đã thanh toán.")
       setShowBankFormForOrder(null)
       setBankInfo({
         bankName: "",
@@ -331,7 +331,7 @@ export default function OrderPage() {
       })
       fetchOrders()
     } catch {
-      toast.error("Không thể gửi thanh toán.")
+      toast.error("Không thể xác nhận thanh toán.")
     }
   }
 
