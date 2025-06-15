@@ -18,6 +18,37 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { getTransactions } from "@/app/api/payment";
 
+type PaymentStatus =
+  | "PENDING"
+  | "CANCELLED"
+  | "COMPLETED"
+  | "FAILED"
+  | "PENDING_REFUND"
+  | "REFUNDED";
+
+const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
+  PENDING: "Đang chờ xử lý",
+  CANCELLED: "Đã hủy",
+  COMPLETED: "Hoàn tất",
+  FAILED: "Thất bại",
+  PENDING_REFUND: "Chờ hoàn tiền",
+  REFUNDED: "Đã hoàn tiền",
+};
+
+const PAYMENT_STATUS_COLORS: Record<PaymentStatus, string> = {
+  PENDING: "bg-yellow-500 text-black",
+  CANCELLED: "bg-gray-500",
+  COMPLETED: "bg-green-500",
+  FAILED: "bg-red-500",
+  PENDING_REFUND: "bg-orange-500",
+  REFUNDED: "bg-blue-500",
+};
+
+const TRANSACTION_TYPE_LABELS = {
+  PAYMENT: "Thanh toán",
+  REFUND: "Hoàn tiền",
+};
+
 export default function TransactionsForm() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,7 +56,9 @@ export default function TransactionsForm() {
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
+    typeof window !== "undefined"
+      ? localStorage.getItem("accessToken") || ""
+      : "";
 
   const fetchTransactions = async () => {
     setLoading(true);
@@ -51,16 +84,9 @@ export default function TransactionsForm() {
   };
 
   const renderStatus = (status: string) => {
-    switch (status) {
-      case "COMPLETED":
-        return <Badge className="bg-green-500">Thành công</Badge>;
-      case "FAILED":
-        return <Badge className="bg-red-500">Thất bại</Badge>;
-      case "PENDING":
-        return <Badge className="bg-yellow-500 text-black">Đang xử lý</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
+    const label = PAYMENT_STATUS_LABELS[status as PaymentStatus] || status;
+    const color = PAYMENT_STATUS_COLORS[status as PaymentStatus] || "bg-gray-300";
+    return <Badge className={color}>{label}</Badge>;
   };
 
   return (
@@ -110,7 +136,11 @@ export default function TransactionsForm() {
                       className="truncate max-w-[120px]"
                       title={tx.type}
                     >
-                      {tx.type}
+                      {
+                        TRANSACTION_TYPE_LABELS[
+                          tx.type as keyof typeof TRANSACTION_TYPE_LABELS
+                        ] || tx.type
+                      }
                     </TableCell>
 
                     <TableCell>{renderStatus(tx.status)}</TableCell>
