@@ -31,6 +31,30 @@ const STATUS_TEXT: Record<string, string> = {
   COMPLETED: "Hoàn thành",
 }
 
+const ORDER_STATUS_LABELS: Record<string, string> = {
+  ALL: "Tất cả",
+  PENDING: "Chờ xác nhận",
+  AWAITING_PAYMENT: "Chờ thanh toán",
+  PROCESSING: "Đang xử lý",
+  READY_TO_SHIP: "Sẵn sàng giao",
+  IN_TRANSIT: "Đang giao",
+  DELIVERED: " Đã giao",
+  CANCELLED: " Đã hủy",
+  DELIVERY_FAILED: "Không giao được",
+  RETURN: "Hoàn trả",
+}
+const ORDER_STATUS_BADGE: Record<string, string> = {
+  PENDING: "bg-gray-200 text-gray-800",
+  AWAITING_PAYMENT: "bg-yellow-100 text-yellow-800",
+  PROCESSING: "bg-blue-100 text-blue-800",
+  READY_TO_SHIP: "bg-indigo-100 text-indigo-800",
+  IN_TRANSIT: "bg-sky-100 text-sky-800",
+  DELIVERED: "bg-green-100 text-green-800",
+  CANCELLED: "bg-red-100 text-red-800",
+  DELIVERY_FAILED: "bg-emerald-100 text-emerald-800",
+  RETURN: "bg-orange-200 text-orange-900",
+}
+
 const RefundPage = () => {
   const [refunds, setRefunds] = useState<Refund[]>([])
   const [loading, setLoading] = useState(true)
@@ -95,9 +119,12 @@ const RefundPage = () => {
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className={`px-2 py-1 text-xs rounded font-medium ${STATUS_BADGE[refund.orderStatus] || "bg-gray-100 text-gray-800"}`}>
-                    {STATUS_TEXT[refund.orderStatus] || refund.orderStatus}
-                  </span>
+
+                <span className={`px-2 py-1 text-xs rounded font-medium ${ORDER_STATUS_BADGE[refund.orderStatus] || "bg-gray-100 text-gray-800"}`}>
+  {ORDER_STATUS_LABELS[refund.orderStatus] || refund.orderStatus}
+</span>
+
+
                   <p className="text-base font-semibold text-green-600 mt-1">
                     Tổng hoàn: {refund.totalRefundAmount.toLocaleString()}₫
                   </p>

@@ -27,8 +27,6 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationPrevious,
-  PaginationNext,
   PaginationLink,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
@@ -47,9 +45,59 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { PaymentStatusBadge } from "../order/payment-status";
-import { OrderStatusBadge } from "../order/order-status";
 import { OrderStatusModal } from "../order/edit-order";
+
+// Define các trạng thái tiếng Việt + badge
+export type PaymentStatus =
+  | "PENDING"
+  | "CANCELLED"
+  | "COMPLETED"
+  | "FAILED"
+  | "PENDING_REFUND"
+  | "REFUNDED";
+
+const ORDER_STATUS_LABELS: Record<string, string> = {
+  ALL: "Tất cả",
+  PENDING: "Chờ xác nhận",
+  AWAITING_PAYMENT: "Chờ thanh toán",
+  PROCESSING: "Đang xử lý",
+  READY_TO_SHIP: "Sẵn sàng giao",
+  IN_TRANSIT: "Đang giao",
+  DELIVERED: "Đã giao",
+  CANCELLED: "Đã hủy",
+  DELIVERY_FAILED: "Không giao được",
+  RETURN: "Hoàn trả",
+};
+
+const ORDER_STATUS_BADGE: Record<string, string> = {
+  PENDING: "bg-gray-200 text-gray-800",
+  AWAITING_PAYMENT: "bg-yellow-100 text-yellow-800",
+  PROCESSING: "bg-blue-100 text-blue-800",
+  READY_TO_SHIP: "bg-indigo-100 text-indigo-800",
+  IN_TRANSIT: "bg-sky-100 text-sky-800",
+  DELIVERED: "bg-green-100 text-green-800",
+  CANCELLED: "bg-red-100 text-red-800",
+  DELIVERY_FAILED: "bg-emerald-100 text-emerald-800",
+  RETURN: "bg-orange-200 text-orange-900",
+};
+
+const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
+  PENDING: "Đang chờ thanh toán",
+  CANCELLED: "Đã hủy",
+  COMPLETED: "Đã thanh toán",
+  FAILED: "Thanh toán thất bại",
+  PENDING_REFUND: "Chờ hoàn tiền",
+  REFUNDED: "Đã hoàn tiền",
+};
+
+const PAYMENT_STATUS_BADGE: Record<PaymentStatus, string> = {
+  PENDING: "bg-yellow-100 text-yellow-800",
+  CANCELLED: "bg-red-100 text-red-800",
+  COMPLETED: "bg-green-100 text-green-800",
+  FAILED: "bg-gray-200 text-gray-800",
+  PENDING_REFUND: "bg-blue-100 text-blue-800",
+  REFUNDED: "bg-indigo-100 text-indigo-800",
+};
 
 export function Order() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -61,12 +109,8 @@ export function Order() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalItems, setTotalItems] = useState<number>(0);
 
-  const userId =
-    typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
-  const accessToken =
-    typeof window !== "undefined"
-      ? localStorage.getItem("accessToken") || ""
-      : "";
+  const userId = typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
+  const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") || "" : "";
 
   const fetchOrders = async () => {
     try {
@@ -106,9 +150,7 @@ export function Order() {
         <CardTitle>Tất cả đơn hàng</CardTitle>
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground whitespace-nowrap">
-              Hiển thị:
-            </label>
+            <label className="text-sm text-muted-foreground whitespace-nowrap">Hiển thị:</label>
             <Select
               value={size.toString()}
               onValueChange={(val) => {
@@ -151,9 +193,7 @@ export function Order() {
             {orders.map((order) => (
               <TableRow key={order.id}>
                 <TableCell>{order.shippingAddress.fullname}</TableCell>
-                <TableCell>
-                  {order.items.reduce((total, item) => total + item.quantity, 0)}
-                </TableCell>
+                <TableCell>{order.items.reduce((total, item) => total + item.quantity, 0)}</TableCell>
                 <TableCell>{order.totalPrice.toLocaleString()}₫</TableCell>
                 <TableCell>
                   {new Date(order.createdAt).toLocaleString("vi-VN", {
@@ -168,12 +208,18 @@ export function Order() {
                 <TableCell>{order.deliveryMethod}</TableCell>
                 <TableCell className="text-left">{order.paymentMethod}</TableCell>
                 <TableCell>
-                  <PaymentStatusBadge status={order.paymentStatus} />
+                  <span className={`px-2 py-1 text-xs rounded font-medium ${PAYMENT_STATUS_BADGE[order.paymentStatus as PaymentStatus] || "bg-gray-100 text-gray-800"}`}>
+                    {PAYMENT_STATUS_LABELS[order.paymentStatus as PaymentStatus] || order.paymentStatus}
+                  </span>
                 </TableCell>
                 <TableCell>
-                  <OrderStatusBadge status={order.status} />
+                  <span className={`px-2 py-1 text-xs rounded font-medium ${ORDER_STATUS_BADGE[order.status] || "bg-gray-100 text-gray-800"}`}>
+                    {ORDER_STATUS_LABELS[order.status] || order.status}
+                  </span>
                 </TableCell>
-                <TableCell>{order.nextStatus}</TableCell>
+                <TableCell>
+                  {ORDER_STATUS_LABELS[order.nextStatus] || order.nextStatus}
+                </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -206,61 +252,38 @@ export function Order() {
       </CardContent>
 
       <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
-
-  <Pagination>
-    <PaginationContent>
-      <PaginationItem>
-        <PaginationLink
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            setPage((prev) => Math.max(prev - 1, 1));
-          }}
-        >
-          Trước
-        </PaginationLink>
-      </PaginationItem>
-
-      {Array.from({ length: totalPages }).map((_, i) => {
-        const pageNumber = i + 1;
-        return (
-          <PaginationItem key={pageNumber}>
-            <PaginationLink
-              href="#"
-              isActive={pageNumber === page}
-              onClick={(e) => {
-                e.preventDefault();
-                setPage(pageNumber);
-              }}
-            >
-              {pageNumber}
-            </PaginationLink>
-          </PaginationItem>
-        );
-      })}
-
-      {totalPages > 5 && (
-        <PaginationItem>
-          <PaginationEllipsis />
-        </PaginationItem>
-      )}
-
-      <PaginationItem>
-        <PaginationLink
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            setPage((prev) => Math.min(prev + 1, totalPages));
-          }}
-        >
-          Sau
-        </PaginationLink>
-      </PaginationItem>
-    </PaginationContent>
-  </Pagination>
-</CardFooter>
-
-
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationLink href="#" onClick={(e) => { e.preventDefault(); setPage((prev) => Math.max(prev - 1, 1)); }}>
+                Trước
+              </PaginationLink>
+            </PaginationItem>
+            {Array.from({ length: totalPages }).map((_, i) => {
+              const pageNumber = i + 1;
+              return (
+                <PaginationItem key={pageNumber}>
+                  <PaginationLink
+                    href="#"
+                    isActive={pageNumber === page}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setPage(pageNumber);
+                    }}
+                  >
+                    {pageNumber}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
+            <PaginationItem>
+              <PaginationLink href="#" onClick={(e) => { e.preventDefault(); setPage((prev) => Math.min(prev + 1, totalPages)); }}>
+                Sau
+              </PaginationLink>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </CardFooter>
 
       <OrderStatusModal
         open={modalOpen}

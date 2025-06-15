@@ -65,6 +65,25 @@ export const postMessage = async (data: Chat.PostMessage, conversationId: string
     }
 }
 
+export const postUpdate = async (data: Chat.PostMessage, conversationId: string,userId: string, accessToken: string): Promise<Chat.PostMessage> => {
+    try {
+        const response = await api.post(`${CHAT_URL}/conversations/${conversationId}`, data, {
+            headers: {
+                'x-client-id': userId,
+                'Authorization': accessToken
+            }
+        });
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, 'response.data.error.message', '');
+
+        if (errorMessage) {
+            toast.error(errorMessage);
+        }
+        throw new Error(errorMessage || 'An unknown error occurred.');
+    }
+}
+
 
 export const updateSeen = async (conversationId: string, userId: string, accessToken: string) : Promise<Chat.Seen> => {
   try {

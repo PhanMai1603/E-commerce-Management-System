@@ -384,7 +384,7 @@ export default function ConfirmRefundPage() {
                           <svg className="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
-                          <p className="text-green-800 font-semibold">Đã gửi hoàn tiền ngân hàng thành công!</p>
+                          <p className="text-green-800 font-semibold">Giao dịch hoàn tiền ngân hàng đã được xác nhận!</p>
                         </div>
                       </div>
                     )}
