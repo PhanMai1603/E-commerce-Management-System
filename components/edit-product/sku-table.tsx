@@ -80,8 +80,8 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
 
   const generatedCombinations = generateCombinations(sourceVariants);
 
-  const hasColor = (!updatedProduct.variants && product.product.variants?.some(variant => variant.name === "Color"))
-    || updatedProduct.variants?.some(variant => variant.name === "Color");
+  const hasColor = (!updatedProduct.variants && product.product.variants?.some(variant => variant.name === "Màu sắc"))
+    || updatedProduct.variants?.some(variant => variant.name === "Màu sắc");
 
   useEffect(() => {
     setSkuList((prevSkuList) => {
@@ -148,7 +148,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
   // Set images của variants vào skuList
   useEffect(() => {
     if (!updatedProduct.variants && product.product.variants) {
-      const colorVariant = product.product.variants.find(v => v.name === "Color");
+      const colorVariant = product.product.variants.find(v => v.name === "Màu sắc");
       if (colorVariant && colorVariant.images?.length) {
         const mappedImages: { [key: string]: string } = {};
         colorVariant.options.forEach((color, index) => {
@@ -166,7 +166,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
       if (!prev.variants) return prev;
 
       const updatedVariants = prev.variants.map(variant =>
-        variant.name === "Color"
+        variant.name === "Màu sắc"
           ? { ...variant, images: Object.values(images) }
           : variant
       );
@@ -196,7 +196,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
       setLoading(prev => {
         const newLoading = [...prev];
         generatedCombinations.forEach((combination, index) => {
-          if (combination.some(item => item.name === "Color" && item.value === color)) {
+          if (combination.some(item => item.name === "Màu sắc" && item.value === color)) {
             newLoading[index] = true;
           }
         });
@@ -215,7 +215,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
       setLoading(prev => {
         const newLoading = [...prev];
         generatedCombinations.forEach((combination, index) => {
-          if (combination.some(item => item.name === "Color" && item.value === color)) {
+          if (combination.some(item => item.name === "Màu sắc" && item.value === color)) {
             newLoading[index] = false;
           }
         });
@@ -234,7 +234,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
     setLoading(prev => {
       const newLoading = [...prev];
       generatedCombinations.forEach((combination, index) => {
-        if (combination.some(item => item.name === "Color" && item.value === color)) {
+        if (combination.some(item => item.name === "Màu sắc" && item.value === color)) {
           newLoading[index] = false;
         }
       });
@@ -321,7 +321,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
         </TableHeader>
         <TableBody>
           {generatedCombinations.map((combination, rowIndex) => {
-            const colorItem = combination.find(item => item.name === "Color");
+            const colorItem = combination.find(item => item.name === "Màu sắc");
             const color = colorItem ? colorItem.value : "";
             return (
               <TableRow key={rowIndex}>

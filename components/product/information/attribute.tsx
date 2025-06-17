@@ -82,7 +82,7 @@ const AttributeForm: React.FC<AttributeFormProps> = ({ product, setProduct, user
         const oldVariant = prev.variants?.find((v) => v.name === matchingAttr.name);
         let images: string[] = [];
 
-        if (oldVariant && oldVariant.name === "Color") {
+        if (oldVariant && oldVariant.name === "Màu sắc") {
           images = options.map((option) => {
             const oldIdx = oldVariant.options.findIndex((opt) => opt === option);
             return oldIdx !== -1 ? oldVariant.images?.[oldIdx] || "" : "";
