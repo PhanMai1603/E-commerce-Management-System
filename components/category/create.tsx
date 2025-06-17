@@ -91,14 +91,14 @@ export default function CategoryModal({ open, onOpenChange, onCategoryCreated }:
       const accessToken = localStorage.getItem("accessToken") || "";
 
       await createCategories(categoryData, userId, accessToken);
-      toast.success("✅ Tạo danh mục thành công!");
+      toast.success("Tạo danh mục thành công!");
 
       resetState();
       onOpenChange(false);
       onCategoryCreated();
     } catch (error) {
       console.error("Lỗi khi tạo danh mục:", error);
-      toast.error("❌ Tạo danh mục thất bại.");
+      toast.error("Tạo danh mục thất bại.");
     }
   };
 

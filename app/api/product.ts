@@ -178,3 +178,25 @@ export const importProduct = async (data: Product.ImportProduct, userId: string,
     throw new Error(errorMessage); // Propagate the error for further handling
   }
 };
+
+
+export const getTopCategoriesProduct = async (categoryId: string, userId: string, accessToken: string): Promise<Product.ProductResponse> => {
+    try {
+        const response = await api.get(`${PRODUCT_URL}?category=${categoryId}`,
+          {
+        headers: {
+          'x-client-id': userId,
+          'Authorization': accessToken
+        }
+      }
+        );
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, 'response.data.error.message', '');
+
+        if (errorMessage) {
+            toast.error(errorMessage);
+        }
+        throw new Error(errorMessage || 'An unknown error occurred.');
+    }
+}

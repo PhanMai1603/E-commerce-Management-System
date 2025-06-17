@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Tag, Star } from "lucide-react";
 import React, { useState } from "react";
@@ -5,6 +6,7 @@ import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
 import { ProductDetail } from "@/interface/product";
+
 
 interface ProductInformationProps {
   product: ProductDetail;
@@ -121,17 +123,15 @@ export default function ProductInformation({
                     return (
                       <li
                         key={optionIndex}
-                        className={`cursor-pointer px-4 py-2 rounded-lg transition duration-200 text-center ${
-                          isSelected
+                        className={`cursor-pointer px-4 py-2 rounded-lg transition duration-200 text-center ${isSelected
                             ? "ring-2 ring-primary bg-gray-100 border-primary"
                             : isColorVariant
-                            ? "border border-gray-300"
-                            : "border border-gray-200"
-                        } ${
-                          isColorVariant
+                              ? "border border-gray-300"
+                              : "border border-gray-200"
+                          } ${isColorVariant
                             ? "hover:bg-gray-50 hover:ring-2 hover:ring-primary"
                             : ""
-                        }`}
+                          }`}
                         onClick={() => {
                           if (isColorVariant) {
                             setSelectedColor(option);
@@ -149,6 +149,16 @@ export default function ProductInformation({
           </div>
         )}
       </div>
+      {product.code && product.qrCode && (
+        <div className="mt-4">
+          <p className="text-sm text-gray-600 mb-1">QR Code sản phẩm:</p>
+          <img
+            src={product.qrCode}
+            alt={`QR ${product.code}`}
+            className="w-28 h-28 object-contain border rounded-md"
+          />
+        </div>
+      )}
     </Card>
   );
 }

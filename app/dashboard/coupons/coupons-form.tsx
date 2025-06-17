@@ -16,10 +16,11 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { toast } from "react-toastify";
-import { getAllCouponsResponse } from "@/interface/coupon";
+import { getAllCouponsResponse, GetCouponResponse } from "@/interface/coupon";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // ✅ Mapping để hiển thị tiếng Việt
 const COUPON_TYPE_LABEL: Record<string, string> = {
@@ -56,6 +57,10 @@ export default function CouponTable() {
 
     fetchCoupons();
   }, [userId, accessToken, page, size]);
+
+  const handleView = (couponId: string) => {
+    router.push(`/dashboard/coupons/${couponId}`);
+  };
 
 
   const totalPages = couponsData?.totalPages || 1;
@@ -117,6 +122,7 @@ export default function CouponTable() {
                 <TableHead>Loại</TableHead>
                 <TableHead>Áp dụng cho</TableHead>
                 <TableHead>Trạng thái</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -154,9 +160,18 @@ export default function CouponTable() {
                       {coupon.isActive ? "Đang hoạt động" : "Hết hạn"}
                     </span>
                   </TableCell>
-                  {/* <TableCell className="text-right">
-                  <EllipsisVertical />
-                </TableCell> */}
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <EllipsisVertical className="cursor-pointer" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleView(coupon.id)}>
+                          Xem chi tiết
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -217,7 +232,6 @@ export default function CouponTable() {
             </PaginationContent>
           </Pagination>
         </CardFooter>
-
       </Card>
     </div>
   );

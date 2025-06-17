@@ -42,3 +42,23 @@ export const getAllCoupons = async (userId: string, accessToken: string, page: n
         throw new Error(errorMessage || 'An unknown error occurred.');
     }
 };
+
+
+export const getDetailCoupons = async (couponKey: string,userId: string, accessToken: string, page: number, size:number): Promise<Coupon.GetCouponResponse> => {
+    try {
+      const response = await api.get(`${COUPON_URL}/${couponKey}?page=${page}&size=${size}`, {
+        headers: {
+          "x-client-id": userId,
+          Authorization: accessToken,
+        },
+      });
+      return response.data.metadata;
+    } catch (error) {
+      const errorMessage = get(error, "response.data.error.message", "");
+  
+      if (errorMessage) {
+        toast.error(errorMessage);
+      }
+      throw new Error(errorMessage || "An unknown error occurred.");
+    }
+  };

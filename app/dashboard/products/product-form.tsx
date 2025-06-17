@@ -18,7 +18,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Star, EllipsisVertical, Plus } from "lucide-react";
+import { Star, EllipsisVertical, Plus, ScanQrCode } from "lucide-react";
 import {
   deleteProduct,
   getAllProduct,
@@ -52,6 +52,7 @@ import {
 import SearchBar from "@/components/Search";
 import { debounce } from "lodash";
 import ConfirmDialog from "@/components/category/confirm";
+import CategoryFilterSheet from "@/components/filter/category";
 
 // ✅ Hàm dịch trạng thái
 const getStatusLabel = (status: string): string => {
@@ -79,6 +80,8 @@ export function ProductTable() {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+  const [filterVisible, setFilterVisible] = useState(false);
 
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
@@ -180,14 +183,37 @@ export function ProductTable() {
             <SearchBar setQuery={debouncedSetQuery} />
           </div>
 
-          <Button
-            onClick={() => router.push("/dashboard/products/create")}
-            className="flex items-center gap-2 self-start md:self-auto"
-          >
-            <Plus className="w-5 h-5" />
-            Thêm sản phẩm
-          </Button>
+          {/* ✅ Nhóm nút "Bộ lọc" + "Thêm sản phẩm" chung div */}
+          <div className="flex items-center gap-3">
+            <CategoryFilterSheet
+              userId={userId}
+              accessToken={accessToken}
+              onFilter={(products) => {
+                setProducts(products.items);
+                setTotalPages(1);
+                setPage(1);
+              }}
+            />
+
+            <Button
+              variant="outline"
+              onClick={() => router.push("/dashboard/inventory/import/scan")}
+              className="flex items-center gap-2"
+            >
+              <ScanQrCode className="w-4 h-4" />
+            </Button>
+
+            <Button
+              onClick={() => router.push("/dashboard/products/create")}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              Thêm sản phẩm
+            </Button>
+          </div>
+
         </CardHeader>
+
 
         <CardContent className="relative">
           {loading && (
@@ -203,6 +229,7 @@ export function ProductTable() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>QR</TableHead>
                     <TableHead>Hình ảnh</TableHead>
                     <TableHead>Tên</TableHead>
                     <TableHead>Giá</TableHead>
@@ -215,6 +242,16 @@ export function ProductTable() {
                 <TableBody>
                   {products.map((product) => (
                     <TableRow key={product.id}>
+                      <TableCell>
+                        {product.qrCode && (
+                          <img
+                            src={product.qrCode}
+                            alt={`QR ${product.code}`}
+                            className="w-14 h-14 object-contain border rounded-md"
+                          />
+                        )}
+                      </TableCell>
+
                       <TableCell>
                         <div className="flex items-center gap-3">
                           {product.mainImage && (
@@ -251,17 +288,16 @@ export function ProductTable() {
                       </TableCell>
                       <TableCell>
                         <span
-                          className={`inline-block py-1 px-3 rounded-2xl text-sm font-semibold ${
-                            product.status === "PUBLISHED"
-                              ? "bg-[#00B8D929] text-[#006C9C]"
-                              : product.status === "DRAFT"
+                          className={`inline-block py-1 px-3 rounded-2xl text-sm font-semibold ${product.status === "PUBLISHED"
+                            ? "bg-[#00B8D929] text-[#006C9C]"
+                            : product.status === "DRAFT"
                               ? "bg-[#919EAB29] text-[#637381]"
                               : product.status === "DISCONTINUED"
-                              ? "bg-[#FF563029] text-[#B71D18]"
-                              : product.status === "OUT_OF_STOCK"
-                              ? "bg-[#FFAB0029] text-[#B76E00]"
-                              : "bg-gray-200 text-gray-600"
-                          }`}
+                                ? "bg-[#FF563029] text-[#B71D18]"
+                                : product.status === "OUT_OF_STOCK"
+                                  ? "bg-[#FFAB0029] text-[#B76E00]"
+                                  : "bg-gray-200 text-gray-600"
+                            }`}
                         >
                           {getStatusLabel(product.status)}
                         </span>
@@ -304,61 +340,59 @@ export function ProductTable() {
         </CardContent>
 
         <CardFooter className="border-t pt-3 flex flex-col md:flex-row items-center justify-between gap-4">
-  
-  <Pagination>
-    <PaginationContent>
-      <PaginationItem>
-        <PaginationLink
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            setPage((prev) => Math.max(prev - 1, 1));
-          }}
-        >
-          Trước
-        </PaginationLink>
-      </PaginationItem>
 
-      {Array.from({ length: totalPages }).map((_, i) => {
-        const pageNumber = i + 1;
-        return (
-          <PaginationItem key={pageNumber}>
-            <PaginationLink
-              href="#"
-              isActive={pageNumber === page}
-              onClick={(e) => {
-                e.preventDefault();
-                setPage(pageNumber);
-              }}
-            >
-              {pageNumber}
-            </PaginationLink>
-          </PaginationItem>
-        );
-      })}
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage((prev) => Math.max(prev - 1, 1));
+                  }}
+                >
+                  Trước
+                </PaginationLink>
+              </PaginationItem>
 
-      {totalPages > 5 && (
-        <PaginationItem>
-          <PaginationEllipsis />
-        </PaginationItem>
-      )}
+              {Array.from({ length: totalPages }).map((_, i) => {
+                const pageNumber = i + 1;
+                return (
+                  <PaginationItem key={pageNumber}>
+                    <PaginationLink
+                      href="#"
+                      isActive={pageNumber === page}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPage(pageNumber);
+                      }}
+                    >
+                      {pageNumber}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
 
-      <PaginationItem>
-        <PaginationLink
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            setPage((prev) => Math.min(prev + 1, totalPages));
-          }}
-        >
-          Sau
-        </PaginationLink>
-      </PaginationItem>
-    </PaginationContent>
-  </Pagination>
-</CardFooter>
+              {totalPages > 5 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
 
-
+              <PaginationItem>
+                <PaginationLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage((prev) => Math.min(prev + 1, totalPages));
+                  }}
+                >
+                  Sau
+                </PaginationLink>
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </CardFooter>
       </Card>
     </div>
   );

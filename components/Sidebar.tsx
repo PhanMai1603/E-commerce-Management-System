@@ -10,6 +10,7 @@ import {
   RefreshCcw,
   CreditCard,
   MessageCircle,
+  Warehouse,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -24,6 +25,7 @@ const sidebarGroups = [
       { title: "Danh mục", icon: LayoutGrid, href: "/dashboard/categories" },
       { title: "Thuộc tính", icon: Package2, href: "/dashboard/attribute" },
       { title: "Sản phẩm", icon: Shirt, href: "/dashboard/products" },
+      { title: "Kho hàng", icon: Warehouse, href: "/dashboard/inventory" },
       { title: "Đơn hàng", icon: ShoppingBag, href: "/dashboard/orders" },
       { title: "Mã giảm giá", icon: TicketPercent, href: "/dashboard/coupons" },
       { title: "Đánh giá", icon: MessageSquareHeart, href: "/dashboard/review" },
