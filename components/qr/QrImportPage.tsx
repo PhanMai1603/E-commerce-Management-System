@@ -50,6 +50,7 @@ export default function QrImportPage() {
   const lastErrorTime = useRef<number>(0);
   const scannedCodes = useRef<Set<string>>(new Set());
   const router = useRouter();
+
   useEffect(() => {
     getAllProduct(userId, accessToken, 1, 100).then((res) => setAllProducts(res.items));
     // Lấy danh sách camera ngay khi load
@@ -66,40 +67,51 @@ export default function QrImportPage() {
     }
   }, []);
 
-  const fetchProductDetail = async (rawCode: string) => {
-    const code = rawCode.trim();
+const fetchProductDetail = async (rawCode: string) => {
+  const code = rawCode.trim();
 
-    if (scannedCodes.current.has(code)) {
-      toast.info("⚠️ Mã này đã được quét, thử mã khác!");
-      return;
-    }
+  // Kiểm tra trong danh sách scannedItems đã có sản phẩm này chưa
+  const existed = scannedItems.some(
+    (item) => item.product.code === code || item.product.id === code
+  );
+  if (existed) {
+    toast.info("⚠️ Sản phẩm này đã có trong danh sách quét.");
+    return;
+  }
 
-    try {
-      const res = await getProductDetail(code, userId, accessToken);
-      const { product, skuList } = res;
+  // // Nếu muốn giữ thêm kiểm tra bằng scannedCodes Set thì vẫn dùng luôn
+  // if (scannedCodes.current.has(code)) {
+  //   toast.info("⚠️ Mã này đã được quét rồi, thử mã khác nhé!");
+  //   return;
+  // }
 
-      const newItem: ScannedItem = {
-        id: generateId(),
-        product,
-        skuList: skuList ?? [],
-        variantInputs:
-          (skuList ?? []).map((v) => ({
-            variantId: v.id,
-            quantity: 0,
-            importPrice: v.price,
-          })),
-        quantity: 1,
-        price: product.originalPrice,
-      };
+  try {
+    const res = await getProductDetail(code, userId, accessToken);
+    const { product, skuList } = res;
 
-      setScannedItems((prev) => [...prev, newItem]);
-      scannedCodes.current.add(code);
-      toast.success("✅ Quét thành công");
-    } catch (err) {
-      console.error("❌ QR KHÔNG TÌM THẤY:", err);
-      toast.error("❌ Không tìm thấy sản phẩm");
-    }
-  };
+    const newItem: ScannedItem = {
+      id: generateId(),
+      product,
+      skuList: skuList ?? [],
+      variantInputs:
+        (skuList ?? []).map((v) => ({
+          variantId: v.id,
+          quantity: 0,
+          importPrice: v.price,
+        })),
+      quantity: 1,
+      price: product.originalPrice,
+    };
+
+    setScannedItems((prev) => [...prev, newItem]);
+    scannedCodes.current.add(code); // vẫn nên dùng Set cho ổn định
+    toast.success("✅ Quét thành công");
+  } catch (err) {
+    console.error("❌ QR KHÔNG TÌM THẤY:", err);
+    toast.error("❌ Không tìm thấy sản phẩm");
+  }
+};
+
 
   const startScanner = async () => {
     if (!scannerRef.current && typeof window !== "undefined") {
