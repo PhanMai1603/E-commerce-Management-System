@@ -23,7 +23,7 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
   IN_TRANSIT: "Đang giao",
   DELIVERED: " Đã giao",
   CANCELLED: " Đã hủy",
-  DELIVERY_FAILED: "Không giao được",
+  // DELIVERY_FAILED: "Không giao được",
   RETURN: "Hoàn trả",
 }
 
@@ -36,7 +36,7 @@ const statusBadge: Record<OrderStatus, string> = {
   IN_TRANSIT: "bg-sky-100 text-sky-800",
   DELIVERED: "bg-green-100 text-green-800",
   CANCELLED: "bg-red-100 text-red-800",
-  DELIVERY_FAILED: "bg-emerald-100 text-emerald-800",
+  // DELIVERY_FAILED: "bg-emerald-100 text-emerald-800",
   RETURN: "bg-orange-200 text-orange-900",
 }
 
@@ -70,7 +70,7 @@ const isUpdatableStatus = (status: OrderStatus): boolean => {
     OrderStatus.RETURN,
     OrderStatus.CANCELLED,
     OrderStatus.DELIVERED,
-    OrderStatus.DELIVERY_FAILED,
+    // OrderStatus.DELIVERY_FAILED,
   ].includes(status)
 }
 

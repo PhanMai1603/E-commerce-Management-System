@@ -102,7 +102,7 @@ export enum OrderStatus {
   IN_TRANSIT = 'IN_TRANSIT',           // Đơn đang trên đường giao hàng
   DELIVERED = 'DELIVERED',             // Đã giao
   CANCELLED = 'CANCELLED',             // Đã hủy
-  DELIVERY_FAILED = 'DELIVERY_FAILED', // Không giao được
+  // DELIVERY_FAILED = 'DELIVERY_FAILED', // Không giao được
   RETURN = 'RETURN',                   // Bao gồm mọi bước liên quan đến return
 }
 

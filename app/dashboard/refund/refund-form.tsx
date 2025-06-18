@@ -40,7 +40,7 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
   IN_TRANSIT: "Đang giao",
   DELIVERED: " Đã giao",
   CANCELLED: " Đã hủy",
-  DELIVERY_FAILED: "Không giao được",
+  // DELIVERY_FAILED: "Không giao được",
   RETURN: "Hoàn trả",
 }
 const ORDER_STATUS_BADGE: Record<string, string> = {
@@ -54,6 +54,18 @@ const ORDER_STATUS_BADGE: Record<string, string> = {
   DELIVERY_FAILED: "bg-emerald-100 text-emerald-800",
   RETURN: "bg-orange-200 text-orange-900",
 }
+
+const reasonLabels: Record<string, string> = {
+  DEFECTIVE: "Sản phẩm bị lỗi",
+  WRONG_ITEM: "Giao sai sản phẩm",
+  NOT_AS_DESCRIBED: "Không đúng mô tả",
+  CHANGE_MIND: "Thay đổi ý định",
+  NOT_SUITABLE_SIZE: "Không vừa kích cỡ",
+  NOT_SUITABLE_STYLE: "Không hợp phong cách",
+  BOM_HANG: "Bùng hàng",
+  OTHER: "Lý do khác",
+};
+
 
 const RefundPage = () => {
   const [refunds, setRefunds] = useState<Refund[]>([])
@@ -143,7 +155,10 @@ const RefundPage = () => {
                       <p className="font-medium">{req.item.productName}</p>
                       <p className="text-gray-600">{req.item.variantName}</p>
                       <p>Số lượng: {req.item.quantity}</p>
-                      <p>Lý do: {req.reason}</p>
+                    <p>
+  Lý do: {reasonLabels[req.reason] || req.reason}
+</p>
+
                       <p>
                         Trạng thái:{" "}
                         <span className={`ml-1 px-2 py-0.5 text-xs rounded ${STATUS_BADGE[req.status] || "bg-gray-100 text-gray-800"}`}>

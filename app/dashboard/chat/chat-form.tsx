@@ -123,6 +123,55 @@ const ChatUI: React.FC<Props> = ({ userId, accessToken, role }) => {
     }, 50);
   };
 
+const renderMessageContent = (content: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const matches = [...content.matchAll(urlRegex)];
+    const result: React.ReactNode[] = [];
+    let lastIndex = 0;
+
+    matches.forEach((match, i) => {
+      const fullMatch = match[0];
+      const matchIndex = match.index ?? 0;
+
+      // Text trước link
+      if (lastIndex < matchIndex) {
+        result.push(<span key={`text-${i}`}>{content.slice(lastIndex, matchIndex)}</span>);
+      }
+
+      // Tách phần cuối nếu có dấu
+      const urlMatch = fullMatch.match(/^(.+?)([.,!?;:"'”’)]*)$/);
+      const cleanUrl = urlMatch?.[1] || fullMatch;
+      const trailingPunctuation = urlMatch?.[2] || '';
+
+      // Link
+      result.push(
+        <a
+          key={`link-${i}`}
+          href={cleanUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline break-all"
+        >
+          {cleanUrl}
+        </a>
+      );
+
+      // Dấu tách riêng
+      if (trailingPunctuation) {
+        result.push(<span key={`punct-${i}`}>{trailingPunctuation}</span>);
+      }
+
+      lastIndex = matchIndex + fullMatch.length;
+    });
+
+    // Text sau link cuối
+    if (lastIndex < content.length) {
+      result.push(<span key={`text-end`}>{content.slice(lastIndex)}</span>);
+    }
+
+    return result;
+  };
+
   const handleSendMessage = async () => {
     const socket = getSocket();
     if (!selectedConversation || !socket?.connected) return;
@@ -326,7 +375,7 @@ const ChatUI: React.FC<Props> = ({ userId, accessToken, role }) => {
                                 />
                               )}
                               {msg.content && (
-                                <p className="text-sm break-words whitespace-pre-wrap">{msg.content}</p>
+                                <p className="text-sm break-words whitespace-pre-wrap">{renderMessageContent(msg.content)}</p>
                               )}
                             </div>
                             <p className="text-xs text-gray-500 mt-1 px-2">

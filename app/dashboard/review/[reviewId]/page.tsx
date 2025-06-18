@@ -1,16 +1,13 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-"use client";
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client"
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getReviewDetail, replyReview } from "@/app/api/review";
+import { uploadReviewImage } from "@/app/api/upload"; // Đảm bảo import đúng
 import { ReviewDataResponse } from "@/interface/review";
 import { toast } from "react-toastify";
 import Image from "next/image";
-
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,6 +26,12 @@ export default function ReviewDetailPage() {
   const [loading, setLoading] = useState(true);
   const [replyContent, setReplyContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // State cho ảnh phản hồi
+  const [replyImage, setReplyImage] = useState<File | null>(null);
+  const [replyImageUrl, setReplyImageUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
   const router = useRouter();
 
   const formatDateTime = (iso: string) => {
@@ -65,23 +68,49 @@ export default function ReviewDetailPage() {
 
   useEffect(() => {
     fetchReview();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reviewId, userId, accessToken]);
 
+  // Hàm upload ảnh phản hồi
+  const handleUploadImage = async () => {
+    if (!replyImage) {
+      toast.warning("Vui lòng chọn ảnh để upload.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const url = await uploadReviewImage(replyImage, userId, accessToken);
+      setReplyImageUrl(url);
+      toast.success("Upload ảnh thành công!");
+    } catch {
+      // lỗi đã được toast ở API
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Hàm gửi phản hồi (có thể kèm ảnh)
   const handleReply = async () => {
-    if (!replyContent.trim()) {
-      toast.warning("Vui lòng nhập phản hồi.");
+    if (!replyContent.trim() && !replyImageUrl) {
+      toast.warning("Vui lòng nhập phản hồi hoặc gửi ảnh.");
       return;
     }
     if (!reviewId || !userId || !accessToken) return;
-
     setSubmitting(true);
     try {
-      await replyReview(reviewId, userId, accessToken, replyContent.trim());
+      let contentToSend = replyContent.trim();
+      // Thêm ảnh vào nội dung (có thể sửa backend để nhận trường imageUrl riêng)
+      if (replyImageUrl) {
+        contentToSend += `<br/><img src="${replyImageUrl}" alt="Ảnh phản hồi" style="max-width:200px;border-radius:8px;margin-top:4px"/>`;
+      }
+      await replyReview(reviewId, userId, accessToken, contentToSend);
       toast.success("Đã gửi phản hồi thành công!");
       setReplyContent("");
+      setReplyImage(null);
+      setReplyImageUrl(null);
       fetchReview();
     } catch (error) {
-      // handled in replyReview
+      // lỗi đã được toast
     } finally {
       setSubmitting(false);
     }
@@ -90,7 +119,6 @@ export default function ReviewDetailPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Chi tiết đánh giá</h1>
-
       {review && (
         <Card>
           <CardHeader>
@@ -123,7 +151,6 @@ export default function ReviewDetailPage() {
           <CardContent>
             <div className="ml-[56px] space-y-5">
               <p className="text-base leading-relaxed">{review.content}</p>
-
               {review.images.length > 0 && (
                 <div className="flex flex-wrap gap-3">
                   {review.images.map((img, i) => (
@@ -152,7 +179,7 @@ export default function ReviewDetailPage() {
                         {review.reply.user.name || "Admin"}
                       </div>
                       <div className="mt-2 text-base text-gray-700">
-                        {review.reply.content}
+                        <div dangerouslySetInnerHTML={{ __html: review.reply.content }} />
                       </div>
                     </div>
                   </div>
@@ -164,6 +191,43 @@ export default function ReviewDetailPage() {
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
                   />
+                  {/* Upload ảnh */}
+<div className="flex items-center gap-2 mt-2">
+  <input
+    type="file"
+    accept="image/*"
+    disabled={uploading}
+    onChange={async e => {
+      const file = e.target.files?.[0] || null;
+      setReplyImage(file);
+      setReplyImageUrl(null);
+      if (file) {
+        setUploading(true);
+        try {
+          const url = await uploadReviewImage(file, userId, accessToken);
+          setReplyImageUrl(url);
+          toast.success("Upload ảnh thành công!");
+        } catch {
+          // lỗi đã được toast ở API
+        } finally {
+          setUploading(false);
+        }
+      }
+    }}
+  />
+  {uploading && (
+    <span className="text-sm text-gray-400">Đang upload...</span>
+  )}
+  {/* Hiện ảnh đã upload */}
+  {replyImageUrl && (
+    <img
+      src={replyImageUrl}
+      alt="Ảnh phản hồi"
+      className="w-14 h-14 rounded border ml-2"
+    />
+  )}
+</div>
+
                   <Button className="mt-2" onClick={handleReply} disabled={submitting}>
                     {submitting ? "ĐANG GỬI..." : "GỬI"}
                   </Button>
