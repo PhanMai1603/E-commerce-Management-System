@@ -63,3 +63,63 @@ export const importStock = async (data: Inventory.ImportRequest, userId: string,
     throw new Error(errorMessage || "An unknown error occurred.");
   }
 };
+
+
+export const Discount = async (data: Inventory.Promotion, userId: string, accessToken: string): Promise<Inventory.PromotionMetadata> => {
+  try {
+    const response = await api.post(`${INVENTORY_URL}/discount`, data, {
+      headers: {
+        "x-client-id": userId,
+        Authorization: accessToken,
+      },
+    });
+
+    return response.data.metadata;
+  } catch (error) {
+    const errorMessage = get(error, "response.data.error.message", "");
+
+    if (errorMessage) {
+      toast.error(errorMessage);
+    }
+    throw new Error(errorMessage || "An unknown error occurred.");
+  }
+};
+
+
+export const getAllDiscount = async (userId: string, accessToken: string): Promise<Inventory.PromotionListMetadata> => {
+    try {
+        const response = await api.get(`${INVENTORY_URL}/discount`, {
+            headers: {
+                'x-client-id': userId,
+                'Authorization': accessToken
+            }
+        });
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, 'response.data.error.message', '');
+
+        if (errorMessage) {
+            toast.error(errorMessage);
+        }
+        throw new Error(errorMessage || 'An unknown error occurred.');
+    }
+}
+
+export const getDetailDiscount = async (discountId: string,userId: string, accessToken: string): Promise<Inventory.PromotionDetail> => {
+    try {
+        const response = await api.get(`${INVENTORY_URL}/discount/${discountId}`, {
+            headers: {
+                'x-client-id': userId,
+                'Authorization': accessToken
+            }
+        });
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, 'response.data.error.message', '');
+
+        if (errorMessage) {
+            toast.error(errorMessage);
+        }
+        throw new Error(errorMessage || 'An unknown error occurred.');
+    }
+}

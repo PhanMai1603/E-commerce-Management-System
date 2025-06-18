@@ -53,6 +53,7 @@ import SearchBar from "@/components/Search";
 import { debounce } from "lodash";
 import ConfirmDialog from "@/components/category/confirm";
 import CategoryFilterSheet from "@/components/filter/category";
+import { syncQdrant } from "@/app/api/chat";
 
 // ✅ Hàm dịch trạng thái
 const getStatusLabel = (status: string): string => {
@@ -185,6 +186,22 @@ export function ProductTable() {
 
           {/* ✅ Nhóm nút "Bộ lọc" + "Thêm sản phẩm" chung div */}
           <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={async () => {
+                try {
+                  await syncQdrant(userId, accessToken);
+                  toast.success("Đồng bộ dữ liệu AI thành công!");
+                } catch (err) {
+                  toast.error("Đồng bộ thất bại.");
+                  console.error(err);
+                }
+              }}
+              className="text-sm"
+            >
+              Cập nhật dữ liệu AI
+            </Button>
+
             <CategoryFilterSheet
               userId={userId}
               accessToken={accessToken}
@@ -197,7 +214,7 @@ export function ProductTable() {
 
             <Button
               variant="outline"
-              onClick={() => router.push("/dashboard/inventory/import/scan")}
+              onClick={() => router.push("/qr-import")}
               className="flex items-center gap-2"
             >
               <ScanQrCode className="w-4 h-4" />
@@ -211,6 +228,7 @@ export function ProductTable() {
               Thêm sản phẩm
             </Button>
           </div>
+
 
         </CardHeader>
 

@@ -104,4 +104,24 @@ export const updateSeen = async (conversationId: string, userId: string, accessT
 };
 
 
+export const syncQdrant = async (userId: string, accessToken: string): Promise<Chat.syncQdrant> => {
+    try {
+        const response = await api.post(`${CHAT_URL}/sync-qdrant`, {}, // nếu không có body
+            {
+                headers: {
+                    "x-client-id": userId,
+                    Authorization: accessToken,
+                },
+            }
+        );
+        return response.data.metadata;
+    } catch (error) {
+        const errorMessage = get(error, 'response.data.error.message', '');
+
+        if (errorMessage) {
+            toast.error(errorMessage);
+        }
+        throw new Error(errorMessage || 'An unknown error occurred.');
+    }
+}
 

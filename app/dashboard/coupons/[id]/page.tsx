@@ -30,6 +30,22 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
+// ✅ Hàm ánh xạ targetType sang tiếng Việt
+const getTargetTypeLabel = (type: string): string => {
+  switch (type) {
+    case "Product":
+      return "Sản phẩm";
+    case "Category":
+      return "Danh mục";
+    case "Order":
+      return "Đơn hàng";
+    case "Delivery":
+      return "Phí vận chuyển";
+    default:
+      return "Không xác định";
+  }
+};
+
 export default function CouponDetailPage() {
   const { id } = useParams();
   const [data, setData] = useState<GetCouponResponse | null>(null);
@@ -110,6 +126,9 @@ export default function CouponDetailPage() {
             >
               {coupon.isActive ? "Đang hoạt động" : "Hết hạn"}
             </span>
+          </p>
+          <p>
+            <strong>Áp dụng cho:</strong> {getTargetTypeLabel(coupon.targetType)}
           </p>
         </CardContent>
       </Card>

@@ -75,3 +75,8 @@ export interface Seen {
     upsertedCount: number,
     matchedCount: number,
 }
+
+export interface syncQdrant{
+    status: string,
+    documentCount: number,
+}

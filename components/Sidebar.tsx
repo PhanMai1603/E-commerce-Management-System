@@ -11,6 +11,8 @@ import {
   CreditCard,
   MessageCircle,
   Warehouse,
+  Tag,
+  GalleryHorizontal,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -28,6 +30,7 @@ const sidebarGroups = [
       { title: "Kho hàng", icon: Warehouse, href: "/dashboard/inventory" },
       { title: "Đơn hàng", icon: ShoppingBag, href: "/dashboard/orders" },
       { title: "Mã giảm giá", icon: TicketPercent, href: "/dashboard/coupons" },
+      { title: "Khuyến mãi", icon: Tag, href: "/dashboard/discount" }, // ← Thêm dòng này!}
       { title: "Đánh giá", icon: MessageSquareHeart, href: "/dashboard/review" },
     ],
   },
@@ -44,7 +47,8 @@ const sidebarGroups = [
       { title: "Giao hàng", icon: Truck, href: "/dashboard/delivery" },
       { title: "Hoàn hàng", icon: RefreshCcw, href: "/dashboard/refund" },
       { title: "Giao dịch", icon: CreditCard, href: "/dashboard/transactions" },
-      { title: "Trò chuyện", icon: MessageCircle, href: "/dashboard/chat" }
+      { title: "Trò chuyện", icon: MessageCircle, href: "/dashboard/chat" },
+      { title: "Banner", icon: GalleryHorizontal, href: "/dashboard/banner" }
     ],
   },
 ];
