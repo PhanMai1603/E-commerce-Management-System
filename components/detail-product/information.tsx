@@ -96,12 +96,18 @@ export default function ProductInformation({
 
       <div className="mb-4">
         <div className="flex items-center">
-          <span className="text-3xl font-bold text-primary">
-            {product.minPrice.toLocaleString()}đ -{" "}
-            {product.maxPrice.toLocaleString()}đ
-          </span>
+          {product.minPrice === product.maxPrice ? (
+            <span className="text-3xl font-bold text-primary">
+              {product.minPrice.toLocaleString()}đ
+            </span>
+          ) : (
+            <span className="text-3xl font-bold text-primary">
+              {product.minPrice.toLocaleString()}đ - {product.maxPrice.toLocaleString()}đ
+            </span>
+          )}
         </div>
       </div>
+
 
       <Separator className="my-4" />
 
@@ -124,10 +130,10 @@ export default function ProductInformation({
                       <li
                         key={optionIndex}
                         className={`cursor-pointer px-4 py-2 rounded-lg transition duration-200 text-center ${isSelected
-                            ? "ring-2 ring-primary bg-gray-100 border-primary"
-                            : isColorVariant
-                              ? "border border-gray-300"
-                              : "border border-gray-200"
+                          ? "ring-2 ring-primary bg-gray-100 border-primary"
+                          : isColorVariant
+                            ? "border border-gray-300"
+                            : "border border-gray-200"
                           } ${isColorVariant
                             ? "hover:bg-gray-50 hover:ring-2 hover:ring-primary"
                             : ""

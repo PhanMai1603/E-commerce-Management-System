@@ -68,7 +68,11 @@ export default function QrImportPage() {
 
   const fetchProductDetail = async (rawCode: string) => {
     const code = rawCode.trim();
-    if (scannedCodes.current.has(code)) return;
+
+    if (scannedCodes.current.has(code)) {
+      toast.info("⚠️ Mã này đã được quét, thử mã khác!");
+      return;
+    }
 
     try {
       const res = await getProductDetail(code, userId, accessToken);
@@ -172,6 +176,9 @@ export default function QrImportPage() {
       toast.success("🎉 Nhập kho thành công!");
       setScannedItems([]);
       scannedCodes.current.clear();
+      setSupplier(""); // reset lại
+      setNote("");    // reset lại
+
     } catch {
       toast.error("❌ Lỗi khi nhập kho");
     }
