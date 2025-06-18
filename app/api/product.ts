@@ -206,7 +206,9 @@ export const getTopCategoriesProduct = async (categoryId: string, userId: string
 export const getShopProducts = async (
   filters: Product.FetchProductsParams = {},
   page: number,
-  size: number
+  size: number,
+  userId?: string,
+  accessToken?: string
 ): Promise<Product.ProductResponse> => {
   try {
     const params = new URLSearchParams();
@@ -224,11 +226,16 @@ export const getShopProducts = async (
     if (filters.sort) params.set('sort', filters.sort);
 
     const url = `${PRODUCT_URL}?${params.toString()}`;
-    const response = await api.get(url);
+    const response = await api.get(url, {
+      headers: {
+        ...(userId ? { 'x-client-id': userId } : {}),
+        ...(accessToken ? { 'Authorization': accessToken } : {})
+      }
+    });
     return response.data.metadata;
   } catch (error: any) {
     const errorMessage = get(error, 'response.data.error.message', '');
     if (errorMessage) toast.error(errorMessage);
     throw new Error(errorMessage || 'An unknown error occurred.');
   }
-}
+};

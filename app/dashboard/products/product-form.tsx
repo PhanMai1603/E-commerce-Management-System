@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
 "use client";
@@ -22,6 +23,7 @@ import { Star, EllipsisVertical, Plus, ScanQrCode } from "lucide-react";
 import {
   deleteProduct,
   getAllProduct,
+  getShopProducts,
   getTopSearchProduct,
 } from "@/app/api/product";
 import { Product } from "@/interface/product";
@@ -54,6 +56,7 @@ import { debounce } from "lodash";
 import ConfirmDialog from "@/components/category/confirm";
 import CategoryFilterSheet from "@/components/filter/category";
 import { syncQdrant } from "@/app/api/chat";
+import SortSelected from "@/components/filter/ProductFilterPage";
 
 // ✅ Hàm dịch trạng thái
 const getStatusLabel = (status: string): string => {
@@ -73,6 +76,7 @@ const getStatusLabel = (status: string): string => {
 
 export function ProductTable() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [filters, setFilters] = useState({}); // 🟦 Thêm state filter
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
@@ -81,7 +85,7 @@ export function ProductTable() {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-
+  const [sort, setSort] = useState(""); // Thêm state sort
   const [filterVisible, setFilterVisible] = useState(false);
 
   const userId =
@@ -100,16 +104,42 @@ export function ProductTable() {
     []
   );
 
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     if (!userId || !accessToken) return;
+
+  //     setLoading(true);
+  //     try {
+  //       const response = query.trim()
+  //         ? await getTopSearchProduct(query, userId, accessToken, page, size)
+  //         : await getAllProduct(userId, accessToken, page, size);
+
+  //       setProducts(response.items);
+  //       setTotalPages(response.totalPages);
+  //     } catch (err) {
+  //       toast.error("Lấy danh sách sản phẩm thất bại");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchProducts();
+  // }, [query, page, size, userId, accessToken]);
   useEffect(() => {
     const fetchProducts = async () => {
       if (!userId || !accessToken) return;
-
       setLoading(true);
       try {
-        const response = query.trim()
-          ? await getTopSearchProduct(query, userId, accessToken, page, size)
-          : await getAllProduct(userId, accessToken, page, size);
-
+        let response;
+        // Gộp sort vào filters
+        const queryFilters = { ...filters, sort };
+        if (Object.keys(filters).length > 0 || sort) {
+          response = await getShopProducts(queryFilters, page, size, userId, accessToken);
+        } else if (query.trim()) {
+          response = await getTopSearchProduct(query, userId, accessToken, page, size);
+        } else {
+          response = await getAllProduct(userId, accessToken, page, size);
+        }
         setProducts(response.items);
         setTotalPages(response.totalPages);
       } catch (err) {
@@ -120,8 +150,14 @@ export function ProductTable() {
     };
 
     fetchProducts();
-  }, [query, page, size, userId, accessToken]);
+  }, [filters, sort, query, page, size, userId, accessToken]);
 
+
+  // Khi filter đổi, reset page về 1
+  const handleFilter = (newFilters: any) => {
+    setPage(1);
+    setFilters(newFilters);
+  }
   const handleView = (product: Product) => {
     router.push(`/dashboard/products/${product.id}`);
   };
@@ -181,6 +217,7 @@ export function ProductTable() {
               </Select>
             </div>
 
+
             <SearchBar setQuery={debouncedSetQuery} />
           </div>
 
@@ -201,7 +238,7 @@ export function ProductTable() {
             >
               Cập nhật dữ liệu AI
             </Button>
-
+            <SortSelected setSort={setSort} /> {/* Thêm dòng này */}
             <CategoryFilterSheet
               userId={userId}
               accessToken={accessToken}
