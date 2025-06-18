@@ -324,7 +324,7 @@ export function ProductTable() {
                           <img
                             src={product.qrCode}
                             alt={`QR ${product.code}`}
-                            className="w-14 h-14 object-contain border rounded-md"
+                            className="w-24 h-24 object-contain border rounded-md"
                           />
                         )}
                       </TableCell>
@@ -336,7 +336,7 @@ export function ProductTable() {
                           <img
                             src={product.mainImage}
                             alt={product.name}
-                            className="w-14 h-14 rounded-xl border object-cover shadow-sm"
+                            className="w-24 h-24 rounded-xl border object-cover shadow-sm"
                           />
                         )}
                       </TableCell>
