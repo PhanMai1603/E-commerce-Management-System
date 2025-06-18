@@ -21,7 +21,8 @@ module.exports = {
       'www.youtube.com',
       'img.youtube.com',
       'via.placeholder.com',
-      'example.com'
+      'example.com',
+      'lh3.googleusercontent.com'
     ],
   },
   devIndicators: {

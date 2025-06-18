@@ -56,20 +56,20 @@ const fetchProductDetail = async (rawCode: string) => {
     return;
   }
 
-  try {
+   try {
     const res = await getProductDetail(code, userId, accessToken);
     const { product, skuList } = res;
 
     const newItem: ScannedItem = {
       id: generateId(),
       product,
-      skuList: skuList?.skuList ?? [],
+      skuList: skuList ?? [], // CHỈ SỬ DỤNG skuList LÀ ARRAY
       variantInputs:
-        skuList?.skuList?.map((v) => ({
+        (skuList ?? []).map((v) => ({
           variantId: v.id,
           quantity: 0,
           importPrice: v.price,
-        })) ?? [],
+        })),
       quantity: 1,
       price: product.originalPrice,
     };

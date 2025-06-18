@@ -49,9 +49,7 @@ export default function Page() {
       discountedPrice: null,
       hasDiscount: false,
     },
-    skuList: {
-      skuList: [],
-    },
+    skuList: [],
   });
 
   // State để quản lý hình ảnh đang được chọn
@@ -114,10 +112,15 @@ export default function Page() {
 
         <ProductDescription product={product.product} />
 
-        <ProductVariant
+        {/* <ProductVariant
           skuList={product.skuList.skuList}
           setProduct={setProduct}
+        /> */}
+        <ProductVariant
+          skuList={product.skuList ?? []}
+          setProduct={setProduct}
         />
+
       </div>
     </div>
   );

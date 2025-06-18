@@ -52,9 +52,7 @@ const EditProductPage = () => {
       discountedPrice: null,
       hasDiscount: false,
     },
-    skuList: {
-      skuList: []
-    },
+    skuList:[],
   });
   const [updatedProduct, setUpdatedProduct] = useState<ProductUpdate>({
     productKey: "",
@@ -71,7 +69,8 @@ const EditProductPage = () => {
   const accessToken =
     typeof window !== 'undefined' ? localStorage.getItem('accessToken') || '' : '';
 
-  const isAnySkuPublished = product.skuList.skuList.some(item => item.status !== 'PUBLISHED');
+const isAnySkuPublished = product.skuList.some(item => item.status !== 'PUBLISHED');
+
 
   useEffect(() => {
     const fetchProduct = async () => {

@@ -97,7 +97,7 @@ export default function ReviewDetailPage() {
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-full overflow-hidden border shadow hover:scale-105 transition-transform">
                 <Image
-                  src={review.user?.avatar || "/default-avatar.png"}
+                  src={review.user?.avatar || "/avatar.png"}
                   alt={review.user?.name || "Người dùng"}
                   width={40}
                   height={40}

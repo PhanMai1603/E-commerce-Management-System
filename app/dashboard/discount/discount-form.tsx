@@ -118,7 +118,7 @@ export default function AllDiscountPage() {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <img
-                        src={item.createdBy.avatar}
+                        src={item.createdBy.avatar || "/avatar.jpg" }
                         alt={item.createdBy.name}
                         className="w-7 h-7 rounded-full border"
                       />

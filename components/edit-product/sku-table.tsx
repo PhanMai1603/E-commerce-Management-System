@@ -54,7 +54,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
 
   const fileInputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const sourceSkuListRef = useRef(
-    updatedProduct.skuList ?? product.skuList.skuList.map(({ tierIndex, price, quantity, slug }) => ({
+    updatedProduct.skuList ?? product.skuList.map(({ tierIndex, price, quantity, slug }) => ({
       tierIndex,
       price,
       quantity,
@@ -279,7 +279,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
     });
 
     if (field === "quantity" && Number(value) > 0) {
-      const matchSku = product.skuList.skuList.find(item => item.slug === newSkuList[index]?.slug);
+      const matchSku = product.skuList.find(item => item.slug === newSkuList[index]?.slug);
 
       if (matchSku) {
         setImportQuantity(prev => {
@@ -337,7 +337,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
                             height={1000}
                             className='w-full h-44 object-contain rounded-md'
                           />
-                          {!product.skuList.skuList.find(item => item.slug === newSkuList[rowIndex]?.slug) && (
+                          {!product.skuList.find(item => item.slug === newSkuList[rowIndex]?.slug) && (
                             <Button
                               onClick={() => handleDelete(color)}
                               className='absolute h-auto -top-2 -right-2 p-1 bg-red-300 hover:bg-red-500 [&_svg]:size-3'
@@ -398,7 +398,7 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
                   <Input
                     type="number"
                     min="0"
-                    disabled={!product.skuList.skuList.find(item => item.slug === newSkuList[rowIndex]?.slug)}
+                    disabled={!product.skuList.find(item => item.slug === newSkuList[rowIndex]?.slug)}
                     placeholder="Enter quantity"
                     value={newSkuList[rowIndex]?.quantity ?? 0}
                     onChange={(e) => handleInputChange(rowIndex, "quantity", e.target.value)}
@@ -406,8 +406,8 @@ const SkuTable: React.FC<SkuTableProps> = ({ userId, accessToken, product, updat
                 </TableCell>
                 <TableCell>
                   <Publish
-                    id={product.skuList.skuList.find(item => item.slug === newSkuList[rowIndex]?.slug)?.id}
-                    status={product.skuList.skuList.find(item => item.slug === newSkuList[rowIndex]?.slug)?.status}
+                    id={product.skuList.find(item => item.slug === newSkuList[rowIndex]?.slug)?.id}
+                    status={product.skuList.find(item => item.slug === newSkuList[rowIndex]?.slug)?.status}
                     item="variant"
                   />
                 </TableCell>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as Product from "@/interface/product"
 
 import { toast } from 'react-toastify';
@@ -199,4 +200,35 @@ export const getTopCategoriesProduct = async (categoryId: string, userId: string
         }
         throw new Error(errorMessage || 'An unknown error occurred.');
     }
+}
+
+
+export const getShopProducts = async (
+  filters: Product.FetchProductsParams = {},
+  page: number,
+  size: number
+): Promise<Product.ProductResponse> => {
+  try {
+    const params = new URLSearchParams();
+    params.set('page', String(page));
+    params.set('size', String(size));
+
+    if (filters.search) params.set('search', filters.search);
+    if (filters.categoryId) params.set('category', filters.categoryId);
+    if (filters.attributes && Array.isArray(filters.attributes) && filters.attributes.length > 0) {
+      params.set('attributes', JSON.stringify(filters.attributes));
+    }
+    if (filters.minPrice) params.set('minPrice', String(filters.minPrice));
+    if (filters.maxPrice) params.set('maxPrice', String(filters.maxPrice));
+    if (filters.minRating) params.set('minRating', String(filters.minRating));
+    if (filters.sort) params.set('sort', filters.sort);
+
+    const url = `${PRODUCT_URL}?${params.toString()}`;
+    const response = await api.get(url);
+    return response.data.metadata;
+  } catch (error: any) {
+    const errorMessage = get(error, 'response.data.error.message', '');
+    if (errorMessage) toast.error(errorMessage);
+    throw new Error(errorMessage || 'An unknown error occurred.');
+  }
 }

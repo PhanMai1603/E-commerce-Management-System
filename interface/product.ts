@@ -40,6 +40,16 @@ export interface ProductResponse {
   items: Product[];
 }
 
+export interface FetchProductsParams {
+    search?: string,
+    categoryId?: string,
+    attributes?: ProductAttribute[],
+    minPrice?: number,
+    maxPrice?: number,
+    minRating?: number,
+    sort?: string,
+}
+
 
 //Create Product
 // Interface cho thuộc tính sản phẩm
@@ -100,9 +110,10 @@ export interface SkuList {
   price: number;
   quantity: number;
   sold: number;
+  return: number;
   status: string;
-  createdBy: string;  
-  updatedBy: string;
+  productDiscount: number,
+  discountedPrice: number,
 }
 
 // Interface for Product Detail Response
@@ -195,9 +206,7 @@ export interface ProductUpdate{
 
 export interface ProductDetailResponse {
   product: ProductDetail;
-  skuList: {
-    skuList: SkuList[];
-  };
+  skuList: SkuList[];
 }
 
 // Interface cho phản hồi khi cập nhật sản phẩm
