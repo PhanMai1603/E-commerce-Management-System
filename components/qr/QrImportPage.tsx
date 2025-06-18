@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { debounce } from "lodash";
 
 type VariantImport = {
   variantId: string;
@@ -50,6 +51,8 @@ export default function QrImportPage() {
   const lastErrorTime = useRef<number>(0);
   const scannedCodes = useRef<Set<string>>(new Set());
   const router = useRouter();
+const scannedItemsRef = useRef<ScannedItem[]>([]);
+const pendingScans = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     getAllProduct(userId, accessToken, 1, 100).then((res) => setAllProducts(res.items));
@@ -67,23 +70,60 @@ export default function QrImportPage() {
     }
   }, []);
 
+useEffect(() => {
+  scannedItemsRef.current = scannedItems;
+}, [scannedItems]);
+
+// const fetchProductDetail = async (rawCode: string) => {
+//   const code = rawCode.trim();
+
+//   // BƯỚC 1: Luôn log ra trước!
+//   console.log("Mã QR quét:", code, "| Mã đã có:", Array.from(scannedCodes.current));
+
+//   // BƯỚC 2: Chặn mã đã quét
+//   if (scannedCodes.current.has(code)) {
+//     toast.info("⚠️ Mã này đã được quét rồi, thử mã khác nhé!");
+//     return;
+//   }
+
+//   // BƯỚC 3: Đánh dấu mã đang quét
+//   scannedCodes.current.add(code);
+
+//   try {
+//     const res = await getProductDetail(code, userId, accessToken);
+//     const { product, skuList } = res;
+//     const newItem: ScannedItem = {
+//       id: generateId(),
+//       product,
+//       skuList: skuList ?? [],
+//       variantInputs: (skuList ?? []).map((v) => ({
+//         variantId: v.id,
+//         quantity: 0,
+//         importPrice: v.price,
+//       })),
+//       quantity: 1,
+//       price: product.originalPrice,
+//     };
+//     setScannedItems((prev) => [...prev, newItem]);
+//     toast.success("✅ Quét thành công");
+//   } catch (err) {
+//     scannedCodes.current.delete(code); // Nếu thất bại, remove code khỏi set
+//     toast.error("❌ Không tìm thấy sản phẩm");
+//   }
+// };
+
+
+
 const fetchProductDetail = async (rawCode: string) => {
   const code = rawCode.trim();
 
-  // Kiểm tra trong danh sách scannedItems đã có sản phẩm này chưa
-  const existed = scannedItems.some(
-    (item) => item.product.code === code || item.product.id === code
-  );
-  if (existed) {
-    toast.info("⚠️ Sản phẩm này đã có trong danh sách quét.");
+  // Nếu đang xử lý hoặc đã quét rồi
+  if (pendingScans.current.has(code) || scannedCodes.current.has(code)) {
+    toast.info("⚠️ Mã này đã được xử lý hoặc đang quét.");
     return;
   }
 
-  // // Nếu muốn giữ thêm kiểm tra bằng scannedCodes Set thì vẫn dùng luôn
-  // if (scannedCodes.current.has(code)) {
-  //   toast.info("⚠️ Mã này đã được quét rồi, thử mã khác nhé!");
-  //   return;
-  // }
+  pendingScans.current.add(code); // đánh dấu là đang xử lý
 
   try {
     const res = await getProductDetail(code, userId, accessToken);
@@ -104,15 +144,15 @@ const fetchProductDetail = async (rawCode: string) => {
     };
 
     setScannedItems((prev) => [...prev, newItem]);
-    scannedCodes.current.add(code); // vẫn nên dùng Set cho ổn định
+    scannedCodes.current.add(code); // thêm vào danh sách đã quét
     toast.success("✅ Quét thành công");
   } catch (err) {
     console.error("❌ QR KHÔNG TÌM THẤY:", err);
     toast.error("❌ Không tìm thấy sản phẩm");
+  } finally {
+    pendingScans.current.delete(code); // xóa khỏi danh sách đang xử lý
   }
 };
-
-
   const startScanner = async () => {
     if (!scannerRef.current && typeof window !== "undefined") {
       scannerRef.current = new Html5Qrcode("qr-reader");
