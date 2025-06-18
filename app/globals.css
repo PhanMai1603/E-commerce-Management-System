@@ -109,3 +109,36 @@
     @apply bg-background text-foreground;
     }
 }
+
+@media (max-width: 768px) {
+  .product-table-mobile {
+    display: block;
+    width: 100%;
+  }
+  .product-table-mobile-row {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 6px #0001;
+    padding: 12px;
+    border: 1px solid #eee;
+  }
+  .product-table-mobile-cell {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 15px;
+  }
+  .product-table-mobile-label {
+    width: 110px;
+    color: #888;
+    font-weight: 600;
+    flex-shrink: 0;
+    font-size: 13px;
+  }
+  .hide-on-mobile {
+    display: none !important;
+  }
+}

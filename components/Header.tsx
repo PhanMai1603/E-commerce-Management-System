@@ -91,6 +91,7 @@ export default function Header({ showSideBar, setShowSideBar }: HeaderProps) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("tokenTimestamp");
+      localStorage.removeItem("avatarUrl"); // ← QUAN TRỌNG
 
       router.push("/");
     } catch (error) {

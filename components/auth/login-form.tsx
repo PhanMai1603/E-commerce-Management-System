@@ -62,45 +62,53 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const response = await loginRequest({
-        email: formData.email,
-        password: formData.password,
-        deviceToken,
-        deviceName,
-      });
+  try {
+    const response = await loginRequest({
+      email: formData.email,
+      password: formData.password,
+      deviceToken,
+      deviceName,
+    });
 
-      toast.success("Đăng nhập thành công!");
-      setIsLogin(true);
+    toast.success("Đăng nhập thành công!");
+    setIsLogin(true);
 
-      const currentTime = Date.now();
+    const currentTime = Date.now();
 
-      localStorage.setItem("accessToken", response.tokens.accessToken);
-      localStorage.setItem("refreshToken", response.tokens.refreshToken);
-      localStorage.setItem("userId", response.user.id);
-      localStorage.setItem("tokenTimestamp", currentTime.toString());
-      localStorage.setItem("isLogin", "true");
+    localStorage.setItem("accessToken", response.tokens.accessToken);
+    localStorage.setItem("refreshToken", response.tokens.refreshToken);
+    localStorage.setItem("userId", response.user.id);
+    localStorage.setItem("tokenTimestamp", currentTime.toString());
+    localStorage.setItem("isLogin", "true");
 
-      const accessToken = response.tokens.accessToken;
-      const userId = response.user.id;
-
-      const isAdmin = await checkAdmin(userId, accessToken);
-
-      if (isAdmin) {
-        router.push("/dashboard");
-      } else {
-        toast.error("Bạn không có quyền quản trị!");
-      }
-    } catch {
-      toast.error("Đăng nhập thất bại!");
-    } finally {
-      setLoading(false);
+    // ---- LƯU AVATAR Ở ĐÂY ----
+    if (response.user.avatar && response.user.avatar.trim() !== "") {
+      localStorage.setItem("avatarUrl", response.user.avatar);
+    } else {
+      localStorage.removeItem("avatarUrl");
     }
-  };
+    // ---- END LƯU AVATAR ----
+
+    const accessToken = response.tokens.accessToken;
+    const userId = response.user.id;
+
+    const isAdmin = await checkAdmin(userId, accessToken);
+
+    if (isAdmin) {
+      router.push("/dashboard");
+    } else {
+      toast.error("Bạn không có quyền quản trị!");
+    }
+  } catch {
+    toast.error("Đăng nhập thất bại!");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>

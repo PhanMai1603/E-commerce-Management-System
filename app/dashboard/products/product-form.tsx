@@ -191,83 +191,82 @@ export function ProductTable() {
       <h1 className="text-2xl font-bold mb-6">Danh sách sản phẩm</h1>
 
       <Card>
-        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-muted-foreground whitespace-nowrap">
-                Hiển thị:
-              </label>
-              <Select
-                value={size.toString()}
-                onValueChange={(val) => {
-                  setSize(Number(val));
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm">
-                  <SelectValue placeholder="Chọn số dòng mỗi trang" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[5, 10, 25, 50, 100].map((option) => (
-                    <SelectItem key={option} value={option.toString()}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <CardHeader className="p-4">
+          {/* Container chia 2 vùng - desktop ngang, mobile dọc */}
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between w-full">
+            {/* Trái: Hiển thị & Tìm kiếm */}
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2 w-full md:w-auto">
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <label className="text-sm text-muted-foreground whitespace-nowrap">Hiển thị:</label>
+                <Select
+                  value={size.toString()}
+                  onValueChange={(val) => {
+                    setSize(Number(val));
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger className="h-10 rounded-md px-3 py-2 text-sm w-full md:w-auto">
+                    <SelectValue placeholder="Chọn số dòng mỗi trang" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[5, 10, 25, 50, 100].map((option) => (
+                      <SelectItem key={option} value={option.toString()}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-full md:w-60">
+                <SearchBar setQuery={debouncedSetQuery} />
+              </div>
             </div>
-
-
-            <SearchBar setQuery={debouncedSetQuery} />
+            {/* Phải: Các nút - mobile xuống dưới, full width từng nút */}
+            <div className="flex flex-col gap-2 w-full md:w-auto md:flex-row md:items-center md:justify-end">
+              <SortSelected setSort={setSort} />
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    await syncQdrant(userId, accessToken);
+                    toast.success("Đồng bộ dữ liệu AI thành công!");
+                  } catch (err) {
+                    toast.error("Đồng bộ thất bại.");
+                    console.error(err);
+                  }
+                }}
+                className="text-sm w-full md:w-auto"
+              >
+                Cập nhật dữ liệu AI
+              </Button>
+              <div className="w-full md:w-auto">
+                <CategoryFilterSheet
+                  userId={userId}
+                  accessToken={accessToken}
+                  onFilter={(products) => {
+                    setProducts(products.items);
+                    setTotalPages(1);
+                    setPage(1);
+                  }}
+                />
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => router.push("/qr-import")}
+                className="flex items-center gap-2 w-full md:w-auto"
+              >
+                <ScanQrCode className="w-4 h-4" />
+                <span className="hidden md:inline">Quét QR</span>
+              </Button>
+              <Button
+                onClick={() => router.push("/dashboard/products/create")}
+                className="flex items-center gap-2 w-full md:w-auto"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="hidden md:inline">Thêm sản phẩm</span>
+              </Button>
+            </div>
           </div>
-
-          {/* ✅ Nhóm nút "Bộ lọc" + "Thêm sản phẩm" chung div */}
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              onClick={async () => {
-                try {
-                  await syncQdrant(userId, accessToken);
-                  toast.success("Đồng bộ dữ liệu AI thành công!");
-                } catch (err) {
-                  toast.error("Đồng bộ thất bại.");
-                  console.error(err);
-                }
-              }}
-              className="text-sm"
-            >
-              Cập nhật dữ liệu AI
-            </Button>
-            <SortSelected setSort={setSort} /> {/* Thêm dòng này */}
-            <CategoryFilterSheet
-              userId={userId}
-              accessToken={accessToken}
-              onFilter={(products) => {
-                setProducts(products.items);
-                setTotalPages(1);
-                setPage(1);
-              }}
-            />
-
-            <Button
-              variant="outline"
-              onClick={() => router.push("/qr-import")}
-              className="flex items-center gap-2"
-            >
-              <ScanQrCode className="w-4 h-4" />
-            </Button>
-
-            <Button
-              onClick={() => router.push("/dashboard/products/create")}
-              className="flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              Thêm sản phẩm
-            </Button>
-          </div>
-
-
         </CardHeader>
+
 
 
         <CardContent className="relative">
@@ -281,8 +280,9 @@ export function ProductTable() {
             {products.length === 0 ? (
               <p className="text-center text-gray-500">Không tìm thấy sản phẩm nào.</p>
             ) : (
-              <Table>
-                <TableHeader>
+              <Table className="product-table-mobile">
+                {/* Chỉ hiện header ở desktop */}
+                <TableHeader className="hidden md:table-header-group">
                   <TableRow>
                     <TableHead>QR</TableHead>
                     <TableHead>Hình ảnh</TableHead>
@@ -296,8 +296,13 @@ export function ProductTable() {
                 </TableHeader>
                 <TableBody>
                   {products.map((product) => (
-                    <TableRow key={product.id}>
-                      <TableCell>
+                    <TableRow
+                      key={product.id}
+                      className="md:table-row product-table-mobile-row"
+                    >
+                      {/* QR code */}
+                      <TableCell className="product-table-mobile-cell">
+                        <span className="product-table-mobile-label md:hidden">QR:</span>
                         {product.qrCode && (
                           <img
                             src={product.qrCode}
@@ -307,30 +312,46 @@ export function ProductTable() {
                         )}
                       </TableCell>
 
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          {product.mainImage && (
-                            <img
-                              src={product.mainImage}
-                              alt={product.name}
-                              className="w-14 h-14 rounded-xl border object-cover shadow-sm"
-                            />
-                          )}
+                      {/* Hình ảnh */}
+                      <TableCell className="product-table-mobile-cell">
+                        <span className="product-table-mobile-label md:hidden">Hình ảnh:</span>
+                        {product.mainImage && (
+                          <img
+                            src={product.mainImage}
+                            alt={product.name}
+                            className="w-14 h-14 rounded-xl border object-cover shadow-sm"
+                          />
+                        )}
+                      </TableCell>
+
+                      {/* Tên */}
+                      <TableCell className="product-table-mobile-cell">
+                        <span className="product-table-mobile-label md:hidden">Tên:</span>
+                        <span className="font-medium">{product.name}</span>
+                      </TableCell>
+
+                      {/* Giá */}
+                      <TableCell className="product-table-mobile-cell">
+                        <span className="product-table-mobile-label md:hidden">Giá:</span>
+                        <span className="text-gray-500 font-medium">{product.minPrice}đ</span>
+                      </TableCell>
+
+                      {/* Tồn kho (ẩn trên mobile) */}
+                      <TableCell className="product-table-mobile-cell hide-on-mobile md:table-cell">
+                        <span className="product-table-mobile-label md:hidden">Tồn kho:</span>
+                        <div>
+                          <div className="text-gray-700 font-medium">
+                            {product.quantity} sản phẩm còn lại
+                          </div>
+                          <div className="text-gray-500 text-sm">
+                            {product.sold} đã bán
+                          </div>
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium">{product.name}</TableCell>
-                      <TableCell className="text-gray-500 font-medium">
-                        {product.minPrice}đ
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-gray-700 font-medium">
-                          {product.quantity} sản phẩm còn lại
-                        </div>
-                        <div className="text-gray-500 text-sm">
-                          {product.sold} đã bán
-                        </div>
-                      </TableCell>
-                      <TableCell>
+
+                      {/* Đánh giá (ẩn trên mobile) */}
+                      <TableCell className="product-table-mobile-cell hide-on-mobile md:table-cell">
+                        <span className="product-table-mobile-label md:hidden">Đánh giá:</span>
                         <div className="flex items-center gap-2">
                           <div className="flex items-center bg-gray-100 rounded-md px-2 py-1">
                             <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
@@ -341,23 +362,28 @@ export function ProductTable() {
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell>
+
+                      {/* Trạng thái */}
+                      <TableCell className="product-table-mobile-cell">
+                        <span className="product-table-mobile-label md:hidden">Trạng thái:</span>
                         <span
                           className={`inline-block py-1 px-3 rounded-2xl text-sm font-semibold ${product.status === "PUBLISHED"
-                            ? "bg-[#00B8D929] text-[#006C9C]"
-                            : product.status === "DRAFT"
-                              ? "bg-[#919EAB29] text-[#637381]"
-                              : product.status === "DISCONTINUED"
-                                ? "bg-[#FF563029] text-[#B71D18]"
-                                : product.status === "OUT_OF_STOCK"
-                                  ? "bg-[#FFAB0029] text-[#B76E00]"
-                                  : "bg-gray-200 text-gray-600"
+                              ? "bg-[#00B8D929] text-[#006C9C]"
+                              : product.status === "DRAFT"
+                                ? "bg-[#919EAB29] text-[#637381]"
+                                : product.status === "DISCONTINUED"
+                                  ? "bg-[#FF563029] text-[#B71D18]"
+                                  : product.status === "OUT_OF_STOCK"
+                                    ? "bg-[#FFAB0029] text-[#B76E00]"
+                                    : "bg-gray-200 text-gray-600"
                             }`}
                         >
                           {getStatusLabel(product.status)}
                         </span>
                       </TableCell>
-                      <TableCell className="text-right">
+
+                      {/* Hành động */}
+                      <TableCell className="product-table-mobile-cell text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger>
                             <EllipsisVertical className="cursor-pointer" />
@@ -379,6 +405,7 @@ export function ProductTable() {
                   ))}
                 </TableBody>
               </Table>
+
             )}
 
             <ConfirmDialog

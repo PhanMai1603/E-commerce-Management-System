@@ -56,15 +56,16 @@ const sidebarGroups = [
 
 export default function Sidebar({ showSidebar }: SidebarProps) {
   return (
-    <div
-      className={clsx(
-        "fixed flex flex-col w-[260px] h-screen top-0 z-50 border-r bg-card shadow-md transition-all ",
-        {
-          "-left-[260px] lg:left-0": !showSidebar,
-          "left-0 shadow-black shadow-lg lg:shadow-none": showSidebar,
-        }
-      )}
-    >
+   <div
+  className={clsx(
+    "fixed flex flex-col w-[260px] h-screen top-0 z-50 border-r bg-card shadow-md transition-all overflow-y-auto", // ← THÊM: overflow-y-auto
+    {
+      "-left-[260px] lg:left-0": !showSidebar,
+      "left-0 shadow-black shadow-lg lg:shadow-none": showSidebar,
+    }
+  )}
+>
+    
       {/* Logo */}
       <div className="p-4 flex justify-center items-center">
         <Link href="/dashboard">
