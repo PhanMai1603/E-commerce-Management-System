@@ -48,6 +48,7 @@ export interface FetchProductsParams {
     maxPrice?: number,
     minRating?: number,
     sort?: string,
+    status?: string; 
 }
 
 

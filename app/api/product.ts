@@ -225,6 +225,8 @@ export const getShopProducts = async (
     if (filters.minRating) params.set('minRating', String(filters.minRating));
     if (filters.sort) params.set('sort', filters.sort);
 
+ if (filters.status) params.set('status', filters.status);
+ 
     const url = `${PRODUCT_URL}?${params.toString()}`;
     const response = await api.get(url, {
       headers: {

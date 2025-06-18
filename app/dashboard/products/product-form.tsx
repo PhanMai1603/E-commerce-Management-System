@@ -73,10 +73,20 @@ const getStatusLabel = (status: string): string => {
       return "Không xác định";
   }
 };
+type ProductFilters = {
+  status?: string;
+  search?: string;
+  categoryId?: string;
+  attributes?: any[];
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
+  sort?: string;
+};
 
 export function ProductTable() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [filters, setFilters] = useState({}); // 🟦 Thêm state filter
+  // const [filters, setFilters] = useState({}); // 🟦 Thêm state filter
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
@@ -87,7 +97,7 @@ export function ProductTable() {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [sort, setSort] = useState(""); // Thêm state sort
   const [filterVisible, setFilterVisible] = useState(false);
-
+  const [filters, setFilters] = useState<ProductFilters>({});
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") || "" : "";
   const accessToken =
@@ -104,27 +114,6 @@ export function ProductTable() {
     []
   );
 
-  // useEffect(() => {
-  //   const fetchProducts = async () => {
-  //     if (!userId || !accessToken) return;
-
-  //     setLoading(true);
-  //     try {
-  //       const response = query.trim()
-  //         ? await getTopSearchProduct(query, userId, accessToken, page, size)
-  //         : await getAllProduct(userId, accessToken, page, size);
-
-  //       setProducts(response.items);
-  //       setTotalPages(response.totalPages);
-  //     } catch (err) {
-  //       toast.error("Lấy danh sách sản phẩm thất bại");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchProducts();
-  // }, [query, page, size, userId, accessToken]);
   useEffect(() => {
     const fetchProducts = async () => {
       if (!userId || !accessToken) return;
@@ -194,6 +183,7 @@ export function ProductTable() {
         <CardHeader className="p-4">
           {/* Container chia 2 vùng - desktop ngang, mobile dọc */}
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between w-full">
+
             {/* Trái: Hiển thị & Tìm kiếm */}
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2 w-full md:w-auto">
               <div className="flex items-center gap-2 w-full md:w-auto">
@@ -219,8 +209,35 @@ export function ProductTable() {
                 <SearchBar setQuery={debouncedSetQuery} />
               </div>
             </div>
+
+            <div className="flex flex-col md:flex-row md:items-center gap-2 w-full md:w-auto">
+              {/* Hiển thị, SearchBar */}
+
+
+
+
+            </div>
             {/* Phải: Các nút - mobile xuống dưới, full width từng nút */}
             <div className="flex flex-col gap-2 w-full md:w-auto md:flex-row md:items-center md:justify-end">
+              {/* Thêm filter trạng thái ở đây */}
+              <Select
+                value={filters.status || "ALL"}
+                onValueChange={(val) => setFilters(prev => ({
+                  ...prev,
+                  status: val === "ALL" ? undefined : val,
+                }))}
+              >
+                <SelectTrigger className="w-[130px]">
+                  <SelectValue placeholder="Trạng thái" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">Tất cả</SelectItem>
+                  <SelectItem value="PUBLISHED">Đang bán</SelectItem>
+                  <SelectItem value="DRAFT">Nháp</SelectItem>
+                  <SelectItem value="DISCONTINUED">Ngừng bán</SelectItem>
+                  <SelectItem value="OUT_OF_STOCK">Hết hàng</SelectItem>
+                </SelectContent>
+              </Select>
               <SortSelected setSort={setSort} />
               <Button
                 variant="outline"
@@ -368,14 +385,14 @@ export function ProductTable() {
                         <span className="product-table-mobile-label md:hidden">Trạng thái:</span>
                         <span
                           className={`inline-block py-1 px-3 rounded-2xl text-sm font-semibold ${product.status === "PUBLISHED"
-                              ? "bg-[#00B8D929] text-[#006C9C]"
-                              : product.status === "DRAFT"
-                                ? "bg-[#919EAB29] text-[#637381]"
-                                : product.status === "DISCONTINUED"
-                                  ? "bg-[#FF563029] text-[#B71D18]"
-                                  : product.status === "OUT_OF_STOCK"
-                                    ? "bg-[#FFAB0029] text-[#B76E00]"
-                                    : "bg-gray-200 text-gray-600"
+                            ? "bg-[#00B8D929] text-[#006C9C]"
+                            : product.status === "DRAFT"
+                              ? "bg-[#919EAB29] text-[#637381]"
+                              : product.status === "DISCONTINUED"
+                                ? "bg-[#FF563029] text-[#B71D18]"
+                                : product.status === "OUT_OF_STOCK"
+                                  ? "bg-[#FFAB0029] text-[#B76E00]"
+                                  : "bg-gray-200 text-gray-600"
                             }`}
                         >
                           {getStatusLabel(product.status)}
