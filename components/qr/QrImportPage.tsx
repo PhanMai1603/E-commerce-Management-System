@@ -119,7 +119,7 @@ const fetchProductDetail = async (rawCode: string) => {
 
   // Nếu đang xử lý hoặc đã quét rồi
   if (pendingScans.current.has(code) || scannedCodes.current.has(code)) {
-    toast.info("⚠️ Mã này đã được xử lý hoặc đang quét.");
+    // toast.info("⚠️ Mã này đã được xử lý hoặc đang quét.");
     return;
   }
 
