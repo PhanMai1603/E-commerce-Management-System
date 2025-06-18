@@ -134,10 +134,26 @@ export default function BannerDetailPage() {
         </div>
         <div>
           <span className="text-gray-500">Thời gian áp dụng:</span>{" "}
-          <b>
-            {format(new Date(data.startDate), "dd/MM/yyyy", { locale: vi })} -{" "}
-            {format(new Date(data.endDate), "dd/MM/yyyy", { locale: vi })}
-          </b>
+          {data.startDate && data.endDate ? (
+            <div>
+              <span className="text-gray-500">Thời gian áp dụng:</span>{" "}
+              <b>
+                {format(new Date(data.startDate), "dd/MM/yyyy", { locale: vi })} -{" "}
+                {format(new Date(data.endDate), "dd/MM/yyyy", { locale: vi })}
+              </b>
+            </div>
+          ) : data.startDate ? (
+            <div>
+              <span className="text-gray-500">Bắt đầu từ:</span>{" "}
+              <b>{format(new Date(data.startDate), "dd/MM/yyyy", { locale: vi })}</b>
+            </div>
+          ) : data.endDate ? (
+            <div>
+              <span className="text-gray-500">Kết thúc đến:</span>{" "}
+              <b>{format(new Date(data.endDate), "dd/MM/yyyy", { locale: vi })}</b>
+            </div>
+          ) : null}
+
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

@@ -167,8 +167,8 @@ const AttributeForm: React.FC<AttributeFormProps> = ({ product, setUpdatedProduc
       const newVariants = newAttributes.map((newAttr) => {
         const matchingAttr = attributes.items.find(attr =>
           newAttr.id === attr.id &&
-          attr.isVariantAttribute &&
-          newAttr.values.length >= 2
+          attr.isVariantAttribute 
+          // newAttr.values.length >= 2
         );
 
         if (!matchingAttr) return null;

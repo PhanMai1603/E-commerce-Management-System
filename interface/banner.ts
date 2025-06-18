@@ -28,8 +28,8 @@ export interface BannerRequest {
   position: BannerPosition;
   category: string[];   // mảng ID danh mục
   isActive: boolean;
-  startDate: string;    // ISO date string
-  endDate: string;      // ISO date string
+  startDate?: string;    // ISO date string
+  endDate?: string;      // ISO date string
 }
 
 
