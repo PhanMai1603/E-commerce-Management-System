@@ -75,11 +75,6 @@ export default function Page() {
       return;
     }
 
-    if (product.attributes.length === 0) {
-      setErrorMessage("*Cần ít nhất một thuộc tính.");
-      return;
-    }
-
     if (product.description === '') {
       setErrorMessage("*Vui lòng nhập mô tả sản phẩm.");
       return;
