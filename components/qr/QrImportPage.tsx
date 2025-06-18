@@ -11,6 +11,8 @@ import { Product, ProductDetail, SkuList } from "@/interface/product";
 import { toast } from "react-toastify";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type VariantImport = {
   variantId: string;
@@ -47,7 +49,7 @@ export default function QrImportPage() {
   const cameraIdRef = useRef<string | null>(null);
   const lastErrorTime = useRef<number>(0);
   const scannedCodes = useRef<Set<string>>(new Set());
-
+  const router = useRouter();
   useEffect(() => {
     getAllProduct(userId, accessToken, 1, 100).then((res) => setAllProducts(res.items));
     // Lấy danh sách camera ngay khi load
@@ -177,6 +179,17 @@ export default function QrImportPage() {
 
   return (
     <div className="p-4 space-y-6 max-w-4xl mx-auto">
+      <div className="mb-2 flex">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.back()}
+          className="flex items-center gap-2"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Quay lại
+        </Button>
+      </div>
       <h2 className="text-2xl font-bold text-center">📦 Nhập kho bằng mã QR</h2>
 
       {/* QR Scanner Section */}
