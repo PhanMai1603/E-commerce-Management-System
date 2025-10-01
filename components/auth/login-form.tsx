@@ -13,10 +13,15 @@ import { useAuth } from "@/app/context/AppContext";
 import useDeviceInfo from "@/hooks/useDeviceInfo";
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"form">) {
+  // const [formData, setFormData] = useState({
+  //   email: "shareandcaret@gmail.com",
+  //   password: "ShareAndCare2024",
+  // });
   const [formData, setFormData] = useState({
-    email: "shareandcaret@gmail.com",
-    password: "ShareAndCare2024",
-  });
+  email: "",
+  password: "",
+});
+
   const [loading, setLoading] = useState(false);
   const [isClient, setIsClient] = useState(false);
 

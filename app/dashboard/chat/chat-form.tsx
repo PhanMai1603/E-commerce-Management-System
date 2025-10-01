@@ -349,7 +349,7 @@ const renderMessageContent = (content: string) => {
                     const isSelf = msg.userId?.id === userId;
                     const avatar = isValidUrl(msg.userId?.avatar || undefined)
                       ? msg.userId!.avatar
-                      : "/avatar.jpg";
+                      : "/avatar.png";
 
                     if (!msg.content && !msg.image) return null; // ✅ THÊM DÒNG NÀY
 

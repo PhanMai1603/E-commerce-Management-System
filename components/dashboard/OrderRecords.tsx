@@ -17,6 +17,7 @@ import {
 import { useTheme } from "next-themes";
 import React from "react";
 
+// Định nghĩa kiểu dữ liệu
 export interface OrderRecords {
   totalRevenue: number;
   totalOrders: number;
@@ -33,10 +34,7 @@ export interface OrderRecords {
   };
 }
 
-interface Props {
-  orderRecords: OrderRecords;
-}
-
+// Nhãn tiếng Việt
 const ORDER_STATUS_LABELS: Record<string, string> = {
   PENDING: "Chờ xác nhận",
   AWAITING_PAYMENT: "Chờ thanh toán",
@@ -49,27 +47,36 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
   RETURN: "↩Hoàn trả",
 };
 
-const COLORS = [
-  "#EF4444",
-  "#F59E0B",
-  "#10B981",
-  "#3B82F6",
-  "#8B5CF6",
-  "#EC4899",
-  "#22D3EE",
-  "#A855F7",
-  "#F97316",
-];
+// Gán màu logic từng trạng thái
+const ORDER_STATUS_COLORS: Record<
+  keyof OrderRecords["orderStatusCounts"],
+  string
+> = {
+  PENDING: "#a3a3a3",           // Xám - Chờ xác nhận
+  AWAITING_PAYMENT: "#fde047",  // Vàng - Chờ thanh toán
+  PROCESSING: "#3b82f6",        // Xanh dương - Đang xử lý
+  READY_TO_SHIP: "#38bdf8",     // Xanh cyan - Sẵn sàng giao
+  IN_TRANSIT: "#6366f1",        // Xanh tím - Đang vận chuyển
+  DELIVERED: "#22c55e",         // Xanh lá - Đã giao
+  CANCELLED: "#ef4444",         // Đỏ - Đã huỷ
+  DELIVERY_FAILED: "#f43f5e",   // Đỏ hồng - Thất bại
+  RETURN: "#f59e42",            // Cam - Hoàn trả
+};
+
+interface Props {
+  orderRecords: OrderRecords;
+}
 
 export default function DashboardOrderOverview({ orderRecords }: Props) {
   const { theme } = useTheme();
 
+  // Chuẩn hoá dữ liệu cho PieChart
   const statusData = Object.entries(orderRecords.orderStatusCounts)
     .filter(([, value]) => value > 0)
-    .map(([key, value], index) => ({
+    .map(([key, value]) => ({
       name: ORDER_STATUS_LABELS[key],
       value,
-      fill: COLORS[index % COLORS.length],
+      fill: ORDER_STATUS_COLORS[key as keyof typeof ORDER_STATUS_COLORS],
     }));
 
   return (
